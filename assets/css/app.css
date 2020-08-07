@@ -1,3 +1,15 @@
-body {
+header, footer {
     background-color: lightgray;
+}
+
+header p, footer p {
+    margin: 0;
+    padding: 2rem 0;
+    text-align: center;
+}
+
+#logo {
+    min-width: 150px;
+    max-width: 50%;
+    height: auto;
 }
