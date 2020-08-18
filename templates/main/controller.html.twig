@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer et comprendre un contrôleur avec Symfony 5{% endblock %}
+
+{% block main %}
+    <h1>Créer et comprendre un contrôleur avec Symfony 5</h1>
+
+    <h2>Créer un nouveau contrôleur avec le Maker Bundle</h2>
+    <p>Le <a href="https://packagist.org/packages/symfony/maker-bundle" target="_blank">Maker Bundle</a> permet de créer automatiquement de nombreuses classes utiles à la conception de nos applications.<br>Toutes ces classes peuvent être créées à la main, mais l'usage de la commande <b>Make</b> nous épargne un fastidieux travail de saisie et évite les erreurs dues aux fautes de frappe.<br>La commande <code><kbd>php bin/console list</kbd></code> permet entre autre de connaître toutes les classes que peut créer ce bundle :</p>
+
+    <pre><code>
+    make:auth                        Creates a Guard authenticator of different flavors
+    make:command                     Creates a new console command class
+    make:controller                  Creates a new controller class
+    make:crud                        Creates CRUD for Doctrine entity class
+    make:docker:database             Adds a database container to your docker-compose.yaml file.
+    make:entity                      Creates or updates a Doctrine entity class, and optionally an API Platform resource
+    make:fixtures                    Creates a new class to load Doctrine fixtures
+    make:form                        Creates a new form class
+    make:functional-test             Creates a new functional test class
+    make:message                     Creates a new message and handler
+    make:messenger-middleware        Creates a new messenger middleware
+    make:migration                   Creates a new migration based on database changes
+    make:registration-form           Creates a new registration form system
+    make:reset-password              Create controller, entity, and repositories for use with symfonycasts/reset-password-bundle
+    make:serializer:encoder          Creates a new serializer encoder class
+    make:serializer:normalizer       Creates a new serializer normalizer class
+    make:subscriber                  Creates a new event subscriber class
+    make:twig-extension              Creates a new Twig extension class
+    make:unit-test                   Creates a new unit test class
+    make:user                        Creates a new security user class
+    make:validator                   Creates a new validator and constraint class
+    make:voter                       Creates a new security voter class
+    </code></pre>
+
+    <p>Dans notre cas, la commande qui nous intéresse est <code><kbd>php bin/console make:controller</kbd></code> qui une fois lancée nous demande le nom de de notre contrôleur qu'on pourra nommer par exemple <b>TestController</b>.<br>Cela créer automatiquement notre nouveau contrôleur <b>TestController</b> dans le répertoire <b>src/Controller</b> et le <b>template Twig</b> lié dans <b>templates/index/index.html.twig</b>.</p>
+
+    <h2>Anatomie d'un contrôleur</h2>
+
+    <p>Un contrôleur vide se présente de la façon suivante :</p>
+
+    <pre><code>
+    namespace App\Controller;
+
+    use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+    use Symfony\Component\Routing\Annotation\Route;
+
+    class TestController extends AbstractController
+    {
+        /**
+         * @Route("/test", name="test")
+         */
+        public function index()
+        {
+            return $this->render('test/index.html.twig', [
+                'controller_name' => 'TestController',
+            ]);
+        }
+    }
+    </code></pre>
+
+    <p>La première partie du code avec les lignes qui débutent par <code>use</code> correspond aux dépendances dont le code à besoin pour fonctionner.<br>En l'occurence, la classe <b>AbstractController</b> dont hérite notre contrôleur <b>TestController</b> permet de faire appel à la méthode <code>render()</code> qui nous permet de charger le template <b>Twig</b> de la page.</p>
+
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i> Pour afficher le code d'une classe dans <b>PHP Storm</b>, il suffit de pointer le curseur de la souris dessus et de faire <kbd>CTRL</kbd> puis <kbd>clic gauche</kbd><br>&nbsp;<br><img src="{{ asset('images/get-class.png') }}" alt="Accéder au code d'une classe" class="img-fluid"></p>
+
+    <p>La seconde partie correspond à la <b>Classe</b> elle-même qui se compose d'une ou plusieurs méthodes dont le code est précédé par sa route écrit en annotation :</p>
+
+    <pre><code>
+    // Route
+    /**
+     * @Route("/test", name="test")
+     */
+    </code></pre>
+
+    <p><a href="https://symfony.com/doc/current/routing.html" target="_blank"><i class="fa fa-link"></i>Documentation sur le routage en anglais</a></p>
+
+    <pre><code>
+    // Méthode
+    public function index()
+    {
+        return $this->render('test/index.html.twig', [
+            'controller_name' => 'TestController',
+        ]);
+    }
+    </code></pre>
+
+    <p><a href="https://symfony.com/doc/current/controller.html" target="_blank"><i class="fa fa-link"></i>Documentation sur les contrôleurs en anglais</a></p>
+{% endblock %}

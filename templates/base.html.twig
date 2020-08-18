@@ -8,6 +8,7 @@
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+        {# https://fontawesome.bootstrapcheatsheets.com #}
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     {% endblock %}
 </head>
@@ -56,10 +57,10 @@
         <nav class="mt-5">
             <ul class="pagination justify-content-center">
                 {% if previous_route is not empty %}
-                    <li class="page-item"><a class="page-link" href="{{ previous_route }}">Précédent</a></li>
+                    <li class="page-item"><a class="page-link" href="{{ path(previous_route) }}">Précédent</a></li>
                 {% endif %}
                 {% if next_route is not empty %}
-                    <li class="page-item"><a class="page-link" href="{{ next_route }}">Suivant</a></li>
+                    <li class="page-item"><a class="page-link" href="{{ path(next_route) }}">Suivant</a></li>
                 {% endif %}
             </ul>
         </nav>

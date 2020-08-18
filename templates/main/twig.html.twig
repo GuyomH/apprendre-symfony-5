@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Utiliser TWIG avec Symfony 5{% endblock %}
+
+{% block main %}
+    <h1>Utiliser TWIG avec Symfony 5</h1>
+
+    <h2>TWIG kézako ?</h2>
+
+    <p><b>TWIG</b> est le moteur de template officiel de <b>Symfony</b>, il permet de gérer l'affichage <b><abbr title="HyperText Markup Language" lang="en">HTML</abbr></b> des pages de manière optimisé grâce à des <b>blocs de contenu réutilisables et modifiables</b> (principe de l'héritage et de la surcharge).<br><b>TWIG</b> est également capable d'exploiter des données sous fomre de tableau en provenance de <b>Symfony</b></p>
+
+    <p><a href="https://twig.symfony.com/" target="_blank"><i class="fa fa-link"></i>Documentation TWIG en anglais</a></p>
+
+    <h2>Les balises TWIG</h2>
+
+    <p>D'une certaine manière, le language <b>TWIG</b> permet de remplacer le  <b><abbr title="Hypertext Preprocessor" lang="en">PHP</abbr></b> quand il s'agit de traiter des données dynamiques au niveau du <b><abbr title="HyperText Markup Language" lang="en">HTML</abbr></b>.<br>Voici un exemple d'affichage de l'année courante avec et sans <b>TWIG</b> :</p>
+
+    <pre><code>
+    &#123;# avec TWIG #&#125;
+    &lt;p&gt;Copyright © &#123;&#123; "now"|date("Y") &#125;&#125; Guillaume HÉNAUD&lt;/p&gt;
+    </code></pre>
+
+    <pre><code>
+    // sans TWIG
+    &lt;p&gt;Copyright © &lt;?php echo date("Y"); ?&gt; Guillaume HÉNAUD&lt;/p&gt;
+    </code></pre>
+
+    <p>Les balises <b>TWIG</b> permettent de traiter des boucles de type <a href="https://twig.symfony.com/doc/3.x/tags/for.html" target="_blank">for</a> ou <a href="https://twig.symfony.com/doc/3.x/tags/if.html" target="_blank">if</a> et même de créer des <a href="https://twig.symfony.com/doc/3.x/tags/set.html" target="_blank">variables</a>.<br>Voici un exemple de boucle <b>for</b> avec une condition <b>if</b> afin de traiter un tableau <b>page_list</b> envoyé via <b>Symfony</b> :</p>
+
+    <pre><code>
+    // Tableau envoyé à TWIG sous l'intitulé "page_list"
+    $pageList = [
+        'index' => 'Accueil',
+        'controller' => 'Contrôleur',
+        'twig' => 'Twig',
+    ];
+    </code></pre>
+
+    <pre><code>
+    &#123;# Code TWIG #&#125;
+    &lt;div class=&quot;collapse navbar-collapse&quot; id=&quot;navbarSupportedContent&quot;&gt;
+        &lt;ul class=&quot;navbar-nav mr-auto&quot;&gt;
+            &#123;% for path, name in page_list %&#125;
+                &#123;% if path is same as(app.request.attributes.get('_route')) %&#125;
+                    &lt;li class=&quot;nav-item active&quot;&gt;
+                    &lt;a class=&quot;nav-link&quot; href=&quot;#&quot;&gt;&#123;&#123; name &#125;&#125;&lt;/a&gt;
+                    &lt;/li&gt;
+                &#123;% else %&#125;
+                    &lt;li class=&quot;nav-item&quot;&gt;
+                    &lt;a class=&quot;nav-link&quot; href=&quot;&#123;&#123; path(path) &#125;&#125;&quot;&gt;&#123;&#123; name &#125;&#125;&lt;/a&gt;
+                    &lt;/li&gt;
+                &#123;% endif %&#125;
+            &#123;% endfor %&#125;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+    </code></pre>
+
+    <p>C'est encore grâce aux balises que l'on peut créer des variables au sein de <b>TWIG</b> :</p>
+
+    <pre><code>
+    &#123;# Variable TWIG #&#125;
+    &#123;% set foo = 'Vive TWIG !' %&#125;
+    &#123;# Afficher la valeur 'Vive TWIG !' #&#125;
+    &#123;&#123; foo &#125;&#125;
+    </code></pre>
+
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i> Les <a href="https://twig.symfony.com/doc/3.x/tags/set.html" target="_blank">variables <b>TWIG</b></a> déclarées à l'intérieur d'un boucle ne sont pas accesibles depuis l'extérieur. Pour pouvoir y accéder, il faut initialiser la variable hors de la boucle, et assigner sa valeur à l'intérieur de celle-ci.</p>
+
+    <h2>Les filtres, les fonctions et les tests</h2>
+
+    <p>TWIG met à notre disposition une boîte à outils sous forme  de filtres, de fonctions et de tests.</p>
+
+    <h3>Les filtres</h3>
+
+    <p>Ils permettent de transformer, convertir ou formater une donnée :</p>
+
+    <pre><code>
+    &#123;# Filtre Upper #&#125;
+    &#123;&#123; 'twig c\'est super !'|upper &#125;&#125;
+    &#123;# Résultat : 'TWIG C'EST SUPER !' #&#125;
+    </code></pre>
+
+    <h3>Les fonctions</h3>
+
+    <p>À l'instar des autres languages, les fonctions <b>TWIG</b> retournent une valeur en fonction de paramètres qu'on lui fournit pour <a href="https://twig.symfony.com/doc/3.x/functions/max.html" target="_blank">certaines</a>, ou bien sans pour d'<a href="https://twig.symfony.com/doc/3.x/functions/parent.html" target="_blank">autres</a>.</p>
+
+    <pre><code>
+    &#123;# Fonction parent() qui permet de surcharger un bloc et de conserver l'affichage dont le bloc hérite #&#125;
+    &#123;% extends "base.html" %&#125;
+
+            &#123;% block content %&#125;
+                &#123;# Surcharge du bloc "content" #&#125;
+                &lt;h3&gt;Mon contenu supplémentaire&lt;/h3&gt;
+
+                &#123;# Affichage du contenu hérité #&#125;
+                &#123;&#123; parent() &#125;&#125;
+            &#123;% endblock %&#125;
+    </code></pre>
+
+    <pre><code>
+    &#123;# Fonction include() qui permet d'importer un template sans avoir besoin de surcharger les blocs qui le composent (voir embed) #&#125;
+    &#123;% include ('inc/templates/template-to-be-included.html.twig') %&#125;
+    </code></pre>
+
+    <h3>Les tests</h3>
+
+    <p>Ils retournent une valeur booléenne et sont souvent utilisés en conjonction avec une boucle if :</p>
+
+    <pre><code>
+    &#123;# Tester si une variable est vide, ou a pour valeur null ou false #&#125;
+    &#123;% if foo is empty %&#125;
+            &#123;# Action ou valeur à afficher si le test retourne true #&#125;
+    &#123;% endif %&#125;
+
+    &#123;# Tester le contraire #&#125;
+    &#123;% if foo is not empty %&#125;
+            &#123;# Action ou valeur à afficher si le test retourne true #&#125;
+    &#123;% endif %&#125;
+    </code></pre>
+
+    <h2>Étendre TWIG : créer un filtre, une fonction ou un test</h2>
+
+    <p><b>TWIG</b> nous donne la possibilité de créer nos propres filtres, fonctions et tests si ceux pré-existants ne répondent pas à nos besoin. Le principe de base consiste à adapter du code <abbr title="Hypertext Preprocessor" lang="en">PHP</abbr> coté <b>TWIG</b>.</p>
+
+    <p><a href="https://twig.symfony.com/doc/3.x/advanced.html" target="_blank"><i class="fa fa-link"></i>Étendre TWIG, mode d'emploi en anglais</a></p>
+{% endblock %}

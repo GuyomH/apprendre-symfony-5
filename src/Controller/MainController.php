@@ -9,7 +9,8 @@ class MainController extends AbstractController
 {
     private $pageList = [
         'index' => 'Accueil',
-        'controller' => 'Contrôleur'
+        'controller' => 'Contrôleur',
+        'twig' => 'Twig',
     ];
 
     /**
@@ -29,6 +30,22 @@ class MainController extends AbstractController
      */
     public function controller()
     {
-        return null; // TODO
+        return $this->render('main/controller.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => 'twig',
+            'previous_route' => 'index',
+        ]);
+    }
+
+    /**
+     * @Route("/twig", name="twig")
+     */
+    public function twig()
+    {
+        return $this->render('main/twig.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => '',
+            'previous_route' => 'controller',
+        ]);
     }
 }
