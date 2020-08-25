@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\FilmRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -11,6 +12,7 @@ class MainController extends AbstractController
         'index' => 'Accueil',
         'controller' => 'Contrôleur',
         'twig' => 'Twig',
+        'db' => 'Base de données',
     ];
 
     /**
@@ -44,8 +46,25 @@ class MainController extends AbstractController
     {
         return $this->render('main/twig.html.twig', [
             'page_list' => $this->pageList,
-            'next_route' => '',
+            'next_route' => 'db',
             'previous_route' => 'controller',
+        ]);
+    }
+
+    /**
+     * @Route("/db", name="db")
+     */
+    public function db(FilmRepository $filmRepository)
+    {
+        $films = $filmRepository->findAll();
+
+        //dd($films);
+
+        return $this->render('main/db.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => '',
+            'previous_route' => 'twig',
+            'films' => $films,
         ]);
     }
 }

@@ -34,7 +34,7 @@
     <p>Une fois dans le répertoire choisi, saisir la commande suivante afin de créer un nouveau projet web : <code>E:\dev> <kbd>symfony new nom_du_projet --full</kbd></code></p>
 
     <h2>Initialiser GIT</h2>
-    <p>Penser à se mettre dans le répertoire du projet : <code>E:\dev> <kbd>CD nom_du_projet</kbd></code> et saisir la commande <code>E:\dev\nom_du_projet> <kbd>git init</kbd></code></p>
+    <p>Penser à se mettre dans le répertoire du projet : <code>E:\dev> <kbd>CD nom_du_projet</kbd></code> et saisir la commande <code>E:\dev\nom_du_projet> <kbd>git log</kbd></code> afin de vérifier que <b>Git</b> s'est bien initialisé et que le premier "commit" a bien été enregistré automatiquement.</p>
 
     <h2>Démarrer le serveur web</h2>
     <p>Pour lancer le serveur web, il suffit d'entrer la commande : <code>E:\dev\nom_du_projet> <kbd>symfony serve -d</kbd></code><br>puis de cliquer sur le lien généré <a href="https://127.0.0.1:8000/" target="_blank">https://127.0.0.1:8000/</a></p>
@@ -59,8 +59,9 @@
     &#123;&#37; endblock &#37;&#125;
     </code></pre>
 
-    <p>Pour ajouter la librairie jQuery il suffit de lancer la commande : <code>E:\dev\nom_du_projet> <kbd>yarn add jquery</kbd></code> et de dé-commenter la ligne <code><kbd>import $ from 'jquery';</kbd></code> du fichier <b>app.js</b></p>
-    <p>L'ajout de bootstrap suis la même logique avec la commande : <code>E:\dev\nom_du_projet> <kbd>yarn add bootstrap</kbd></code> et l'ajout à la première ligne du code <code><kbd>@import "~bootstrap";</kbd></code> dans le fichier <b>app.css</b></p>
+    <p>Pour ajouter la librairie <b>jQuery</b> il suffit de lancer la commande : <code>E:\dev\nom_du_projet> <kbd>yarn add jquery</kbd></code> et de dé-commenter la ligne <code><kbd>import $ from 'jquery';</kbd></code> du fichier <b>app.js</b></p>
+    <p>L'ajout de <b>Bootstrap</b> suis la même logique avec la commande : <code>E:\dev\nom_du_projet> <kbd>yarn add bootstrap</kbd></code> et l'ajout à la première ligne du code <code><kbd>@import "~bootstrap";</kbd></code> dans le fichier <b>app.css</b></p>
+    <p>Dans le cadre de ce projet, <b>jQuery</b> et <b>Bootstrap</b> ont été ajoutés de manière "traditionnelle" via le <a href="https://getbootstrap.com/docs/4.5/getting-started/introduction/" target="_blank"><abbr title="Content Delivery Netrwork">CDN</abbr> officiel</a>.</p>
 
     <h2>Sauvegarder son travail</h2>
     <p>Grâce à Git il est possible de sauvegarder son travail de manière incrémentale. A chaque fois que l'on termine une modification à notre code, il faut l'enregistrer dans git de la façon suivante :</p>
