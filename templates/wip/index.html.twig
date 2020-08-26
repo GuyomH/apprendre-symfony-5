@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% set route = app.request.attributes.get('_route') %}
+
+{% block title %}Page en construction : {{ page_list[route] }}{% endblock %}
+
+{% block main %}
+    <h1>Symfony 5 : {{ page_list[route] }}</h1>
+    <h2>Page en construction, revenez plus tard !</h2>
+    <div class="text-center my-5"><img src="{{ asset('images/wip.jpg') }}" alt="Work In Progress" class="img-fluid"></div>
+{% endblock %}

@@ -38,6 +38,7 @@
     <ul>
         <li>Plusieurs films peuvent être réalisés par un seul réalisateur</li>
         <li>Un réalisateur peut réaliser plusieurs films</li>
+        <li>Plusieurs films peuvent recevoir la participation de plusieurs acteurs</li>
         <li>Plusieurs acteurs peuvent participer à plusieurs films</li>
     </ul>
 
@@ -111,7 +112,7 @@
         <li><b>Film → Realisateur = ManyToOne</b> (Plusieurs films peuvent avoir le même réalisateur)</li>
         <li><b>Realisateur → Film = OneToMany</b> (Un réalisateur peut réaliser plusieurs films)</li>
         <li><b>Film → Acteur = ManyToMany</b> (Plusieurs films peuvent avoir les mêmes acteurs)</li>
-        <li><b>Acteur → Film = ManyToMany</b> (Plusieurs acteurs peuvent jouer dans plusieurs films)</li>
+        <li><b>Acteur → Film = ManyToMany</b> (Plusieurs acteurs peuvent jouer dans plusieurs mêmes films)</li>
     </ul>
 
     <p>Toujours grâce à la commande <kbd>php bin/console make:entity &lt;Nom_de_l_entité&gt;</kbd>, on peut ajouter nos relations.<br>Voici les étapes à suivre pour lier les entités <b>Film</b> et <b>Realisateur</b> :</p>
@@ -300,7 +301,7 @@
 
     <p>Cette méthode d'importation s'appelle <b>l'injection de dépendances</b>, elle consiste à utiliser le <b>type hinting</b> ou <b>déclaration de type</b> pour importer l'instance de la classe que nous souhaitons utiliser (<b>FilmRepository</b>) représentée par une variable (<b>$filmRepository</b>) qui va nous permettre de la manipuler au sein de notre fonction.</p>
 
-    <p class="alert alert-danger"><b>ATTENTION :</b> Dans tout autre contexte que l'injection de dépendance, le <a href="https://www.php.net/manual/fr/functions.arguments.php#functions.arguments.type-declaration" target="_blank">type hinting</a> sert à vérifier que le paramètre ou la valeur retournée par une fonction correspond bien au type déclaré.</p>
+    <p class="alert alert-danger"><b>ATTENTION :</b> Hors contexte de l'injection de dépendance, le <a href="https://www.php.net/manual/fr/functions.arguments.php#functions.arguments.type-declaration" target="_blank">type hinting</a> sert uniquement à vérifier que le paramètre ou la valeur retournée par une fonction correspond bien au type déclaré.</p>
 
     <p>Une fois notre <b>FilmRepository</b> injecté, il ne reste plus qu'à l'utiliser.<br>Les classes de type <b>repository</b> permettent d'écrire nos propres requêtes en <b><abbr title="Doctrine Query Language">DQL</abbr></b>, mais propose également des méthodes toutes prêtes, dont <b>findAll()</b> qui permet de récuperer tous les films :</p>
 
@@ -321,7 +322,8 @@
 
     <p>On dispose désormais de la liste de tous les films, mais on voudrait aussi récuperer le nom des réalisateur et des acteurs qui sont rattachés à chaque titre.<br>Va-t-on être obligé de de faire l'équivalent d'une jointure afin d'avoir l'ensemble des données ?<br>Éh bien, la réponse est non car <b>Symfony</b> à déjà fait tout le travail en amont !</p>
 
-    <p><b>Symfony</b> a la faculté de savoir que l'entité <b>Film</b> est lié aux entités <b>Realisateur</b> et <b>Acteur</b> et récupère automatiquement les données liées.<br>Pour s'en rendre compte, il suffit d'appliquer la ligne de code <code>dd($films);</code> (raccourci pour <code>dump($films); die;</code>) juste après la ligne <code>$films = $filmRepository->findAll();</code></p>
+    <p><b>Symfony</b> sait que l'entité <b>Film</b> est liée aux entités <b>Realisateur</b> et <b>Acteur</b> par le biais de ses 2 propriétés <b>realisateur</b> et <b>acteurs</b>.<br>Plus précisément, la propriété <b>realisateur</b> représente une instance de <b>Realisateur</b>, et la propriété <b>acteurs</b> est un tableau composé d'instances de l'objet <b>Acteur</b>.</p>
+    <p>C'est cette logique qui permet la récupération automatique du nom du réalisateur et des acteurs pour chaque film.<br>Pour s'en rendre compte, il suffit d'appliquer la ligne de code <code>dd($films);</code> (raccourci pour <code>dump($films); die;</code>) juste après la ligne <code>$films = $filmRepository->findAll();</code></p>
 
     <pre><code>
      /**
@@ -331,6 +333,8 @@
     {
         $films = $filmRepository->findAll(); <b>// On récupère la liste de tous les films grâce à la méthode findAll()</b>
         dd($films);
+
+        // ...
     }
     </code></pre>
 
@@ -352,7 +356,7 @@
     ]
     </code></pre>
 
-    <p>On constate lorsqu'on déploie l'arborescence du premier resultat que celui-ci contient bien le titre du premier film (Expendables 2), ainsi que l'accès au réalisateur et aux acteurs. Il ne reste plus qu'à exploiter le résultat avec <b>TWIG</b> :</p>
+    <p>On constate que l'on est en présence d'un tableau d'objets, et lorsqu'on déploie l'arborescence du premier, on peut voir qu'on a bien accès aux propriétés <b>titre</b>, <b>realisateur</b> et <b>acteurs</b> dont il ne reste plus qu'à afficher les valeurs avec <b>TWIG</b> :</p>
 
     <pre><code>
     &lt;table class=&quot;table table-striped&quot;&gt;
@@ -379,7 +383,7 @@
     &lt;/table&gt;
     </code></pre>
 
-    <p>On utilise une boucle <code>&#123;% for film in films %&#125;</code> afin d'itérer l'ensemble des élèments.<br>L'accès au nom du réalisateur étant stocké dans le sous-tableau <b>realisateur</b>, on y accède via le code <code>&#123;&#123; film.realisateur.nom &#125;&#125;</code>.<br>Le nombre d'acteurs par film pouvant être supérieur à 1, il est nécessaire d'itérer la sous-boucle <code>&#123;% for acteur in film.acteurs %&#125;</code> afin de récupérer le nom de chaque acteur via <code>&#123;&#123; acteur.nom &#125;&#125;</code>.</p>
+    <p>On utilise une boucle <code>&#123;% for film in films %&#125;</code> afin d'itérer le tableau <b>films</b>.<br>L'accès au nom  du réalisateur s'opère via <code>&#123;&#123; film.realisateur.nom &#125;&#125;</code>.<br>La propriété <b>acteurs</b> étant un tableau, il faut l'itérer <code>&#123;% for acteur in film.acteurs %&#125;</code>, puis accéder au <b>nom</b> pour chaque acteur via <code>&#123;&#123; acteur.nom &#125;&#125;</code>.</p>
 
     <p>Voici le résultat final :</p>
 

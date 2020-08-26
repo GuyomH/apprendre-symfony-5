@@ -13,6 +13,10 @@ class MainController extends AbstractController
         'controller' => 'Contrôleur',
         'twig' => 'Twig',
         'db' => 'Base de données',
+        'form' => 'Formulaire',
+        'service' => 'Service',
+        'auth' => 'Authentification',
+        'references' => 'Références',
     ];
 
     /**
@@ -62,9 +66,57 @@ class MainController extends AbstractController
 
         return $this->render('main/db.html.twig', [
             'page_list' => $this->pageList,
-            'next_route' => '',
+            'next_route' => 'form',
             'previous_route' => 'twig',
             'films' => $films,
+        ]);
+    }
+
+    /**
+     * @Route("/form", name="form") // à diviser en plusieurs pages pour exploiter le mappage du slug
+     */
+    public function form()
+    {
+        return $this->render('wip/index.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => 'service',
+            'previous_route' => 'db',
+        ]);
+    }
+
+    /**
+     * @Route("/service", name="service")
+     */
+    public function service()
+    {
+        return $this->render('wip/index.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => 'auth',
+            'previous_route' => 'form',
+        ]);
+    }
+
+    /**
+     * @Route("/auth", name="auth")
+     */
+    public function auth()
+    {
+        return $this->render('wip/index.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => 'references',
+            'previous_route' => 'service',
+        ]);
+    }
+
+    /**
+     * @Route("/references", name="references")
+     */
+    public function references()
+    {
+        return $this->render('wip/index.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => '',
+            'previous_route' => 'auth',
         ]);
     }
 }
