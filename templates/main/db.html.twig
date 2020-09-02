@@ -25,7 +25,7 @@
     CREATE DATABASE learning_symfony CHARACTER SET UTF8mb4 COLLATE utf8mb4_general_ci;
     </code></pre>
 
-    <p>Il existe également une méthode plus simple pour créer notre base de données qui consiste à utiliser la commande <kbd>php bin/console doctrine:database:create</kbd></p>
+    <p>Il existe également une méthode plus simple pour créer notre base de données qui consiste à utiliser la commande <kbd>symfony console doctrine:database:create</kbd></p>
 
     <h2>Ajouter des entités à la base de données</h2>
 
@@ -45,10 +45,10 @@
     <p>Cela nous donne le modèle conceptuel suivant :</p>
     <div class="text-center my-5"><img src="{{ asset('images/mcd.svg') }}" alt="Modèle Conceptuel de Données" class="img-fluid"></div>
 
-    <p>Il nous faut créer 3 entités nommées Film, Acteur et Realisateur.<br>Grâce au <b>maker bundle</b> nouds pouvons réaliser cela grâce à la commande <kbd>php bin/console make:entity</kbd> dont voici l'ensemble des étapes pour l'entité <b>Film</b> :</p>
+    <p>Il nous faut créer 3 entités nommées Film, Acteur et Realisateur.<br>Grâce au <b>maker bundle</b> nouds pouvons réaliser cela grâce à la commande <kbd>symfony console make:entity</kbd> dont voici l'ensemble des étapes pour l'entité <b>Film</b> :</p>
 
     <pre><code>
-    php bin/console make:entity
+    symfony console make:entity
 
     Class name of the entity to create or update (e.g. VictoriousPizza):
     > Film
@@ -78,7 +78,7 @@
 
     Success!
 
-    Next: When you're ready, create a migration with php bin/console make:migration
+    Next: When you're ready, create a migration with symfony console make:migration
     </code></pre>
 
     <p class="alert alert-primary"><i class="fa fa-paperclip"></i> Il est possible d'associer une base de données qui contient déjà des tables (peuplées ou non) et de demander à symfony de <a href="https://symfony.com/doc/current/doctrine/reverse_engineering.html" target="_blank">convertir</a> le tout en entités expoitables par l'<abbr title="Object Relational Mapping">ORM</abbr>.</p>
@@ -115,10 +115,10 @@
         <li><b>Acteur → Film = ManyToMany</b> (Plusieurs acteurs peuvent jouer dans plusieurs mêmes films)</li>
     </ul>
 
-    <p>Toujours grâce à la commande <kbd>php bin/console make:entity &lt;Nom_de_l_entité&gt;</kbd>, on peut ajouter nos relations.<br>Voici les étapes à suivre pour lier les entités <b>Film</b> et <b>Realisateur</b> :</p>
+    <p>Toujours grâce à la commande <kbd>symfony console make:entity &lt;Nom_de_l_entité&gt;</kbd>, on peut ajouter nos relations.<br>Voici les étapes à suivre pour lier les entités <b>Film</b> et <b>Realisateur</b> :</p>
 
     <pre><code>
-    php bin/console make:entity Film
+    symfony console make:entity Film
 
     Your entity already exists! So let's add some new fields!
 
@@ -151,7 +151,7 @@
 
     Success!
 
-    Next: When you're ready, create a migration with php bin/console make:migration
+    Next: When you're ready, create a migration with symfony console make:migration
     </code></pre>
 
     <p>On note que pour mettre en place notre relation, on crée une propriété <b>realisateur</b> qui sert de lien avec l'entité <b>Film</b> afin de pouvoir récupérer ou créer un nom à partir de celle-ci.</p>
@@ -225,8 +225,8 @@
 
     <p>La mise en place de nos entités et nos relations terminée, il ne reste plus qu'à effectuer la migration qui s'opère en 2 temps :</p>
     <ul>
-        <li>Une première fois au niveau de <b>Symfony</b> : <kbd>php bin/console make:migration</kbd></li>
-        <li>Une seconde fois au niveau de <b>Doctrine</b> : <kbd>php bin/console doctrine:migrations:make</kbd> ou <kbd>php bin/console d:m:m</kbd> en abrégé.</li>
+        <li>Une première fois au niveau de <b>Symfony</b> : <kbd>symfony console make:migration</kbd></li>
+        <li>Une seconde fois au niveau de <b>Doctrine</b> : <kbd>symfony console doctrine:migrations:make</kbd> ou <kbd>symfony console d:m:m</kbd> en abrégé.</li>
     </ul>
 
     <p>Si tout se passe bien, les tables suivantes sont créées au niveau de la base de données :</p>
@@ -293,7 +293,7 @@
      /**
      * @Route("/db", name="db")
      */
-            public function db(<b>FilmRepository $filmRepository</b>)
+    public function db(<b>FilmRepository $filmRepository</b>)
     {
         // ...
     }
@@ -302,6 +302,19 @@
     <p>Cette méthode d'importation s'appelle <b>l'injection de dépendances</b>, elle consiste à utiliser le <b>type hinting</b> ou <b>déclaration de type</b> pour importer l'instance de la classe que nous souhaitons utiliser (<b>FilmRepository</b>) représentée par une variable (<b>$filmRepository</b>) qui va nous permettre de la manipuler au sein de notre fonction.</p>
 
     <p class="alert alert-danger"><b>ATTENTION :</b> Hors contexte de l'injection de dépendance, le <a href="https://www.php.net/manual/fr/functions.arguments.php#functions.arguments.type-declaration" target="_blank">type hinting</a> sert uniquement à vérifier que le paramètre ou la valeur retournée par une fonction correspond bien au type déclaré.</p>
+
+    <p>Alternativement, on peut accéder au <b>FilmRepository</b> via l'objet <b>EntityManagerInterface</b> de la façon suivante :</p>
+
+    <pre><code>
+     /**
+     * @Route("/db", name="db")
+     */
+    public function db(<b>EntityManagerInterface $EntityManager</b>)
+    {
+        $filmRepository = $entityManager->getRepository(Film::class);
+        // ...
+    }
+    </code></pre>
 
     <p>Une fois notre <b>FilmRepository</b> injecté, il ne reste plus qu'à l'utiliser.<br>Les classes de type <b>repository</b> permettent d'écrire nos propres requêtes en <b><abbr title="Doctrine Query Language">DQL</abbr></b>, mais propose également des méthodes toutes prêtes, dont <b>findAll()</b> qui permet de récuperer tous les films :</p>
 

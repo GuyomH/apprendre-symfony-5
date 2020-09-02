@@ -7,6 +7,7 @@
 
     <h2>Installer quelques outils</h2>
     <p>Afin de développer un projet symfony 5, il convient d'installer tout d'abord les outils et logiciels suivants :</p>
+
     <ul>
         <li>Un <abbr title="Intergated Development Environment" lang="en">IDE</abbr> : <a href="https://www.jetbrains.com/fr-fr/phpstorm/download" target="_blank">PHP Storm</a> (payant) ou, <a href="https://code.visualstudio.com/download" target="_blank">Visual Studio Code</a> (gratuit), ou celui que vous préférez.</li>
         <li><a href="https://www.apachefriends.org/download.html" target="_blank"><abbr title="Hypertext Preprocessor" lang="en">PHP</abbr> & MariaDB</a></li>
@@ -20,6 +21,8 @@
 
     <h2>Vérifier la compatibilité du système</h2>
     <p>Ouvrir la ligne de commande et saisir le code suivant :  <kbd>symfony check:requirements</kbd></p>
+
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i> Avant <b>Symfony 5</b> il fallait saisir <kbd>php bin/console &lt;commande_à_exécuter&gt;</kbd> au lieu de <kbd>symfony console &lt;commande_à_exécuter&gt;</kbd> pour accéder aux principales commandes du système.<br>Bien que la première méthode fonctionne toujours, il est conseillé d'utiliser la seconde qui à l'avantage d'être universelle.<br>&nbsp;<br>Il existe en fait 2 listes de commandes distinctes dont on peut avoir un aperçu via <kbd>symfony console list</kbd> et <kbd>symfony list</kbd> (où l'on retrouve notre commande <code>check:requirements</code>).</p>
 
     <h2>Créer un nouveau projet</h2>
     <p>Afin de créer un nouveau projet, ouvrir la ligne de commande et s'assurer d'être dans le bon répertoire.</p>
@@ -38,6 +41,8 @@
 
     <h2>Démarrer le serveur web</h2>
     <p>Pour lancer le serveur web, il suffit d'entrer la commande : <code>E:\dev\nom_du_projet> <kbd>symfony serve -d</kbd></code><br>puis de cliquer sur le lien généré <a href="https://127.0.0.1:8000/" target="_blank">https://127.0.0.1:8000/</a></p>
+
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i> Pour arrêter le serveur, il suffit d'utiliser la commande <kbd>symfony server:stop</kbd></p>
 
     <h2>Installer Webpack</h2>
     <p><a href="https://flex.symfony.com/" target="_blank">Symfony Flex</a> nous apprend qu'il existe un package spécial de Webpack pour Symfony <a href="https://packagist.org/packages/symfony/webpack-encore-bundle" target="_blank">symfony/webpack-encore-bundle</a></p>
