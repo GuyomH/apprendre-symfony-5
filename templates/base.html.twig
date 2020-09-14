@@ -26,9 +26,6 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav mr-auto">
                         {% for path, name in page_list %}
-                            {% if path(path) is null %}
-                                {% set path = 'wip' %}
-                            {% endif %}
                             {# https://symfony.com/doc/current/cmf/bundles/core/templating.html #}
                             {# https://symfony.com/doc/3.4/templating/app_variable.html #}
                             {% if path is same as(app.request.attributes.get('_route')) %}

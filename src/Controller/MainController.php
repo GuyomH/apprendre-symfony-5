@@ -2,8 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Realisateur;
+use App\Form\SearchMoviesByDirectorType;
 use App\Repository\FilmRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends AbstractController
@@ -62,8 +67,6 @@ class MainController extends AbstractController
     {
         $films = $filmRepository->findAll();
 
-        //dd($films);
-
         return $this->render('main/db.html.twig', [
             'page_list' => $this->pageList,
             'next_route' => 'form',
@@ -72,15 +75,31 @@ class MainController extends AbstractController
         ]);
     }
 
+    // Form 1 : Rechercher les films par réalisateur
     /**
-     * @Route("/form", name="form") // à diviser en plusieurs pages pour exploiter le mappage du slug
+     * @Route("/form", name="form")
      */
-    public function form()
+    public function form(Request $request, FilmRepository $filmRepository)
     {
-        return $this->render('wip/index.html.twig', [
+        $films = []; // Initialisation du tableau contenant la liste des films
+        $form = $this->createForm(SearchMoviesByDirectorType::class); // Création du formulaire avec notre classe de formulaire
+        $form->handleRequest($request); // Obligatoire : gestion de la requête
+
+        if($form->isSubmitted() && $form->isValid())
+        {
+            //dd($form);
+            $criteria = $form->getData(); // Critères de recherche en provenance du formulaire
+            //dd($criteria);
+            $films = $filmRepository->findBy($criteria); // résultat
+            //dd($films);
+        }
+
+        return $this->render('main/form.html.twig', [
             'page_list' => $this->pageList,
             'next_route' => 'service',
             'previous_route' => 'db',
+            'form' => $form->createView(), // Envoi du formulaire à la vue
+            'films' => $films, // Envoi du résultat du formulaire à la vue
         ]);
     }
 

@@ -1,0 +1,244 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Symfony 5 et les formulaires{% endblock %}
+
+{% block main %}
+    <h1>Symfony 5 et les formulaires</h1>
+
+    <p>Le but de cette section est d'illustrer, au travers de formulaires types, le différents aspects d'un <b><abbr title="Create Read Update Delete">CRUD</abbr></b> (Create, Read, Update, Delete) qui représente toutes les intéractions possibles avec une base de données (<b>Créer, Lire, Mettre à jour et Supprimer des données</b>).</p>
+
+    <h2>Chercher des données via un formulaire</h2>
+
+    <p>Pour illustrer la lecture de données, nous allons créer un formulaire qui permet de <b>lister tous les films tournés par un réalisateur</b> et dont voici le résultat final :</p>
+
+    {# Affichage brut formulaire #}
+    {#{ form(form) }}#}
+
+    <div class="my-5">
+    {# Affichage champ par champ du formulaire #}
+    {{ form_start(form) }}
+        <div class="row no-gutters">
+            <div class="col-xs-6 mr-2 pb-2">{{ form_widget(form.realisateur) }}</div>
+            <div class="col-xs-6">{{ form_widget(form.chercher) }}</div>
+        </div>
+    {{ form_end(form) }}
+
+    {# Résultat du formulaire #}
+    {% if films is not empty %}
+        <table class="table table-bordered mt-4">
+            <caption>Liste des films par {{ films.0.realisateur.nom }}</caption>
+            <thead>
+            <tr>
+                <th scope="col">Titre</th>
+                <th scope="col">Acteurs</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for film in films %}
+                <tr>
+                    <td>{{ film.titre }}</td>
+                    <td>
+                        {% for acteur in film.acteurs %}
+                            {{ acteur.nom }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    </div>
+
+    <h2>Créer la classe de formulaire</h2>
+
+    <p>Pour créer le formulaire ci-dessus, il faut tout d'abord saisir la commande <kbd>symfony console make:form</kbd> qui va créer une nouvelle classe de formulaire :</p>
+
+    <pre><code>
+    The name of the form class (e.g. FiercePuppyType):
+    > SearchMoviesByDirector
+
+    The name of Entity or fully qualified model class name that the new form will be bound to (empty for none):
+    >
+
+    created: src/Form/SearchMoviesByDirectorType.php
+
+    Success!
+
+    Next: Add fields to your form and start using it.
+    Find the documentation at <b><a href="https://symfony.com/doc/current/forms.html" target="_blank">https://symfony.com/doc/current/forms.html</a> // Documentation officielle pour créer un formulaire</b>
+    </code></pre>
+
+    <p>La commande ne nous demande que 2 informations, le nom du formulaire (<b>SearchMoviesByDirector</b>) et l'entité à laquelle il est lié (aucune dans notre cas).</p>
+    <p>Une fois cette opération terminée, un sous dossier de <b>src</b> nommé <b>Form</b> contenant le formulaire <b>SearchMovieByDirectorType.php</b> est crée.<br>À partir de là, il faut éditer la classe <b>SearchMoviesByDirectorType</b> pour y ajouter les champs nécessaires :</p>
+
+    <pre><code>
+     namespace App\Form;
+
+    use App\Entity\Realisateur;
+    use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+    use Symfony\Component\Form\AbstractType;
+    use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+    use Symfony\Component\Form\FormBuilderInterface;
+
+    class SearchMoviesByDirectorType extends AbstractType
+    {
+        public function buildForm(FormBuilderInterface $builder, array $options)
+        {
+            $builder
+                ->add('realisateur', EntityType::class, [
+                    'class' => Realisateur::class,
+                    'choice_label' => 'nom',
+                    'placeholder' => 'Choisir un réalisateur', <b>// Valeur par défaut du champ</b>
+                    'label' => false <b>// On ne souhaite pas afficher le nom du champ car la valeur du placeholder est assez explicite</b>
+                ])
+                ->add('chercher', SubmitType::class, [
+                    'label' => 'Chercher les films' <b>// Valeur affichée sur le bouton</b>
+                ])
+            ;
+        }
+    }
+    </code></pre>
+
+    <p>On a seulement besoin de 2 champs pour créer notre formulaire.</p>
+
+    <p><a href="https://symfony.com/doc/current/reference/forms/types.html" target="_blank"><i class="fa fa-link"></i>Référentiel de tous les types de champs de formulaire</a></p>
+
+    <p>Il y a tout d'abord le menu déroulant avec la <b>liste des réalisateurs</b> qui est une instance de la classe <b><a href="https://symfony.com/doc/current/reference/forms/types/entity.html" target="_blank">EntityType</a></b> qui permet de charger notre entité (<b>Realisateur</b>) avec le paramètre <b>class</b> et, de choisir les propriété que l'on veut afficher (<b>nom</b>) avec le paramètre <b>choice_label</b>.</p>
+
+    <p>Le second champ est le bouton de soumission du formulaire (classe <b><a href="https://symfony.com/doc/current/reference/forms/types/submit.html" target="_blank">SubmitType</a></b>).</p>
+
+    <p>Le fait que le nom <b>realisateur</b> ai été choisi pour l'<b>EntityType</b> <kbd>$builder->add('realisateur', EntityType::class, [ ... ])</kbd> n'est pas anodin car il correspond au nom de la propriété du même nom dans l'entité <b>Film</b> qui permet le mapping avec l'entité <b>Realisateur</b>.<br>La méthode <b>findBy()</b> du <b>FilmRepository</b>, que nous expliquerons un peu plus bas, prend en premier paramètre un tableau associatif dont la clé doit correspondre au nom d'une propriété existante et dont la valeur doit servir de filtre pour générer en interne un code <abbr title="Search Query Language">SQL</abbr> du style <code>SELECT * FROM film WHERE realisateur_id = 1</code>.</p>
+
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i>La documentation détaillée de chaque champ de formulaire (ex : <b>EntityType</b>, <b>TextType</b>) liste l'ensemble des paramètres compatibles (ex : <b>placeholder</b>, <b>required</b>) qui nous permettent de personnaliser leur aspect et leur comportement.</p>
+
+    <h2>Soumettre et traiter le formulaire</h2>
+
+    <p>Au niveau de notre contrôleur principal, il commencer lui signifier que nous voulons traiter la soumission des données en injectant l'objet <b>Request</b>, et accéder au <b>FilmRepository</b> qui nous permettra de récupérer notre jeu de données :</p>
+
+    <pre><code>
+    /**
+     * @Route("/form", name="form")
+     */
+    public function form(Request $request, FilmRepository $filmRepository)
+    {
+        $films = []; <b>// Initialisation du tableau contenant la liste des films</b>
+        $form = $this->createForm(SearchMoviesByDirectorType::class); <b>//Création du formulaire avec notre classe de formulaire</b>
+        $form->handleRequest($request); <b>// Obligatoire : gestion de la requête</b>
+
+        <b>// Si le formulaire a été soumis et est valide</b>
+        if($form->isSubmitted() && $form->isValid())
+        {
+            $criteria = $form->getData(); <b>// Critères de recherche en provenance du formulaire</b>
+            $films = $filmRepository->findBy($criteria); <b>// Chargement du tableau de résultats</b>
+        }
+
+        return $this->render('main/form.html.twig', [
+            // ...
+            'form' => $form->createView(), <b>// Envoi du formulaire à la vue</b>
+            'films' => $films, <b>// Envoi du tableau de résultats à la vue</b>
+        ]);
+    }
+    </code></pre>
+
+    <p>Outre la création du formulaire et la gestion de la requête ( de type <b>POST</b> par défaut ), la logique principale du code est d'utiliser la méthode pré-existante <b>findBy()</b> ( <b>$films = $filmRepository->findBy($criteria)</b> ) avec comme paramètre de filtrage le réalisateur soumis ( <b>$criteria = $form->getData()</b> ), puis d'envoyer le tout à la vue.</p>
+
+    <h2>Afficher le résultat dans la vue TWIG</h2>
+
+    <p>Comme nous utilisons <b>BootStrap</b>, la première chose à faire et charger le <b><a href="https://symfony.com/doc/current/form/bootstrap4.html" target="_blank">Form Theme</a></b> correspondant à ce framework en ajoutant la ligne suivante dans le fichier <b>nom_du_projet\config\packages\twig.yaml</b> :</p>
+
+    <pre><code>
+    twig:
+        // ...
+        <b>form_themes: ['bootstrap_4_layout.html.twig']</b>
+    </code></pre>
+
+    <p>À ce moment là, il ne reste plus qu'a gérer la vue et l'affichage du résultat :</p>
+
+    <p><a href="https://symfony.com/doc/current/form/form_customization.html" target="_blank"><i class="fa fa-link"></i>Afficher un formulaire dans la vue</a></p>
+
+    <pre><code>
+    &lt;div class="my-5"&gt;
+    <b>&#123;# Affichage champ par champ du formulaire avec mise en page sur une ligne #&#125;</b>
+    &#123;&#123; form_start(form) &#125;&#125;
+        &lt;div class="row no-gutters"&gt;
+            &lt;div class="col-xs-6 mr-2 pb-2"&gt;&#123;&#123; form_widget(form.realisateur) &#125;&#125;&lt;/div&gt;
+            &lt;div class="col-xs-6"&gt;&#123;&#123; form_widget(form.chercher) &#125;&#125;&lt;/div&gt;
+        &lt;/div&gt;
+    &#123;&#123; form_end(form) &#125;&#125;
+
+    <b>&#123;# Résultat du formulaire #&#125;</b>
+    &#123;% if films is not empty %&#125; <b>&#123;# S'il y a un résultat, on l'affiche #&#125;</b>
+        &lt;table class="table table-bordered mt-4"&gt;
+            &lt;caption&gt;Liste des films par &#123;&#123; films.0.realisateur.nom &#125;&#125;&lt;/caption&gt; <b>&#123;# Récupération du nom du réalisateur #&#125;</b>
+            &lt;thead&gt;
+            &lt;tr&gt;
+                &lt;th scope="col"&gt;Titre&lt;/th&gt;
+                &lt;th scope="col"&gt;Acteurs&lt;/th&gt;
+            &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+            &#123;% for film in films %&#125;
+                &lt;tr&gt;
+                    &lt;td&gt;&#123;&#123; film.titre &#125;&#125;&lt;/td&gt;
+                    &lt;td&gt;
+                        &#123;% for acteur in film.acteurs %&#125;
+                            &#123;&#123; acteur.nom &#125;&#125;&#123;% if not loop.last %&#125;, &#123;% endif %&#125;
+                        &#123;% endfor %&#125;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            &#123;% endfor %&#125;
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    &#123;% endif %&#125;
+    &lt;/div&gt;
+    </code></pre>
+
+    <h2>Bonus : Toujours plus avec Symfony</h2>
+
+    <p>En testant le formulaire, on remarque qu'en plus d'afficher la liste des films d'un réalisateur, on affiche également le casting principal pour chaque film.<br>Est-ce que cela a demandé un travail supplémentaire, et qui plus est, hors sujet ?</p>
+
+    <p>À part la gestion de la <b>colonne Acteurs</b> dans le tableau d'affichage du résultat, la réponse est non !<br>La magie de <b>Symfony</b> et de <b>Doctrine</b> réside dans le fait que lorsqu'on demande à l'<b><abbr title="Object Relational Mapping">ORM</abbr></b> d'analyser une entité comme <b>Film</b>, celui-ci traite automatiquement toutes les propriétés qui la compose dont <b>realisateur</b> et <b>acteurs</b> qui servent de lien avec les entités <b>Realisateur</b> et <b>Acteur</b>, ce qui a pour effet de renvoyer toutes les données possibles.</p>
+
+    <p>Dit autrement, <b>Doctrine</b> effectue automatiquement toutes les jointures possibles, et renvoie l'ensemble des résultats possibles qu'on peut obtenir à partir d'une entité.</p>
+
+    <p>Pour se rendre compte de comment cela marche, il suffit de faire un <code>dd()</code> sur le résultat de la requête dans le contrôleur principal :</p>
+
+    <pre><code>
+    if($form->isSubmitted() && $form->isValid())
+    {
+        // ...
+        $films = $filmRepository->findBy($criteria); // résultat
+        dd($films);
+    }
+    </code></pre>
+
+    <p>On constate alors clairement que pour chaque film, on renvoie la valeur de toutes les propriétés de l'entité <b>Film</b> sans exception :</p>
+
+    <pre><code>
+     MainController.php on line 94:
+    array:2 [▼
+      0 => App\Entity\Film &#123;#1210 ▼
+        -<b>id</b>: 4
+        -<b>titre</b>: "Rambo"
+        -<b>realisateur</b>: App\Entity\Realisateur &#123;#939 ▼ <b>// Valeurs de realisateur sous forme de sous-propriétés</b>
+          -<b>id</b>: 3
+          -<b>nom</b>: "Ted Kotcheff"
+          -<b>films</b>: Doctrine\ORM\PersistentCollection &#123;#942 ▼
+            -snapshot: []
+            -owner: App\Entity\Realisateur &#123;#939&#125;
+            -association: array:15 [ …15]
+            -em: Doctrine\ORM\EntityManager &#123;#509 …11&#125;
+            -backRefFieldName: "realisateur"
+            -typeClass: Doctrine\ORM\Mapping\ClassMetadata &#123;#568 …&#125;
+            -isDirty: false
+            #collection: Doctrine\Common\Collections\ArrayCollection &#123;#900 ▶&#125;
+            #initialized: false
+          &#125;
+        &#125;
+            -<b>acteurs</b>: Doctrine\ORM\PersistentCollection &#123;#1203 ▶} <b>// Liste des acteurs sous forme de tableau</b>
+      &#125;
+      1 => App\Entity\Film &#123;#1205 ▶&#125;
+    ]
+    </code></pre>
+
+{% endblock %}

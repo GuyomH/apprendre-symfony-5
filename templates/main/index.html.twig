@@ -72,9 +72,12 @@
     <p>Grâce à Git il est possible de sauvegarder son travail de manière incrémentale. A chaque fois que l'on termine une modification à notre code, il faut l'enregistrer dans git de la façon suivante :</p>
     <ul>
         <li>Vérifier les fichiers modifiés et/ou ajoutés : <code>E:\dev\nom_du_projet> <kbd>git status</kbd></code></li>
+        <li>Si la commande précédente indique ce message d'erreur <b>fatal: not a git repository</b>, il faut initialiser <b>git</b> : <code>E:\dev\nom_du_projet> <kbd>git init</kbd></code></li>
         <li>Ajouter tous les nouveaux fichiers dans git (La directive .gitignore inclue dans le projet empêche l'ajout des fichiers non pertinents) : <code>E:\dev\nom_du_projet> <kbd>git add *</kbd></code></li>
         <li>Commiter les changements : <code>E:\dev\nom_du_projet> <kbd>git commit -m "Message d'explication du commit"</kbd></code></li>
         <li>Vérifier le commit : <code>E:\dev\nom_du_projet> <kbd>git log</kbd></code></li>
         <li>Envoyer le code vers GitHub : <code>E:\dev\nom_du_projet> <kbd>git push</kbd></code></li>
     </ul>
+
+    <p>Afin de profiter pleinement de <b>Git</b>, il est recommandé lorsqu'on créer un nouveau projet, de sauvegarder et de synchroniser son répertoire de travail avec un service comme <b>GitHub</b>.</p>
 {% endblock %}
