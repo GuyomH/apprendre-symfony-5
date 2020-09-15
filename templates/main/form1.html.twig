@@ -1,13 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Symfony 5 et les formulaires{% endblock %}
+{% block title %}Symfony 5 et les formulaires : Lire des données{% endblock %}
 
 {% block main %}
-    <h1>Symfony 5 et les formulaires</h1>
+    <h1>Lire des données via un formulaire</h1>
 
     <p>Le but de cette section est d'illustrer, au travers de formulaires types, le différents aspects d'un <b><abbr title="Create Read Update Delete">CRUD</abbr></b> (Create, Read, Update, Delete) qui représente toutes les intéractions possibles avec une base de données (<b>Créer, Lire, Mettre à jour et Supprimer des données</b>).</p>
-
-    <h2>Chercher des données via un formulaire</h2>
 
     <p>Pour illustrer la lecture de données, nous allons créer un formulaire qui permet de <b>lister tous les films tournés par un réalisateur</b> et dont voici le résultat final :</p>
 
@@ -101,7 +99,7 @@
 
     <p>On a seulement besoin de 2 champs pour créer notre formulaire.</p>
 
-    <p><a href="https://symfony.com/doc/current/reference/forms/types.html" target="_blank"><i class="fa fa-link"></i>Référentiel de tous les types de champs de formulaire</a></p>
+    <p><a href="https://symfony.com/doc/current/reference/forms/types.html" target="_blank"><i class="fa fa-link"></i>Référentiel de tous les types de champs de formulaire en anglais</a></p>
 
     <p>Il y a tout d'abord le menu déroulant avec la <b>liste des réalisateurs</b> qui est une instance de la classe <b><a href="https://symfony.com/doc/current/reference/forms/types/entity.html" target="_blank">EntityType</a></b> qui permet de charger notre entité (<b>Realisateur</b>) avec le paramètre <b>class</b> et, de choisir les propriété que l'on veut afficher (<b>nom</b>) avec le paramètre <b>choice_label</b>.</p>
 
@@ -154,7 +152,7 @@
 
     <p>À ce moment là, il ne reste plus qu'a gérer la vue et l'affichage du résultat :</p>
 
-    <p><a href="https://symfony.com/doc/current/form/form_customization.html" target="_blank"><i class="fa fa-link"></i>Afficher un formulaire dans la vue</a></p>
+    <p><a href="https://symfony.com/doc/current/form/form_customization.html" target="_blank"><i class="fa fa-link"></i>Afficher un formulaire dans la vue (en anglais)</a></p>
 
     <pre><code>
     &lt;div class="my-5"&gt;
@@ -199,7 +197,7 @@
 
     <p>À part la gestion de la <b>colonne Acteurs</b> dans le tableau d'affichage du résultat, la réponse est non !<br>La magie de <b>Symfony</b> et de <b>Doctrine</b> réside dans le fait que lorsqu'on demande à l'<b><abbr title="Object Relational Mapping">ORM</abbr></b> d'analyser une entité comme <b>Film</b>, celui-ci traite automatiquement toutes les propriétés qui la compose dont <b>realisateur</b> et <b>acteurs</b> qui servent de lien avec les entités <b>Realisateur</b> et <b>Acteur</b>, ce qui a pour effet de renvoyer toutes les données possibles.</p>
 
-    <p>Dit autrement, <b>Doctrine</b> effectue automatiquement toutes les jointures possibles, et renvoie l'ensemble des résultats possibles qu'on peut obtenir à partir d'une entité.</p>
+    <p>Dit autrement, <b>Doctrine</b> analyse toutes les propriétés et effectue automatiquement toutes les jointures possibles, pour renvoyer l'ensemble des données possibles qu'on peut obtenir à partir d'une entité.</p>
 
     <p>Pour se rendre compte de comment cela marche, il suffit de faire un <code>dd()</code> sur le résultat de la requête dans le contrôleur principal :</p>
 
@@ -215,7 +213,7 @@
     <p>On constate alors clairement que pour chaque film, on renvoie la valeur de toutes les propriétés de l'entité <b>Film</b> sans exception :</p>
 
     <pre><code>
-     MainController.php on line 94:
+    MainController.php on line 94:
     array:2 [▼
       0 => App\Entity\Film &#123;#1210 ▼
         -<b>id</b>: 4
@@ -240,5 +238,7 @@
       1 => App\Entity\Film &#123;#1205 ▶&#125;
     ]
     </code></pre>
+
+    <p>Cette première partie nous à permis de voir comment monter un formulaire pour <b>"lire"</b> des données, il est temps de voir comment <b>"créer"</b> des données via un formulaire.</p>
 
 {% endblock %}

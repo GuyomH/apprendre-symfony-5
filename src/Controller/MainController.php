@@ -14,14 +14,20 @@ use Symfony\Component\Routing\Annotation\Route;
 class MainController extends AbstractController
 {
     private $pageList = [
-        'index' => 'Accueil',
-        'controller' => 'Contrôleur',
-        'twig' => 'Twig',
-        'db' => 'Base de données',
-        'form' => 'Formulaire',
-        'service' => 'Service',
-        'auth' => 'Authentification',
-        'references' => 'Références',
+        'Accueil' => 'index',
+        'Contrôleur' => 'controller',
+        'Twig' => 'twig',
+        'Base de données' => 'db',
+        'Formulaires' => [
+            'Lire' => 'form1',
+            'Créer' => 'form2',
+            'Mettre à jour' => 'form3',
+            'Supprimer' => 'form4',
+            'Ajout multiple' => 'form5',
+        ],
+        'Service' => 'service',
+        'Authentification' => 'auth',
+        'Références' => 'references',
     ];
 
     /**
@@ -69,17 +75,17 @@ class MainController extends AbstractController
 
         return $this->render('main/db.html.twig', [
             'page_list' => $this->pageList,
-            'next_route' => 'form',
+            'next_route' => 'form1',
             'previous_route' => 'twig',
             'films' => $films,
         ]);
     }
 
-    // Form 1 : Rechercher les films par réalisateur
+    // Rechercher les films par réalisateur
     /**
-     * @Route("/form", name="form")
+     * @Route("/form/read", name="form1")
      */
-    public function form(Request $request, FilmRepository $filmRepository)
+    public function form1(Request $request, FilmRepository $filmRepository)
     {
         $films = []; // Initialisation du tableau contenant la liste des films
         $form = $this->createForm(SearchMoviesByDirectorType::class); // Création du formulaire avec notre classe de formulaire
@@ -87,19 +93,68 @@ class MainController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-            //dd($form);
             $criteria = $form->getData(); // Critères de recherche en provenance du formulaire
-            //dd($criteria);
             $films = $filmRepository->findBy($criteria); // résultat
-            //dd($films);
         }
 
-        return $this->render('main/form.html.twig', [
+        return $this->render('main/form1.html.twig', [
             'page_list' => $this->pageList,
-            'next_route' => 'service',
+            'next_route' => 'form2',
             'previous_route' => 'db',
             'form' => $form->createView(), // Envoi du formulaire à la vue
             'films' => $films, // Envoi du résultat du formulaire à la vue
+        ]);
+    }
+
+    // Ajouter un film
+    /**
+     * @Route("/form/create", name="form2")
+     */
+    public function form2()
+    {
+        return $this->render('main/form2.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => 'form3',
+            'previous_route' => 'form1',
+        ]);
+    }
+
+    // Mettre un jour un film
+    /**
+     * @Route("/form/update", name="form3")
+     */
+    public function form3()
+    {
+        return $this->render('main/form3.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => 'form4',
+            'previous_route' => 'form2',
+        ]);
+    }
+
+    // Supprimer un film
+    /**
+     * @Route("/form/delete", name="form4")
+     */
+    public function form4()
+    {
+        return $this->render('main/form4.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => 'form5',
+            'previous_route' => 'form3',
+        ]);
+    }
+
+    // Ajouter plusieurs acteurs
+    /**
+     * @Route("/form/add_multiple", name="form5")
+     */
+    public function form5()
+    {
+        return $this->render('main/form5.html.twig', [
+            'page_list' => $this->pageList,
+            'next_route' => 'service',
+            'previous_route' => 'form4',
         ]);
     }
 
@@ -111,7 +166,7 @@ class MainController extends AbstractController
         return $this->render('wip/index.html.twig', [
             'page_list' => $this->pageList,
             'next_route' => 'auth',
-            'previous_route' => 'form',
+            'previous_route' => 'form5',
         ]);
     }
 

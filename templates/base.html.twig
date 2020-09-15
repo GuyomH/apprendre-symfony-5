@@ -19,32 +19,43 @@
             <p><img src="{{ asset('images/symfony-5-logo.png') }}" alt="Logo symfony 5" id="logo"></p>
         </div>
         <div class="container-fluid bg-light">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light container">
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav mr-auto">
-                        {% for path, name in page_list %}
-                            {# https://symfony.com/doc/current/cmf/bundles/core/templating.html #}
-                            {# https://symfony.com/doc/3.4/templating/app_variable.html #}
-                            {% if path is same as(app.request.attributes.get('_route')) %}
-                                <li class="nav-item active">
-                                    <a class="nav-link" href="#">{{ name }}</a>
-                                </li>
-                            {% else %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ path(path) }}">{{ name }}</a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                    <form method="get" class="form-inline my-2 my-lg-0">
-                        <input class="form-control mr-sm-2" type="search" name="q" placeholder="Rechercher" aria-label="Search">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
-                    </form>
-                </div>
-            </nav>
+            {% block nav %}
+                <nav class="navbar navbar-expand-lg navbar-light bg-light container">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            {% for name, path in page_list %}
+                               {% if path is iterable %}
+                                   <li class="nav-item dropdown">
+                                       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">{{ name }}</a>
+                                       <div class="dropdown-menu">
+                                           {% for subname, subpath in path %}
+                                               <a class="dropdown-item" href="{{ path(subpath) }}">{{ subname }}</a>
+                                           {% endfor %}
+                                       </div>
+                                   </li>
+                               {% elseif path is same as(app.request.attributes.get('_route')) %}
+                               {# https://symfony.com/doc/current/cmf/bundles/core/templating.html #}
+                               {# https://symfony.com/doc/3.4/templating/app_variable.html #}
+                                    <li class="nav-item active">
+                                        <a class="nav-link" href="#">{{ name }}</a>
+                                    </li>
+                               {% else %}
+                                   <li class="nav-item">
+                                       <a class="nav-link" href="{{ path(path) }}">{{ name }}</a>
+                                   </li>
+                               {% endif %}
+                            {% endfor %}
+                        </ul>
+                        <form method="get" class="form-inline my-2 my-lg-0">
+                            <input class="form-control mr-sm-2" type="search" name="q" placeholder="Rechercher" aria-label="Search">
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
+                        </form>
+                    </div>
+                </nav>
+            {% endblock %}
         </div>
     {% endblock %}
 </header>
