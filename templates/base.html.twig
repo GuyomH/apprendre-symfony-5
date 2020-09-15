@@ -1,3 +1,5 @@
+{# Initalisation de variable #}
+{% set currentPath = app.request.attributes.get('_route') %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -29,16 +31,16 @@
                             {% for name, path in page_list %}
                                {% if path is iterable %}
                                    <li class="nav-item dropdown">
-                                       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">{{ name }}</a>
+                                       <a class="nav-link dropdown-toggle{{ (currentPath in path) ? ' active'}}" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">{{ name }}</a>
                                        <div class="dropdown-menu">
                                            {% for subname, subpath in path %}
                                                <a class="dropdown-item" href="{{ path(subpath) }}">{{ subname }}</a>
                                            {% endfor %}
                                        </div>
                                    </li>
-                               {% elseif path is same as(app.request.attributes.get('_route')) %}
                                {# https://symfony.com/doc/current/cmf/bundles/core/templating.html #}
                                {# https://symfony.com/doc/3.4/templating/app_variable.html #}
+                               {% elseif path is same as(app.request.attributes.get('_route')) %}
                                     <li class="nav-item active">
                                         <a class="nav-link" href="#">{{ name }}</a>
                                     </li>
@@ -61,18 +63,47 @@
 </header>
 
 <main class="container mt-4 mb-5">
+    {% block breadcrumb %}
+    <nav>
+        <ol class="breadcrumb">
+            {# Gestion de la page d'accueil #}
+            {% if path_list[0][0] is same as(currentPath) %}
+                <li class="breadcrumb-item active">{{ path_list[0][1] }}</li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{{ path(path_list[0][0]) }}">{{ path_list[0][1] }}</a></li>
+            {% endif %}
+            {# Gestion de la page courante #}
+            {# Titre du menu déroulant #}
+            {% for key, value in page_list %}
+                {% if value is iterable and currentPath in value%}
+                    <li class="breadcrumb-item active">{{ key }}</li>
+                {% endif %}
+            {% endfor %}
+            {# Titre de la rubrique du menu #}
+            {% for index, path in path_list %}
+                {% if path[0] is same as(currentPath) and index > 0 %}
+                    <li class="breadcrumb-item active">{{ path[1] }}</li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
+    {% endblock %}
     {% block main %}
         {# Page content here #}
     {% endblock %}
     {% block pagination %}
         <nav class="mt-5">
             <ul class="pagination justify-content-center">
-                {% if previous_route is not empty %}
-                    <li class="page-item"><a class="page-link" href="{{ path(previous_route) }}">Précédent</a></li>
-                {% endif %}
-                {% if next_route is not empty %}
-                    <li class="page-item"><a class="page-link" href="{{ path(next_route) }}">Suivant</a></li>
-                {% endif %}
+                {% for index, path in path_list %}
+                    {% if path[0] is same as(currentPath) %}
+                        {% if (index - 1) >= 0 %}
+                            <li class="page-item"><a class="page-link" href="{{ path(path_list[index - 1][0]) }}">Précédent</a></li>
+                        {% endif %}
+                        {% if (index + 1) < path_list|length %}
+                            <li class="page-item"><a class="page-link" href="{{ path(path_list[index + 1][0]) }}">Suivant</a></li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
             </ul>
         </nav>
     {% endblock %}

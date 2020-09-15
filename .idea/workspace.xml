@@ -3,11 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="bb6001b7-1cf2-4358-83d0-f40e605fe351" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/MainController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/MainController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/main/form.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/form1.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/wip/index.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/wip/index.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/main/form5.html.twig" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -159,7 +157,7 @@
       <workItem from="1600026911183" duration="3940000" />
       <workItem from="1600082406899" duration="9905000" />
       <workItem from="1600110472259" duration="17220000" />
-      <workItem from="1600171002638" duration="10243000" />
+      <workItem from="1600171002638" duration="30234000" />
     </task>
     <servers />
   </component>
@@ -167,6 +165,10 @@
     <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="1725" y="416" key="#com.intellij.ide.util.MemberChooser" timestamp="1600204665824">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1725" y="416" key="#com.intellij.ide.util.MemberChooser/0.0.2560.1400@0.0.2560.1400" timestamp="1600204665824" />
     <state x="1583" y="319" width="672" height="678" key="search.everywhere.popup" timestamp="1600113627551">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
