@@ -6,9 +6,16 @@ use App\Repository\FilmRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=FilmRepository::class)
+ * @UniqueEntity(
+ *     fields={"titre", "realisateur"},
+ *     errorPath = "titre",
+ *     message="Ce titre de film est déjà enregistré pour ce réalisateur !"
+ * )
  */
 class Film
 {
@@ -21,16 +28,25 @@ class Film
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le titre du film doit être renseigné !")
+     * @Assert\Length(
+     *      min = 4,
+     *      max = 100,
+     *      minMessage = "Le titre doit faire au minimum {{ limit }} caractères !",
+     *      maxMessage = "Le titre doit faire au maximum {{ limit }} caractères !"
+     * )
      */
     private $titre;
 
     /**
      * @ORM\ManyToOne(targetEntity=Realisateur::class, inversedBy="films")
+     * @Assert\NotNull(message="Un nom de réalisateur doit être choisi")
      */
     private $realisateur;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films")
+     * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", cascade={"persist"})
+     * @Assert\Valid()
      */
     private $acteurs;
 

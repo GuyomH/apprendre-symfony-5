@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Form\FilmType;
 use App\Form\SearchMoviesByDirectorType;
 use App\Repository\FilmRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -84,7 +86,7 @@ class MainController extends AbstractController
      */
     public function db(FilmRepository $filmRepository)
     {
-        $films = $filmRepository->findAll();
+        $films = $filmRepository->findBy([], ['titre' => 'ASC']);
 
         return $this->render('main/db.html.twig', [
             'page_list' => $this->pageList,
@@ -106,7 +108,7 @@ class MainController extends AbstractController
         if($form->isSubmitted() && $form->isValid())
         {
             $criteria = $form->getData(); // Critères de recherche en provenance du formulaire
-            $films = $filmRepository->findBy($criteria); // résultat
+            $films = $filmRepository->findBy($criteria, ['titre' => 'ASC']); // résultat
         }
 
         return $this->render('main/form1.html.twig', [
@@ -121,11 +123,30 @@ class MainController extends AbstractController
     /**
      * @Route("/form/create", name="form2")
      */
-    public function form2()
+    public function form2(Request $request, EntityManagerInterface $entityManager)
     {
+        $form = $this->createForm(FilmType::class); // Création du formulaire
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid())
+        {
+            $film = $form->getData();
+
+            $entityManager->persist($film);
+            $entityManager->flush();
+
+            $this->addFlash(
+                'notice',
+                'Votre film a bien été ajouté ! Il ne vous reste plus qu\'à trouver une page où vous pourrez voir le résultat ;-)'
+            );
+
+            return $this->redirectToRoute('form2');
+        }
+
         return $this->render('main/form2.html.twig', [
             'page_list' => $this->pageList,
             'path_list' => $this->pathList,
+            'form2' => $form->createView(), // Envoi du formulaire à la vue
         ]);
     }
 

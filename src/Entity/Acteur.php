@@ -6,6 +6,7 @@ use App\Repository\ActeurRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ActeurRepository::class)
@@ -21,6 +22,13 @@ class Acteur
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le nom de l'acteur doit être renseigné !")
+     * @Assert\Length(
+     *      min = 4,
+     *      max = 50,
+     *      minMessage = "Le nom doit faire au minimum {{ limit }} caractères !",
+     *      maxMessage = "Le nom doit faire au maximum {{ limit }} caractères !"
+     * )
      */
     private $nom;
 

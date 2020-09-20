@@ -4,4 +4,590 @@
 
 {% block main %}
     <h1>Ajouter des données via un formulaire</h1>
+
+    <p>L'objectif de cette partie est de créer un formulaire d'ajout de films.</p>
+
+    <p>Comme nous l'avons vu précédemment, chaque <b>film</b> est lié à un <b>réalisateur</b> et à une <b>liste d'acteurs</b>, nous allons donc créer un formulaire qui prend en charge ces 3 éléments.</p>
+
+    <p>Dans le cadre de notre démonstration, l'ajout du <b>réalisateur</b> fera l'objet d'un menu déroulant avec une liste fixe, et le <b>casting du film</b> sera représenté par des champs textuels libres.</p>
+
+    <h2>Créer les formulaires et les imbriquer</h2>
+
+    <p>La conception de notre formulaire demande normalement d'en créer trois : <b>FilmType</b> le principal, <b>RealisateurType</b> et <b>ActeurType</b> qu'on imbrique dans le premier.<br>Comme l'ajout du <b>réalisateur</b> passe par un <b>EntityType</b> qui se charge déjà d'appeler l'entité <b>Realisateur</b>, cela nous permet de gérer ce champ en direct dans <b>FilmType</b>.</p>
+
+    <p>On génère donc les formulaires pour les entités <b>Acteur</b> et <b>Film</b> grâce à la commande <kbd>symfony console make:form</kbd> :</p>
+
+    <pre><code>
+    The name of the form class (e.g. DeliciousKangarooType):
+     > Acteur
+
+     The name of Entity or fully qualified model class name that the new form will be bound to (empty for none):
+     > Acteur
+
+     created: src/Form/ActeurType.php
+    </code></pre>
+
+    <pre><code>
+    The name of the form class (e.g. DeliciousKangarooType):
+     > Film
+
+     The name of Entity or fully qualified model class name that the new form will be bound to (empty for none):
+     > Film
+
+     created: src/Form/FilmType.php
+    </code></pre>
+
+    <p>Le fait d'avoir créé nos 2 formulaires en les liant à leur entité respective, permet de pré-lister les champs à paramétrer (Attention, dans certains cas de figure il faut en supprimer ou en créer).</p>
+
+    <pre><code>
+    <b>src/Form/ActeurType</b>
+
+    use App\Entity\Acteur; <b>// Import de l'entité liée au formulaire</b>
+    use Symfony\Component\Form\Extension\Core\Type\TextType; <b>// Import de la classe TextType</b>
+    // ...
+
+    class ActeurType extends AbstractType
+    {
+        public function buildForm(FormBuilderInterface $builder, array $options)
+        {
+            $builder
+                ->add('nom', TextType::class, [
+                'label' => false,
+                'required' => true,
+            ])
+
+                //->add('films') <b>// champ inutile à supprimer</b>
+            ;
+        }
+
+        public function configureOptions(OptionsResolver $resolver)
+        {
+            $resolver->setDefaults([
+                'data_class' => Acteur::class,
+            ]);
+        }
+    }
+    </code></pre>
+
+    <pre><code>
+    <b>src/Form/FilmType</b>
+
+    use App\Entity\Film; <b>// Import de l'entité liée au formulaire</b>
+    use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+    use Symfony\Component\Form\Extension\Core\Type\SubmitType;SubmitType
+    use Symfony\Component\Form\Extension\Core\Type\TextType;
+    // ...
+
+    class FilmType extends AbstractType
+    {
+        public function buildForm(FormBuilderInterface $builder, array $options)
+        {
+            $builder
+                ->add('titre', TextType::class, [
+                    'label' => 'Titre du film'
+                ])
+
+                <b>// Le fait de passer par la classe EntityType nous dispense de d'utiliser un formulaire imbriqué</b>
+                ->add('realisateur', EntityType::class, [
+                    'class' => Realisateur::class,
+                     <b>// Tri par ordre alphabétique de la liste des réalisateurs</b>
+                    'query_builder' => function (EntityRepository $entityRepository) {
+                        return $entityRepository->createQueryBuilder('r')
+                            ->orderBy('r.nom', 'ASC');
+                    },
+                    'choice_label' => 'nom',
+                    'placeholder' => 'Choisir un réalisateur',
+                    'label' => 'Nom du réalisateur',
+                    'required' => true,
+                ])
+
+                <b>// Imbrication d'ActeurType</b>
+                <b>// Un film peut compter plusieurs acteurs, on utilise donc le type collectionType qui permet l'ajout multiple</b>
+                ->add('acteurs', CollectionType::class, [
+                    'entry_type' => ActeurType::class,
+                    'allow_add' => true,
+                    'by_reference' => false, <b>// <a href="https://symfony.com/doc/current/reference/forms/types/collection.html#by-reference" target="_blank">Permet l'appel de la méthode addActeur pour ajouter les acteurs au film</a></b>
+                    'label' => 'Liste des acteurs',
+                ])
+
+                <b>// Bouton de soumission du formulaire</b>
+                ->add('ajouter', SubmitType::class, [
+                    'label' => 'Ajouter ce film',
+                ])
+            ;
+        }
+
+        public function configureOptions(OptionsResolver $resolver)
+        {
+            $resolver->setDefaults([
+                'data_class' => Film::class,
+            ]);
+        }
+    }
+    </code></pre>
+
+    <p>Pour afficher le formulaire, il faut saisir le code suivant dans le <b>contrôleur</b> et le <b>template twig</b> correspondant :</p>
+
+    <pre><code>
+    <b>src/Controller/MainController</b>
+
+    /**
+     * @Route("/form/create", name="form2")
+     */
+    public function form2()
+    {
+        $form = $this->createForm(FilmType::class); // Création du formulaire
+
+        return $this->render('main/form2.html.twig', [
+            'page_list' => $this->pageList,
+            'path_list' => $this->pathList,
+            'form2' => $form->createView(), // Envoi du formulaire à la vue
+        ]);
+    }
+    </code></pre>
+
+    <pre><code>
+    <b>&#123;# templates/main/form2.html.twig #&#125;</b>
+
+    &#123;&#123; form_start(form2) &#125;&#125;
+        <b>&#123;# Titre du film #&#125;</b>
+        &lt;div class="form-group"&gt;
+            &#123;&#123; form_row(form2.titre) &#125;&#125;
+        &lt;/div&gt;
+        <b>&#123;# Nom du réalisateur #&#125;</b>
+        &lt;div class="form-group"&gt;
+            &#123;&#123; form_row(form2.realisateur) &#125;&#125;
+        &lt;/div&gt;
+        <b>&#123;# Liste des acteurs #&#125;</b>
+        &#123;&#123; form_row(form2.acteurs) &#125;&#125;
+        <b>&#123;# Submit #&#125;</b>
+        &lt;div class="form-group"&gt;
+            &#123;&#123; form_row(form2.ajouter) &#125;&#125;
+        &lt;/div&gt;
+    &#123;&#123; form_end(form2) &#125;&#125;
+    </code></pre>
+
+    <h2>Gérer le data-prototype</h2>
+
+    <p>Si on affiche notre formulaire à ce stade, il ressemble à cela :</p>
+
+    <div class="text-center my-5">
+        <img src="{{ asset('images/add_form_1.png') }}" alt="Aspect primitif du formulaire d'ajout de données" class="img-fluid">
+    </div>
+
+    <p>On constate que si les champs dédiés au <b>titre du film</b> et au <b>choix du réalisateur</b> on déjà leur aspect definitif, le champ <b>acteurs</b> est pour l'instant invisible.</p>
+
+    <p>Comme dit précédemment, il est possible de lier plusieurs acteurs par film, mais on ne peut jamais savoir combien exactement à l'avance.<br>Cela signifie qu'<b>il faut gérer ce champ dynamiquement avec du javascript</b> pour pouvoir rajouter autant d'acteurs que nécessaire.</p>
+
+    <p>Si on tape <kbd>F12</kbd> sur la fenêtre du navigateur et que dans l'<b>inspecteur d'éléments</b> on cherche au niveau du formulaire, on va trouver le code suivant :</p>
+
+    <div class="text-center my-5">
+        <img src="{{ asset('images/data_prototype.png') }}" alt="data-prototype du champ Acteurs" class="img-fluid">
+    </div>
+
+    <p>L'attribut <b>data-prototype</b> surligné en jaune contient le modèle du code <abbr title="HyperText Markup Language">HTML</abbr> du champ de texte pour ajouter un acteur.</p>
+
+    <p>Grâce à un script <abbr title="JavaScript">JS</abbr> nous allons récupérer ce bout de code afin de permettre à l'utilisateur de <b>générer le nombre exact de champs "acteur"</b> dont il a besoin.</p>
+
+    <p>Pour ce faire, nous allons surcharger le bloc <b>javascripts</b> en bas de notre template avec le code suivant :</p>
+
+    <pre><code>
+    <b>&#123;# templates/main/form2.html.twig #&#125;</b>
+
+    &#123;% block javascripts %&#125;
+        &#123;&#123; parent() &#125;&#125; <b>&#123;# permet la surcharge du bloc #&#125;</b>
+        &lt;script&gt;
+            $(document).ready(function()
+            &#123;
+                <b>// Élément DIV qui contient le data-prototype</b>
+                const $container = $('#film_acteurs');
+
+                <b>// Conteneur DIV d'accueil des champs input des acteurs</b>
+                const $container2 = $('#acteur-container');
+
+                <b>// Nombre d'input</b>
+                let index = $container.find(':input').length;
+
+                <b>// Si pas de champ acteur, on en ajoute 1,
+                // car il y a au moins 1 acteur par film</b>
+                if(index === 0)
+                &#123;
+                    addActeur($container);
+                &#125;
+
+                <b>// Appel de la fonction d'ajout</b>
+                $('.addActeur').click(function(e)
+                &#123;
+                    e.preventDefault();
+                    addActeur($container);
+                &#125;);
+
+                <b>// Fonction d'ajout avec exploitation du data-prototype</b>
+                function addActeur($container)
+                &#123;
+                    const template = $container.attr('data-prototype')
+                        .replace(/__name__label__/g, 'Nom de l\'acteur')
+                        .replace(/__name__/g, index)
+                    ;
+
+                    const $prototype = $(template);
+
+                    deleteButton($prototype);
+
+                    $container2.append($prototype);
+
+                    index++;
+                &#125;
+
+                <b>// Fonction de suppression des champs d'acteur</b>
+                function deleteButton($prototype)
+                &#123;
+                    const $deleteLink = $('&lt;a href="#" class="btn btn-danger btn-sm"&gt;Annuler&lt;/a&gt;');
+
+                    <b>// On  ne rajoute pas de bouton annuler sur le premier input
+                    // car un film doit avoir au moins 1 acteur</b>
+                    if(index &gt; 0)
+                    &#123;
+                        $prototype.append($deleteLink);
+                    &#125;
+
+                    $deleteLink.click(function(e)
+                    &#123;
+                        $prototype.remove();
+
+                        <b>// Évite qu'un symbole "#" apparaisse dans l'URL</b>
+                        e.preventDefault();
+                        return false;
+                    &#125;);
+                &#125;
+            &#125;);
+        &lt;/script&gt;
+    &#123;% endblock %&#125;
+    </code></pre>
+
+    <p>Une analyse du code montre que celui-ci permet d'ajouter et de supprimer des champs  <b>"Nom de l'acteur"</b>, et que pour pouvoir les afficher, il faut rajouter le bouton d'ajout et un bloc &lt;div&gt; à notre template de tout à l'heure :</p>
+
+    <pre><code>
+    <b>&#123;# templates/main/form2.html.twig #&#125;</b>
+
+    &#123;&#123; form_start(form2) &#125;&#125;
+
+        &#123;# ... #&#125;
+
+        &#123;# Liste des acteurs #&#125;
+        &#123;&#123; form_row(form2.acteurs) &#125;&#125;
+        <b>&lt;div id="acteur-container"&gt;&lt;/div&gt;
+        &lt;input type="button" class="btn btn-info btn-sm mb-5 addActeur" value="Ajouter un acteur"&gt;</b>
+
+        &#123;# ... #&#125;
+
+    &#123;&#123; form_end(form2) &#125;&#125;
+    </code></pre>
+
+    <p>Une fois tous ces ajouts effectués, le formulaire s'affiche sous sa forme finale :</p>
+
+    <div class="text-center my-5">
+        <img src="{{ asset('images/add_form_2.png') }}" alt="Aspect définitif du formulaire d'ajout de données" class="img-fluid">
+    </div>
+
+    <h2>Brancher le formulaire</h2>
+
+    <p>Il reste à <b>brancher le formulaire</b> afin que ses données puissent être traitées et enregistrées dans la <b>base de données</b>.</p>
+
+    <p>Si dans la section précédente, on utilisait les objets <b>Request</b> et <b>FilmRepository</b> pour interroger la base de données, cette fois-ci, nous allons nous servir du couple <b>Request</b> et <b>EntityManager</b> afin d'y insérer des données :</p>
+
+    <pre><code>
+    <b>src/Controller/MainController</b>
+
+    /**
+     * @Route("/form/create", name="form2")
+     */
+    public function form2(Request $request, EntityManagerInterface $entityManager)
+    {
+        $form = $this->createForm(FilmType::class); <b>// Création du formulaire</b>
+        $form->handleRequest($request); <b>// Gestion de la requête</b>
+
+        <b>// Si le formulaire a été soumis et est valide</b>
+        if($form->isSubmitted() && $form->isValid())
+        {
+            $film = $form->getData(); <b>// Données du film en en provenance du formulaire</b>
+
+            $entityManager->persist($film); <b>// On rend l'objet contenant les données persistant</b>
+            $entityManager->flush(); <b>// On flush afin de finaliser l'enregistrement dans la BDD</b>
+        }
+
+        <b>// TODO: Flash message + redirection</b>
+
+        return $this->render('main/form2.html.twig', [
+            // ...
+            'form2' => $form->createView(), <b>// Envoi du formulaire à la vue</b>
+        ]);
+    }
+    </code></pre>
+
+    <p>À partir de là il reste une dernière opération pour rendre notre formulaire fonctionnel, <b>faire <a href="https://www.doctrine-project.org/projects/doctrine-orm/en/2.7/reference/working-with-associations.html#transitive-persistence-cascade-operations" target="_blank">persister en cascade</a> les données en provenance de l'entité Acteur</b>.</p>
+
+    <p>Cette opération est nécessaire car à cause de l'imbrication du formulaire <b>ActeurType</b> dans <b>FilmType</b> on doit persister des données dans 2 entités à la fois.</p>
+
+    <p>Cette opération s'effectue avec une <b>annotation</b> dans l'entité principale (<b>Film</b>) au niveau de la propriété (<b>acteurs</b>) qui permet de créer l'association avec l'entité secondaire (<b>Acteur</b>) :</p>
+
+    <pre><code>
+    <b>src/Entity/Film</b>
+
+    // ...
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", <b>cascade={"persist"}</b>)
+     */
+    private $acteurs;
+
+    // ...
+    </code></pre>
+
+    <p>Notre formulaire est désormais totalement fonctionnel, mais il reste 2 détails à améliorer.</p>
+
+    <h2>Sécuriser le formulaire</h2>
+
+    <p>Pour l'instant, la seule sécurisation dont dispose notre formulaire se résume à l'utilisation de l'attribut <b>required</b> qui n'a aucun effet coté serveur.</p>
+
+    <p>Afin de sécuriser les champs de notre formulaire coté serveur, <b>Symfony</b> propose le système des <b><a href="https://symfony.com/doc/current/reference/constraints.html" target="_blank">contraintes de validation</a></b>.</p>
+
+    <p>Les contraintes de validation permettent de filtrer la valeur des propriétés des entités.</p>
+
+    <p>Voici comment les mettre en place dans <b>Film</b>, <b>Realisateur</b> et <b>Acteur</b> :</p>
+
+    <pre><code>
+    <b>src/Entity/Film</b>
+
+    // ...
+
+    use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity; <b>Importation de la classe de gestion de l'unicité des données</b>
+    use Symfony\Component\Validator\Constraints as Assert; <b>Importation de la classe de gestion de la contrainte</b>
+
+    /**
+     * @ORM\Entity(repositoryClass=FilmRepository::class)
+     <b>* // <a href="https://symfony.com/doc/current/reference/constraints/UniqueEntity.html" target="_blank">Empêche d'enregister 2 fois le même film pour le même réalisateur</a>
+     * @UniqueEntity(
+     * fields={"titre", "realisateur"},
+     * errorPath = "titre",
+     * message="Ce titre de film est déjà enregistré pour ce réalisateur !"
+     * )</b>
+     */
+    class Film
+    {
+
+        // ...
+
+        /**
+         * @ORM\Column(type="string", length=255)
+         <b>* // Force la saisie d'une valeur entre 4 et 100 caractères
+         * @Assert\NotBlank(message="Le titre du film doit être renseigné !")
+         * @Assert\Length(
+         *      min = 4,
+         *      max = 100,
+         *      minMessage = "Le titre doit faire au minimum &#123;&#123; limit &#125;&#125; caractères !",
+         *      maxMessage = "Le titre doit faire au maximum &#123;&#123; limit &#125;&#125; caractères !"
+         * )</b>
+         */
+        private $titre;
+
+        /**
+         * @ORM\ManyToOne(targetEntity=Realisateur::class, inversedBy="films")
+         <b>* // Force le choix d'une valeur
+         * @Assert\NotNull(message="Un nom de réalisateur doit être choisi")</b>
+         */
+        private $realisateur;
+
+        /**
+         * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", cascade={"persist"})
+            <b> // <a href="https://symfony.com/doc/current/reference/constraints/Valid.html" target="_blank">Permet de gérer la validation  d'un objet imbriqué</a> (voir propriété "nom" de l'entité "Acteur")
+         * @Assert\Valid()</b>
+         */
+        private $acteurs;
+
+        // ...
+    }
+    </code></pre>
+
+    <pre><code>
+    <b>src/Entity/Acteur</b>
+
+    // ...
+
+    use Symfony\Component\Validator\Constraints as Assert; <b>Importation de la classe de gestion de la contrainte</b>
+
+    /**
+     * @ORM\Entity(repositoryClass=ActeurRepository::class)
+     */
+    class Acteur
+    {
+
+        // ...
+
+        /**
+         * @ORM\Column(type="string", length=255)
+         <b>* // Force la saisie d'une valeur entre 4 et 50 caractères
+         * @Assert\NotBlank(message="Le nom de l'acteur doit être renseigné !")
+         * @Assert\Length(
+         *      min = 4,
+         *      max = 50,
+         *      minMessage = "Le nom doit faire au minimum &#123;&#123; limit &#125;&#125; caractères !",
+         *      maxMessage = "Le nom doit faire au maximum &#123;&#123; limit &#125;&#125; caractères !"
+         * )</b>
+         */
+        private $nom;
+
+        // ...
+    }
+    </code></pre>
+
+    <p>Pour désactiver la <b>validation coté client</b> afin de tester la <b>validation coté serveur</b>, il suffit de remplacer la ligne <code>&#123;&#123; form_start(form2) &#125;&#125;</code><br>par <code>&#123;&#123; form_start(form2, &#123;'attr': &#123;'novalidate': 'novalidate'&#125;&#125;) &#125;&#125;</code> dans le template <b>form2.html.twig</b></p>
+
+
+    <h2>Notifier l'utilisateur du succès de la soumission du formulaire</h2>
+
+    <p>Lorsque les données de notre formulaire on bien été validées, il est de bon ton de notifier l'utilisateur et de le rediriger vers une nouvelle page.</p>
+
+    <p>Pour notre exemple, nous allons rediriger notre utilisateur (vous) sur la page courante avec une jolie notification :</p>
+
+    <pre><code>
+    <b>src/Controller/MainController</b>
+
+    /**
+     * @Route("/form/create", name="form2")
+     */
+    public function form2(Request $request, EntityManagerInterface $entityManager)
+    {
+       // ...
+
+        if($form->isSubmitted() && $form->isValid())
+        {
+            // ...
+
+            <b> // Notification en cas de succès de la soumission + redirection vers la page courante
+            $this->addFlash(
+                'notice',
+                'Votre film a bien été ajouté ! Il ne vous reste plus qu\'à trouver une page où vous pourrez voir le résultat ;-)'
+            );
+
+                return $this->redirectToRoute('form2');</b>
+        }
+    }
+    </code></pre>
+
+    <pre><code>
+    <b>templates/base.html</b>
+
+    &lt;header&gt;
+        &#123;% block header %&#125;
+           &#123;# ... #&#125;
+        &#123;% endblock %&#125;
+
+        <b>&#123;# Affichage des messages de notification #&#125;
+        &#123;% block flash_message %&#125;
+            &#123;% for message in app.flashes('notice') %&#125;
+                &lt;div class="flash-notice alert alert-primary" role="alert"&gt;&#123;&#123; message &#125;&#125;&lt;/div&gt;
+            &#123;% endfor %&#125;
+        &#123;% endblock %&#125;</b>
+    &lt;/header&gt;
+    </code></pre>
+
+    <p><a href="https://symfonycasts.com/screencast/symfony-forms/flash-messages" target="_blank"><i class="fa fa-link"></i>Tuto Flash Messages en anglais</a></p>
+
+    <p><a href="https://symfony.com/doc/current/controller.html#redirecting" target="_blank"><i class="fa fa-link"></i>Documentation sur la redirection en anglais</a></p>
+
+    <h2>Formulaire d'ajout de films</h2>
+
+    <p>Voici le formulaire final, prêt à être testé par vos soins :</p>
+
+    {# Affichage du formulaire #}
+    {{ form_start(form2) }}
+        {# Titre du film #}
+        <div class="form-group">
+            {{ form_row(form2.titre) }}
+        </div>
+        {# Nom du réalisateur #}
+        <div class="form-group">
+            {{ form_row(form2.realisateur) }}
+        </div>
+        {# Liste des acteurs #}
+        {{ form_row(form2.acteurs) }}
+        <div id="acteur-container"></div>
+        <input type="button" class="btn btn-info btn-sm mb-5 addActeur" value="Ajouter un acteur">
+        {# Submit #}
+        <div class="form-group">
+            {{ form_row(form2.ajouter) }}
+        </div>
+    {{ form_end(form2) }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }} {# permet la surcharge du block #}
+    {# Script de gestin du data-prototype en JQuery #}
+    <script>
+        $(document).ready(function()
+        {
+            // Élément DIV qui contient le data-prototype
+            const $container = $('#film_acteurs');
+
+            // Conteneur DIV d'accueil des champs input des acteurs
+            const $container2 = $('#acteur-container');
+
+            // Nombre d'input
+            let index = $container.find(':input').length;
+
+            // Si pas de champ acteur, on en ajoute 1,
+            // car il y a au moins 1 acteur par film
+            if(index === 0)
+            {
+                addActeur($container);
+            }
+
+            // Appel de la fonction d'ajout
+            $('.addActeur').click(function(e)
+            {
+                e.preventDefault();
+                addActeur($container);
+            });
+
+            // Fonction d'ajout avec exploitation du data-prototype
+            function addActeur($container)
+            {
+                const template = $container.attr('data-prototype')
+                    .replace(/__name__label__/g, 'Nom de l\'acteur')
+                    .replace(/__name__/g, index)
+                ;
+
+                const $prototype = $(template);
+
+                deleteButton($prototype);
+
+                $container2.append($prototype);
+
+                index++;
+            }
+
+            // Fonction de suppression des champs d'acteur
+            function deleteButton($prototype)
+            {
+                const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
+
+                // On  ne rajoute pas de bouton annuler sur le premier input
+                // car un film doit avoir au moins 1 acteur
+                if(index > 0)
+                {
+                    $prototype.append($deleteLink);
+                }
+
+                $deleteLink.click(function(e)
+                {
+                    $prototype.remove();
+
+                    // Évite qu'un # apparaisse dans l'URL
+                    e.preventDefault();
+                    return false;
+                });
+            }
+        });
+    </script>
 {% endblock %}

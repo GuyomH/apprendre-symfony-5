@@ -10,7 +10,7 @@
     <p>Pour illustrer la lecture de données, nous allons créer un formulaire qui permet de <b>lister tous les films tournés par un réalisateur</b> et dont voici le résultat final :</p>
 
     {# Affichage brut formulaire #}
-    {#{ form(form) }}#}
+    {#{{ form(form) }}}#}
 
     <div class="my-5">
     {# Affichage champ par champ du formulaire #}
@@ -67,16 +67,19 @@
     </code></pre>
 
     <p>La commande ne nous demande que 2 informations, le nom du formulaire (<b>SearchMoviesByDirector</b>) et l'entité à laquelle il est lié (aucune dans notre cas).</p>
-    <p>Une fois cette opération terminée, un sous dossier de <b>src</b> nommé <b>Form</b> contenant le formulaire <b>SearchMovieByDirectorType.php</b> est crée.<br>À partir de là, il faut éditer la classe <b>SearchMoviesByDirectorType</b> pour y ajouter les champs nécessaires :</p>
+    <p>Une fois cette opération terminée, un sous dossier de <b>src</b> nommé <b>Form</b> contenant le formulaire <b>SearchMovieByDirectorType.php</b> est créé.<br>À partir de là, il faut éditer la classe <b>SearchMoviesByDirectorType</b> pour y ajouter les champs nécessaires :</p>
 
     <pre><code>
-     namespace App\Form;
+    <b>src/Form/SearchMovieByDirectorType</b>
 
-    use App\Entity\Realisateur;
+    use App\Entity\Film; <b>// Importation de cette entité dans le cadre de la jointure avec l'entité courante</b>
+    use App\Entity\Realisateur; <b>// Entité courante utilisée par EntityType</b>
+    use Doctrine\ORM\EntityRepository; <b>// Importation du repository de la classe courante</b>
+    use Doctrine\ORM\Query\Expr\Join; <b>// Importation de la classe de gestion de la jointure</b>
     use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-    use Symfony\Component\Form\AbstractType;
     use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-    use Symfony\Component\Form\FormBuilderInterface;
+    // ...
+
 
     class SearchMoviesByDirectorType extends AbstractType
     {
@@ -85,10 +88,32 @@
             $builder
                 ->add('realisateur', EntityType::class, [
                     'class' => Realisateur::class,
+                    <b>/*
+                     * <a href="https://symfony.com/doc/current/reference/forms/types/entity.html#using-a-custom-query-for-the-entities" target="_blank">Tri par ordre alphabétique des réalisateurs avec au moins un film enregistré dans la base</a>
+                     * Requête DQL équivalente à :
+                     * SELECT r.id r.nom FROM realisateur AS r
+                     * LEFT JOIN film AS f ON (r.id = f.realisateur_id)
+                     * WHERE f.realisateur_id IS NULL
+                     * ORDER BY r.nom
+                     */</b>
+                    'query_builder' => function (EntityRepository $entityRepository) {
+                        return $entityRepository->createQueryBuilder('r')
+                            ->leftJoin(
+                                Film::class,
+                                'f',
+                                Join::WITH,
+                                'f.realisateur = r.id'
+                            )
+                            ->andWhere('f.realisateur IS NOT NULL')
+                            ->orderBy('r.nom', 'ASC')
+                            ;
+                    },
                     'choice_label' => 'nom',
                     'placeholder' => 'Choisir un réalisateur', <b>// Valeur par défaut du champ</b>
-                    'label' => false <b>// On ne souhaite pas afficher le nom du champ car la valeur du placeholder est assez explicite</b>
+                    'label' => false, <b>// On ne souhaite pas afficher le nom du champ car la valeur du placeholder est assez explicite</b>
+                    'required' => true,
                 ])
+
                 ->add('chercher', SubmitType::class, [
                     'label' => 'Chercher les films' <b>// Valeur affichée sur le bouton</b>
                 ])
@@ -103,9 +128,13 @@
 
     <p>Il y a tout d'abord le menu déroulant avec la <b>liste des réalisateurs</b> qui est une instance de la classe <b><a href="https://symfony.com/doc/current/reference/forms/types/entity.html" target="_blank">EntityType</a></b> qui permet de charger notre entité (<b>Realisateur</b>) avec le paramètre <b>class</b> et, de choisir les propriété que l'on veut afficher (<b>nom</b>) avec le paramètre <b>choice_label</b>.</p>
 
+    <p>On note également l'usage du paramètre <b>query_builder</b> qui nous permet de filtrer la liste des réalisateur via une requête <abbr title="Doctrine Query Language">DQL</abbr> visant à classer par ordre alphabétique la liste des réalisateurs avec au moins 1 film.</p>
+
     <p>Le second champ est le bouton de soumission du formulaire (classe <b><a href="https://symfony.com/doc/current/reference/forms/types/submit.html" target="_blank">SubmitType</a></b>).</p>
 
-    <p>Le fait que le nom <b>realisateur</b> ai été choisi pour l'<b>EntityType</b> <kbd>$builder->add('realisateur', EntityType::class, [ ... ])</kbd> n'est pas anodin car il correspond au nom de la propriété du même nom dans l'entité <b>Film</b> qui permet le mapping avec l'entité <b>Realisateur</b>.<br>La méthode <b>findBy()</b> du <b>FilmRepository</b>, que nous expliquerons un peu plus bas, prend en premier paramètre un tableau associatif dont la clé doit correspondre au nom d'une propriété existante et dont la valeur doit servir de filtre pour générer en interne un code <abbr title="Search Query Language">SQL</abbr> du style <code>SELECT * FROM film WHERE realisateur_id = 1</code>.</p>
+    <p>Le fait que le nom <b>realisateur</b> ai été choisi pour l'<b>EnStityType</b> <kbd>$builder->add('realisateur', EntityType::class, [ ... ])</kbd> n'est pas anodin car il correspond au nom de la propriété du même nom dans l'entité <b>Film</b> qui permet le mapping avec l'entité <b>Realisateur</b>.</p>
+
+    <p>La méthode <b>findBy()</b> du <b>FilmRepository</b>, que nous expliquerons un peu plus bas, prend en premier paramètre un tableau associatif dont la clé doit correspondre au nom d'une propriété existante et dont la valeur doit servir de filtre pour générer en interne un code <abbr title="Search Query Language">SQL</abbr> de la requête du listing.</p>
 
     <p class="alert alert-primary"><i class="fa fa-paperclip"></i>La documentation détaillée de chaque champ de formulaire (ex : <b>EntityType</b>, <b>TextType</b>) liste l'ensemble des paramètres compatibles (ex : <b>placeholder</b>, <b>required</b>) qui nous permettent de personnaliser leur aspect et leur comportement.</p>
 
@@ -127,7 +156,7 @@
         if($form->isSubmitted() && $form->isValid())
         {
             $criteria = $form->getData(); <b>// Critères de recherche en provenance du formulaire</b>
-            $films = $filmRepository->findBy($criteria); <b>// Chargement du tableau de résultats</b>
+            $films = $filmRepository->findBy($criteria, ['titre' => 'ASC']); <b>// Chargement du tableau de résultats</b>
         }
 
         return $this->render('main/form.html.twig', [
@@ -197,7 +226,7 @@
 
     <p>À part la gestion de la <b>colonne Acteurs</b> dans le tableau d'affichage du résultat, la réponse est non !<br>La magie de <b>Symfony</b> et de <b>Doctrine</b> réside dans le fait que lorsqu'on demande à l'<b><abbr title="Object Relational Mapping">ORM</abbr></b> d'analyser une entité comme <b>Film</b>, celui-ci traite automatiquement toutes les propriétés qui la compose dont <b>realisateur</b> et <b>acteurs</b> qui servent de lien avec les entités <b>Realisateur</b> et <b>Acteur</b>, ce qui a pour effet de renvoyer toutes les données possibles.</p>
 
-    <p>Dit autrement, <b>Doctrine</b> analyse toutes les propriétés et effectue automatiquement toutes les jointures possibles, pour renvoyer l'ensemble des données possibles qu'on peut obtenir à partir d'une entité.</p>
+    <p>Dit autrement, <b>Doctrine</b> analyse toutes les propriétés et effectue automatiquement toutes les jointures possibles sur une entité afin de renvoyer un jeu de données exhaustif quelle que soit notre requête.</p>
 
     <p>Pour se rendre compte de comment cela marche, il suffit de faire un <code>dd()</code> sur le résultat de la requête dans le contrôleur principal :</p>
 
@@ -240,5 +269,4 @@
     </code></pre>
 
     <p>Cette première partie nous à permis de voir comment monter un formulaire pour <b>"lire"</b> des données, il est temps de voir comment <b>"créer"</b> des données via un formulaire.</p>
-
 {% endblock %}

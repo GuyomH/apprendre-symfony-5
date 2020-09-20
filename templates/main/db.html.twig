@@ -253,7 +253,10 @@
     INSERT INTO `realisateur` (`id`, `nom`) VALUES
     (1, 'John McTiernan'),
     (2, 'Simon West'),
-    (3, 'Ted Kotcheff');
+    (3, 'Ted Kotcheff'),
+    (4, 'Peter Jackson'),
+    (5, 'Steven Spielberg'),
+    (6, 'George Lucas');
 
     --
     -- Déchargement des données de la table `film`
@@ -324,7 +327,7 @@
      */
     public function db(FilmRepository $filmRepository)
     {
-        $films = $filmRepository->findAll(); <b>// On récupère la liste de tous les films grâce à la méthode findAll()</b>
+        $films = $filmRepository->findBy([], ['titre' => 'ASC',]); <b>// Liste de tous les films triés par ordre alphabétique</b>
 
         return $this->render('main/db.html.twig', [
             // ...
@@ -398,7 +401,7 @@
 
     <p>On utilise une boucle <code>&#123;% for film in films %&#125;</code> afin d'itérer le tableau <b>films</b>.<br>L'accès au nom  du réalisateur s'opère via <code>&#123;&#123; film.realisateur.nom &#125;&#125;</code>.<br>La propriété <b>acteurs</b> étant un tableau, il faut l'itérer <code>&#123;% for acteur in film.acteurs %&#125;</code>, puis accéder au <b>nom</b> pour chaque acteur via <code>&#123;&#123; acteur.nom &#125;&#125;</code>.</p>
 
-    <p>Voici le résultat final :</p>
+    <p id="result">Voici le résultat final :</p>
 
     <table class="table table-striped">
         <thead>

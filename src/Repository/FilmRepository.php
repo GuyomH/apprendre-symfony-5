@@ -19,6 +19,16 @@ class FilmRepository extends ServiceEntityRepository
         parent::__construct($registry, Film::class);
     }
 
+    public function findAllGroupedByDirectors()
+    {
+        return $this->createQueryBuilder('f')
+            ->groupBy('f.realisateur')
+            ->orderBy('f.titre', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     // /**
     //  * @return Film[] Returns an array of Film objects
     //  */
