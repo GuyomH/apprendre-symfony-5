@@ -37,7 +37,11 @@
      created: src/Form/FilmType.php
     </code></pre>
 
-    <p>Le fait d'avoir créé nos 2 formulaires en les liant à leur entité respective, permet de pré-lister les champs à paramétrer (Attention, dans certains cas de figure il faut en supprimer ou en créer).</p>
+    <p>Le fait d'avoir créé nos 2 formulaires en les liant à leur entité respective à deux avantages :</p>
+    <ul>
+        <li>Cela permet de pré-lister les champs à paramétrer dans la classe du formulaire, bien que dans certains cas il faille en supprimer ou en créer.</li>
+        <li>Les données en provenance de ces formulaires seront traitées comme une instance de leur classe liée.</li>
+    </ul>
 
     <pre><code>
     <b>src/Form/ActeurType</b>
@@ -63,7 +67,7 @@
         public function configureOptions(OptionsResolver $resolver)
         {
             $resolver->setDefaults([
-                'data_class' => Acteur::class,
+                'data_class' => Acteur::class, <b>Lien entre le formulaire et la classe</b>
             ]);
         }
     }
@@ -120,7 +124,7 @@
         public function configureOptions(OptionsResolver $resolver)
         {
             $resolver->setDefaults([
-                'data_class' => Film::class,
+                'data_class' => Film::class, <b>Lien entre le formulaire et la classe</b>
             ]);
         }
     }
@@ -162,7 +166,7 @@
         &#123;&#123; form_row(form2.acteurs) &#125;&#125;
         <b>&#123;# Submit #&#125;</b>
         &lt;div class="form-group"&gt;
-            &#123;&#123; form_row(form2.ajouter) &#125;&#125;
+            &#123;&#123; form_row(form2.soumettre) &#125;&#125;
         &lt;/div&gt;
     &#123;&#123; form_end(form2) &#125;&#125;
     </code></pre>
@@ -195,73 +199,114 @@
     <b>&#123;# templates/main/form2.html.twig #&#125;</b>
 
     &#123;% block javascripts %&#125;
-        &#123;&#123; parent() &#125;&#125; <b>&#123;# permet la surcharge du bloc #&#125;</b>
-        &lt;script&gt;
-            $(document).ready(function()
+    &#123;&#123; parent() &#125;&#125; &#123;# permet la surcharge du block #&#125;
+    &#123;# Script de gestin du data-prototype en JQuery #&#125;
+    &lt;script&gt;
+    $(document).ready(function()
+    &#123;
+        <b>// Élément DIV qui contient le data-prototype</b>
+        const $container = $('#film_acteurs');
+
+        <b>// Conteneur DIV d'accueil des champs input des acteurs</b>
+        const $container2 = $('#acteur-container');
+
+        <b>// Nombre d'input</b>
+        let index = $container.find(':input').length;
+
+        <b>// Si pas de champ acteur, on en ajoute 1,
+        // car il y a au moins 1 acteur par film</b>
+        if(index === 0)
+        &#123;
+            addActeur($container);
+        &#125;
+
+        <b>// Appel de la fonction d'ajout</b>
+        $('.addActeur').click(function(e)
+        &#123;
+            e.preventDefault();
+            addActeur($container);
+        &#125;);
+
+        <b>// Fonction d'ajout avec exploitation du data-prototype</b>
+        function addActeur($container)
+        &#123;
+            const template = $container.attr('data-prototype')
+                .replace(/__name__label__/g, 'Nom de l\'acteur')
+                .replace(/__name__/g, index)
+            ;
+
+            const $prototype = $(template);
+
+            deleteButton($prototype);
+
+            $container2.append($prototype);
+
+            index++;
+        &#125;
+
+        <b>// Fonction de suppression des champs d'acteur</b>
+        function deleteButton($prototype)
+        &#123;
+            const $deleteLink = $('&lt;a href="#" class="btn btn-danger btn-sm"&gt;Annuler&lt;/a&gt;');
+
+            <b>// On  ne rajoute pas de bouton annuler sur le premier input
+            // car un film doit avoir au moins 1 acteur</b>
+            if(index > 0)
             &#123;
-                <b>// Élément DIV qui contient le data-prototype</b>
-                const $container = $('#film_acteurs');
+                $prototype.append($deleteLink);
+            &#125;
 
-                <b>// Conteneur DIV d'accueil des champs input des acteurs</b>
-                const $container2 = $('#acteur-container');
+            $deleteLink.click(function(e)
+            &#123;
+                $prototype.remove();
 
-                <b>// Nombre d'input</b>
-                let index = $container.find(':input').length;
-
-                <b>// Si pas de champ acteur, on en ajoute 1,
-                // car il y a au moins 1 acteur par film</b>
-                if(index === 0)
-                &#123;
-                    addActeur($container);
-                &#125;
-
-                <b>// Appel de la fonction d'ajout</b>
-                $('.addActeur').click(function(e)
-                &#123;
-                    e.preventDefault();
-                    addActeur($container);
-                &#125;);
-
-                <b>// Fonction d'ajout avec exploitation du data-prototype</b>
-                function addActeur($container)
-                &#123;
-                    const template = $container.attr('data-prototype')
-                        .replace(/__name__label__/g, 'Nom de l\'acteur')
-                        .replace(/__name__/g, index)
-                    ;
-
-                    const $prototype = $(template);
-
-                    deleteButton($prototype);
-
-                    $container2.append($prototype);
-
-                    index++;
-                &#125;
-
-                <b>// Fonction de suppression des champs d'acteur</b>
-                function deleteButton($prototype)
-                &#123;
-                    const $deleteLink = $('&lt;a href="#" class="btn btn-danger btn-sm"&gt;Annuler&lt;/a&gt;');
-
-                    <b>// On  ne rajoute pas de bouton annuler sur le premier input
-                    // car un film doit avoir au moins 1 acteur</b>
-                    if(index &gt; 0)
-                    &#123;
-                        $prototype.append($deleteLink);
-                    &#125;
-
-                    $deleteLink.click(function(e)
-                    &#123;
-                        $prototype.remove();
-
-                        <b>// Évite qu'un symbole "#" apparaisse dans l'URL</b>
-                        e.preventDefault();
-                        return false;
-                    &#125;);
-                &#125;
+                <b>// Évite qu'un # apparaisse dans l'URL</b>
+                e.preventDefault();
+                return false;
             &#125;);
-        &lt;/script&gt;
+        &#125;
+
+        <b>/*****************************************************/
+        /* Gestion complémentaire des champs nom de l'acteur */
+        /* En cas de message d'erreur ou d'update            */
+        /*****************************************************/</b>
+
+        <b>// Gestion du label</b>
+        $('legend.col-form-label').each(
+            function(index)
+            &#123;
+                if(index > 0)
+                &#123;
+                    $(this).html('Nom de l\'acteur');
+                &#125;
+            &#125;
+        );
+
+        <b>// Gestion du bouton Supprimer</b>
+        $('fieldset.form-group').each(
+            function(index)
+            &#123;
+                const $deleteLink = $('&lt;a href="#" class="btn btn-danger btn-sm"&gt;Annuler&lt;/a&gt;');
+
+                <b>// On  ne rajoute le bouton annuler à partir du second input
+                // qui correspond à l'index n°2</b>
+                if(index > 1)
+                &#123;
+                    $(this).append($deleteLink);
+                &#125;
+
+                $deleteLink.click(function(e)
+                &#123;
+                    $(this).parent().remove();
+
+                    // Évite qu'un # apparaisse dans l'URL
+                    e.preventDefault();
+                    return false;
+                &#125;);
+            &#125;
+        );
+    &#125;);
+    &lt;/script&gt;
     &#123;% endblock %&#125;
     </code></pre>
 
@@ -400,7 +445,7 @@
 
         /**
          * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", cascade={"persist"})
-            <b> // <a href="https://symfony.com/doc/current/reference/constraints/Valid.html" target="_blank">Permet de gérer la validation  d'un objet imbriqué</a> (voir propriété "nom" de l'entité "Acteur")
+        <b> // <a href="https://symfony.com/doc/current/reference/constraints/Valid.html" target="_blank">Permet de gérer la validation  d'un objet imbriqué</a> (voir propriété "nom" de l'entité "Acteur")
          * @Assert\Valid()</b>
          */
         private $acteurs;
@@ -516,7 +561,7 @@
         <input type="button" class="btn btn-info btn-sm mb-5 addActeur" value="Ajouter un acteur">
         {# Submit #}
         <div class="form-group">
-            {{ form_row(form2.ajouter) }}
+            {{ form_row(form2.soumettre) }}
         </div>
     {{ form_end(form2) }}
 {% endblock %}
@@ -588,6 +633,46 @@
                     return false;
                 });
             }
+
+            /*****************************************************/
+            /* Gestion complémentaire des champs nom de l'acteur */
+            /* En cas de message d'erreur ou d'update            */
+            /*****************************************************/
+
+            // Gestion du label
+            $('legend.col-form-label').each(
+                function(index)
+                {
+                    if(index > 0)
+                    {
+                        $(this).html('Nom de l\'acteur');
+                    }
+                }
+            );
+
+            // Gestion du bouton Supprimer
+            $('fieldset.form-group').each(
+                function(index)
+                {
+                    const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
+
+                    // On  ne rajoute le bouton annuler à partir du second input
+                    // qui correspond à l'index n°2
+                    if(index > 1)
+                    {
+                        $(this).append($deleteLink);
+                    }
+
+                    $deleteLink.click(function(e)
+                    {
+                        $(this).parent().remove();
+
+                        // Évite qu'un # apparaisse dans l'URL
+                        e.preventDefault();
+                        return false;
+                    });
+                }
+            );
         });
     </script>
 {% endblock %}

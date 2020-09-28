@@ -4,4 +4,303 @@
 
 {% block main %}
     <h1>Mettre à jour des données via un formulaire</h1>
+
+    <p>Quelle est la <b>différence</b> entre un <b>formulaire d'ajout</b> et un <b>formulaire de mise à jour</b> ?</p>
+
+    <p>La réponse est <b>aucune</b>, car dans les deux cas on utilise le <b>même formulaire</b>. La différence réside dans dans le fait que pour l'ajout de données, le formulaire est vide, et pour la mise à jour il est rempli avec les données d'une entité.</p>
+
+    <h2>Récupérer l'ID d'un film au hasard</h2>
+
+    <p>Dans le cadre de notre démonstration, et comme <b>Doctrine</b> ne gère pas la fonction <b><abbr title="Search Query Language">SQL</abbr></b> <code>rand()</code>, nous allons créer une méthode écrite en <b><a href="https://symfony.com/doc/current/doctrine.html#querying-with-sql" target="_blank"><abbr title="Search Query Language">SQL</abbr> brut</a></b> dans le <b>FilmRepository</b> afin de récupérer l'<b>ID</b> d'un film au hasard :</p>
+
+    <pre><code>
+    <b>src/Repository/FilmRepository</b>
+
+    // ...
+
+    class FilmRepository extends ServiceEntityRepository
+    {
+
+        // ...
+
+        <b>public function getIdAtRandom()
+        {
+            $conn = $this->getEntityManager()->getConnection();
+
+            $sql = '
+                    SELECT id FROM film
+                    ORDER BY rand()
+                    LIMIT 1
+            ';
+
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchOne();
+        }</b>
+
+        // ...
+    }
+    </code></pre>
+
+    <p>Une méthode en  <b><a href="https://symfony.com/doc/current/doctrine.html#querying-with-sql" target="_blank"><abbr title="Search Query Language">SQL</abbr> brut</a></b> utilise le <b>véritable nom des tables et des champs</b> dans la base de données.<br>Le recours à cette méthode doit se faire avec parcimonie et seulement lorsqu'on est bloqué avec le <b><abbr title="Doctrine Query Language">DQL</abbr></b>.</p>
+
+    <h2>Afficher le formulaire</h2>
+
+    <p>L'étape suivante consiste à reprendre le même formulaire que pour la section <b>"Ajouter des données"</b>, puis l'associer avec un objet de la classe <b>Film</b> afin de l'afficher avec les données à mettre à jour :</p>
+
+    <pre><code>
+    <b>src/Controller/MainController</b>
+
+    /**
+     * @Route("/form/update", name="form3")
+     */
+    public function form3(EntityManagerInterface $entityManager)
+    {
+        <b>// Récupération du FilmRepository via l'EntityManagerInterface
+        // <i>Il aurait été possible de récupérer le repository en l'injectant directement</i></b>
+        $filmRepository = $entityManager->getRepository(Film::class);
+
+        <b>// Récupération d'un ID de film au hasard via la méthode custom écrite en SQL brut</b>
+        $id = $filmRepository->getIdAtRandom();
+
+        <b>// Récupération de l'objet film via la méthode find()
+        // qui prend en paramètre l'ID aléatoire</b>
+        $film = $filmRepository->find($id);
+
+        <b>// Création du formulaire avec l'objet Film <i>($film)</i> en second paramètre afin de remplir le formulaire</b>
+        $form = $this->createForm(FilmType::class, $film);
+
+        return $this->render('main/form3.html.twig', [
+            'page_list' => $this->pageList,
+            'path_list' => $this->pathList,
+            'form3' => $form->createView(), <b>// Envoi du formulaire à la vue</b>
+        ]);
+    }
+    </code></pre>
+
+    <p>Pour l'affichage du film, on reprend le même code que la section précédente, avec pour seule différence le bouton <b>"Ajouter ce film"</b> que l'on renomme <b>"Mettre à jour ce film"</b> :</p>
+
+    <pre><code>
+    &#123;# templates/main/form3.html.twig #&#125;
+
+    &#123;&#123;{ form_start(form3) &#125;&#125;
+
+        <b>&#123;# ... #&#125;</b>
+
+        &lt;div class="form-group"&gt;
+            <b> &#123;# On surcharge le "label" du bouton de soumission avec la nouvelle valeur #&#125;</b>
+            &#123;&#123; form_row(form3.soumettre, <b>{'label': 'Mettre à jour ce film'}</b>) &#125;&#125;
+        &lt;/div&gt;
+    &#123;&#123; form_end(form3) &#125;&#125;
+    </code></pre>
+
+    <p>Le script <b><abbr title="JavaScript">JS</abbr></b> de gestion des champs d'acteurs est strictement identique à celui de la section précédente, on reprend donc le même au point virgule près.</p>
+
+    <h2>Brancher le formulaire</h2>
+
+    <p>Le branchement du formulaire à la base de données se fait de la même manière que dans la section précédente :</p>
+
+    <pre><code>
+     <b>src/Controller/MainController</b>
+
+    /**
+     * @Route("/form/update", name="form3")
+     */
+    public function form3(Request $request, EntityManagerInterface $entityManager)
+    &#123;
+        <b>// Récupération du FilmRepository via l'EntityManagerInterface</b>
+        $filmRepository = $entityManager->getRepository(Film::class);
+
+        <b>// Récupération de l'ID d'un film au hasard'</b>
+        $id = $filmRepository->getIdAtRandom();
+
+        <b>// Récupération du film via le numéro d'ID choisi au hasard</b>
+        $film = $filmRepository->find($id);
+
+        <b>// Création du formulaire</b>
+        $form = $this->createForm(FilmType::class, $film);
+
+        <b>// Gestion de la requête</b>
+        $form->handleRequest($request);
+
+        <b>// Si le formulaire a été soumis et est valide</b>
+        if($form->isSubmitted() && $form->isValid())
+        &#123;
+            <b>// On flush afin de finaliser la mise à jour dans la BDD</b>
+            <b>// </b>
+            $entityManager->flush();
+
+            <b>// Notification en cas de succès de la soumission + redirection vers la page courante</b>
+            $this->addFlash(
+                'notice',
+                'Votre film a bien été mis à jour ! Il ne vous reste plus qu\'à trouver une page où vous pourrez voir le résultat ;-)'
+            );
+
+            return $this->redirectToRoute('form3');
+        &#125;
+
+        return $this->render('main/form3.html.twig', [
+
+            // ...
+
+            <b>// Envoi du formulaire à la vue</b>
+            'form3' => $form->createView(),
+        ]);
+    &#125;
+    </code></pre>
+
+    <h2>Mettre en place les cascades dans l'entité Film</h2>
+
+    <pre><code>
+    <b>src/Entity/Film</b>
+
+    // ...
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Realisateur::class, inversedBy="films", <b>cascade={"persist"}</b>)
+     * @Assert\NotNull(message="Un nom de réalisateur doit être choisi")
+     */
+    private $realisateur;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", <b>cascade={"persist", "remove"}</b>)
+     * @Assert\Valid()
+     */
+    private $acteurs;
+
+    // ...
+    </code></pre>
+
+    <h2>Formulaire de mise à jour du film "{{ form3.vars.value.titre }}"</h2>
+
+    {# Affichage du formulaire #}
+    {{ form_start(form3) }}
+    {# Titre du film #}
+    <div class="form-group">
+        {{ form_row(form3.titre) }}
+    </div>
+    {# Nom du réalisateur #}
+    <div class="form-group">
+        {{ form_row(form3.realisateur) }}
+    </div>
+    {# Liste des acteurs #}
+    {{ form_row(form3.acteurs) }}
+    <div id="acteur-container"></div>
+    <input type="button" class="btn btn-info btn-sm mb-5 addActeur" value="Ajouter un acteur">
+    {# Submit #}
+    <div class="form-group">
+        {{ form_row(form3.soumettre, {'label': 'Mettre à jour ce film'}) }}
+    </div>
+    {{ form_end(form3) }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }} {# permet la surcharge du block #}
+    {# Script de gestin du data-prototype en JQuery #}
+    <script>
+        $(document).ready(function()
+        {
+            // Élément DIV qui contient le data-prototype
+            const $container = $('#film_acteurs');
+
+            // Conteneur DIV d'accueil des champs input des acteurs
+            const $container2 = $('#acteur-container');
+
+            // Nombre d'input
+            let index = $container.find(':input').length;
+
+            // Si pas de champ acteur, on en ajoute 1,
+            // car il y a au moins 1 acteur par film
+            if(index === 0)
+            {
+                addActeur($container);
+            }
+
+            // Appel de la fonction d'ajout
+            $('.addActeur').click(function(e)
+            {
+                e.preventDefault();
+                addActeur($container);
+            });
+
+            // Fonction d'ajout avec exploitation du data-prototype
+            function addActeur($container)
+            {
+                const template = $container.attr('data-prototype')
+                    .replace(/__name__label__/g, 'Nom de l\'acteur')
+                    .replace(/__name__/g, index)
+                ;
+
+                const $prototype = $(template);
+
+                deleteButton($prototype);
+
+                $container2.append($prototype);
+
+                index++;
+            }
+
+            // Fonction de suppression des champs d'acteur
+            function deleteButton($prototype)
+            {
+                const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
+
+                // On  ne rajoute pas de bouton annuler sur le premier input
+                // car un film doit avoir au moins 1 acteur
+                if(index > 0)
+                {
+                    $prototype.append($deleteLink);
+                }
+
+                $deleteLink.click(function(e)
+                {
+                    $prototype.remove();
+
+                    // Évite qu'un # apparaisse dans l'URL
+                    e.preventDefault();
+                    return false;
+                });
+            }
+
+            /*****************************************************/
+            /* Gestion complémentaire des champs nom de l'acteur */
+            /* En cas de message d'erreur ou d'update            */
+            /*****************************************************/
+
+            // Gestion du label
+            $('legend.col-form-label').each(
+                function(index)
+                {
+                    if(index > 0)
+                    {
+                        $(this).html('Nom de l\'acteur');
+                    }
+                }
+            );
+
+            // Gestion du bouton Supprimer
+            $('fieldset.form-group').each(
+                function(index)
+                {
+                    const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
+
+                    // On  ne rajoute le bouton annuler à partir du second input
+                    // qui correspond à l'index n°2
+                    if(index > 1)
+                    {
+                        $(this).append($deleteLink);
+                    }
+
+                    $deleteLink.click(function(e)
+                    {
+                        $(this).parent().remove();
+
+                        // Évite qu'un # apparaisse dans l'URL
+                        e.preventDefault();
+                        return false;
+                    });
+                }
+            );
+        });
+    </script>
 {% endblock %}

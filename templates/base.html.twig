@@ -34,7 +34,7 @@
                                        <a class="nav-link dropdown-toggle{{ (currentPath in path) ? ' active'}}" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">{{ name }}</a>
                                        <div class="dropdown-menu">
                                            {% for subname, subpath in path %}
-                                               <a class="dropdown-item" href="{{ path(subpath) }}">{{ subname }}</a>
+                                                <a class="dropdown-item" href="{{ path(subpath) }}">{{ subname }}</a>
                                            {% endfor %}
                                        </div>
                                    </li>

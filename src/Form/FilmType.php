@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Acteur;
 use App\Entity\Film;
 use App\Entity\Realisateur;
 use Doctrine\ORM\EntityRepository;
@@ -23,7 +24,6 @@ class FilmType extends AbstractType
                 'required' => true,
             ])
 
-            // Le fait de passer par la classe EntityType nous dispense de d'utiliser un formulaire imbriqué
             ->add('realisateur', EntityType::class, [
                 'class' => Realisateur::class,
                 // Tri par ordre alphabétique de la liste des réalisateurs
@@ -41,11 +41,13 @@ class FilmType extends AbstractType
             ->add('acteurs', CollectionType::class, [
                 'entry_type' => ActeurType::class,
                 'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
                 'by_reference' => false, // force l'appel de la méthode addActeur pour lier les acteurs au film
                 'label' => 'LISTE DES ACTEURS :',
             ])
 
-            ->add('ajouter', SubmitType::class, [
+            ->add('soumettre', SubmitType::class, [
                 'label' => 'Ajouter ce film',
             ])
         ;

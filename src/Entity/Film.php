@@ -39,13 +39,14 @@ class Film
     private $titre;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Realisateur::class, inversedBy="films")
+     * @ORM\ManyToOne(targetEntity=Realisateur::class, inversedBy="films", cascade={"persist"})
      * @Assert\NotNull(message="Un nom de réalisateur doit être choisi")
      */
     private $realisateur;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", cascade={"persist", "remove"})
+     * @ORM\OrderBy({"nom" = "ASC"})
      * @Assert\Valid()
      */
     private $acteurs;

@@ -29,6 +29,21 @@ class FilmRepository extends ServiceEntityRepository
             ;
     }
 
+    public function getIdAtRandom()
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = '
+                SELECT id FROM film
+                ORDER BY rand()
+                LIMIT 1
+        ';
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchOne();
+    }
+
     // /**
     //  * @return Film[] Returns an array of Film objects
     //  */

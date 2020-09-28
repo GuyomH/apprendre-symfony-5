@@ -3,16 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="bb6001b7-1cf2-4358-83d0-f40e605fe351" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/MainController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/MainController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Acteur.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Acteur.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Entity/Film.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Film.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Form/SearchMoviesByDirectorType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Form/SearchMoviesByDirectorType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/ActeurType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Form/ActeurType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/FilmType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Form/FilmType.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Repository/FilmRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/FilmRepository.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Repository/RealisateurRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/RealisateurRepository.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/main/db.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/db.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/main/form1.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/form1.html.twig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/main/form2.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/form2.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/main/form3.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/form3.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -171,7 +170,12 @@
       <workItem from="1600453654002" duration="21065000" />
       <workItem from="1600516880219" duration="4542000" />
       <workItem from="1600529197559" duration="4070000" />
-      <workItem from="1600549562811" duration="10196000" />
+      <workItem from="1600549562811" duration="10481000" />
+      <workItem from="1600776376654" duration="11376000" />
+      <workItem from="1600796882977" duration="23283000" />
+      <workItem from="1600866237120" duration="1144000" />
+      <workItem from="1601297945734" duration="61000" />
+      <workItem from="1601298036377" duration="7943000" />
     </task>
     <servers />
   </component>
@@ -183,14 +187,22 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1725" y="416" key="#com.intellij.ide.util.MemberChooser/0.0.2560.1400@0.0.2560.1400" timestamp="1600204665824" />
-    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1600391167955">
+    <state x="1600" y="436" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1601297995311">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1600391167955" />
+    <state x="1600" y="436" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1601297995311" />
+    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1601299641242">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1601299641242" />
     <state width="498" height="446" key="SwitcherDM" timestamp="1600521248917">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state width="498" height="446" key="SwitcherDM/0.0.2560.1400@0.0.2560.1400" timestamp="1600521248917" />
+    <state x="1763" y="461" key="refactoring.ChangeSignatureDialog" timestamp="1600781285601">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1763" y="461" key="refactoring.ChangeSignatureDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1600781285601" />
     <state x="1583" y="319" width="672" height="678" key="search.everywhere.popup" timestamp="1600113627551">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>

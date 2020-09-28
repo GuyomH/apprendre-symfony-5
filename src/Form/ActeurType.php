@@ -16,8 +16,8 @@ class ActeurType extends AbstractType
             ->add('nom', TextType::class, [
                 'label' => false,
                 'required' => true,
-            ])
-        ;
+                //'empty_data' => '', // https://stackoverflow.com/questions/60100528/expected-argument-of-type-string-null-given-at-property-path
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
