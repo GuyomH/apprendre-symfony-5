@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+
 use App\Entity\Acteur;
 use App\Entity\Film;
 use App\Entity\Realisateur;
@@ -37,14 +38,26 @@ class FilmType extends AbstractType
                 'required' => true,
             ])
 
-            // On imbrique le formulaire ActeurType
-            ->add('acteurs', CollectionType::class, [
-                'entry_type' => ActeurType::class,
+            ->add('acteurs', EntityType::class, [
+                'class' => Acteur::class,
+                // Tri par ordre alphabétique de la liste des acteurs
+                'query_builder' => function (EntityRepository $entityRepository) {
+                    return $entityRepository->createQueryBuilder('a')
+                        ->orderBy('a.nom', 'ASC');
+                },
+                'choice_label' => 'nom',
+                'label' => 'Nom des acteurs',
+                'multiple' => true,
+                'expanded' => true,
+                'placeholder' => 'Choisir au moins un acteur',
+            ])
+
+            ->add('hashtags', CollectionType::class, [
+                'entry_type' => HashtagType::class,
                 'allow_add' => true,
                 'allow_delete' => true,
-                'delete_empty' => true,
-                'by_reference' => false, // force l'appel de la méthode addActeur pour lier les acteurs au film
-                'label' => 'LISTE DES ACTEURS :',
+                'by_reference' => false,
+                'label' => 'Liste des hashtags',
             ])
 
             ->add('soumettre', SubmitType::class, [

@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block breadcrumb %}{% endblock %} {# pas de breadcrumbs #}
+
+{% block main %}
+    {# Affichage du formulaire #}
+    {{ form_start(form3) }}
+    {# Titre du film #}
+    <div class="form-group">
+        {{ form_row(form3.titre) }}
+    </div>
+    {# Nom du réalisateur #}
+    <div class="form-group">
+        {{ form_row(form3.realisateur) }}
+    </div>
+    {# Liste des acteurs #}
+    <div class="form-group">
+        {{ form_row(form3.acteurs) }}
+    </div>
+    {# Liste des hashtags #}
+    <div id="hashtag-area">
+        {{ form_row(form3.hashtags) }}
+        <div id="hashtag-container"></div>
+        <input type="button" class="btn btn-info btn-sm mb-5 addHashtag" value="Ajouter un hashtag">
+    </div>
+    {# Submit #}
+    <div class="form-group">
+        {{ form_row(form3.soumettre, {'label': 'Éditer ce film'}) }}
+    </div>
+    {{ form_end(form3) }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }} {# permet la surcharge du block #}
+    {# Script de gestion du data-prototype en JQuery #}
+    <script>
+        $(document).ready(function()
+        {
+            // Élément DIV qui contient le data-prototype
+            const $container = $('#film_hashtags');
+
+            // Conteneur DIV d'accueil des champs input des acteurs
+            const $container2 = $('#hashtag-container');
+
+            // Nombre d'input
+            let index = $container.find(':input').length;
+
+            // Appel de la fonction d'ajout
+            $('.addHashtag').click(function(e)
+            {
+                e.preventDefault();
+                addHashtag($container);
+            });
+
+            // Fonction d'ajout avec exploitation du data-prototype
+            function addHashtag($container)
+            {
+                const template = $container.attr('data-prototype')
+                    .replace(/__name__label__/g, 'Hashtag')
+                    .replace(/__name__/g, index)
+                ;
+
+                const $prototype = $(template);
+
+                deleteButton($prototype);
+
+                $container2.append($prototype);
+
+                index++;
+            }
+
+            // Fonction de suppression des champs hashtag
+            function deleteButton($prototype)
+            {
+                const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
+
+                $prototype.append($deleteLink);
+
+                $deleteLink.click(function(e)
+                {
+                    $prototype.remove();
+
+                    // Évite qu'un # apparaisse dans l'URL
+                    e.preventDefault();
+                    return false;
+                });
+            }
+
+            // Gestion du label post message d'erreur / mode édition
+            $('#hashtag-area legend.col-form-label').each(
+                function(index)
+                {
+                    if(index > 0)
+                    {
+                        $(this).html('Hashtag');
+                    }
+                }
+            );
+
+            // Gestion du bouton Supprimer post message d'erreur / mode édition
+            $('#hashtag-area fieldset.form-group').each(
+                function(index) {
+                    const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
+
+                    if (index > 0) {
+                        $(this).append($deleteLink);
+                    }
+
+                    $deleteLink.click(function (e) {
+                        $(this).parent().remove();
+
+                        // Évite qu'un # apparaisse dans l'URL
+                        e.preventDefault();
+                        return false;
+                    });
+                });
+
+
+            // Script pour gérer rendre la sélection d'au moins 1 acteur obligatoire
+            $("#film_soumettre").click(function () {
+                checked = $("input[type=checkbox]:checked").length;
+
+                if (!checked) {
+                    alert("Veuillez sélectionner au moins un acteur.");
+                    return false;
+                }
+            });
+        });
+    </script>
+{% endblock %}
+

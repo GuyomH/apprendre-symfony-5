@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Count;
 
 /**
  * @ORM\Entity(repositoryClass=FilmRepository::class)
@@ -39,21 +40,32 @@ class Film
     private $titre;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Realisateur::class, inversedBy="films", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity=Realisateur::class, inversedBy="films")
      * @Assert\NotNull(message="Un nom de réalisateur doit être choisi")
      */
     private $realisateur;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films")
      * @ORM\OrderBy({"nom" = "ASC"})
-     * @Assert\Valid()
+     * @Count(
+     *     min = 1,
+     *     minMessage = "Au moins un acteur doit être selectionné"
+     * )
      */
     private $acteurs;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Hashtag::class, mappedBy="film", cascade={"persist", "remove"})
+     * @ORM\OrderBy({"terme" = "ASC"})
+     * @Assert\Valid()
+     */
+    private $hashtags;
 
     public function __construct()
     {
         $this->acteurs = new ArrayCollection();
+        $this->hashtags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -106,6 +118,37 @@ class Film
     {
         if ($this->acteurs->contains($acteur)) {
             $this->acteurs->removeElement($acteur);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Hashtag[]
+     */
+    public function getHashtags(): Collection
+    {
+        return $this->hashtags;
+    }
+
+    public function addHashtag(Hashtag $hashtag): self
+    {
+        if (!$this->hashtags->contains($hashtag)) {
+            $this->hashtags[] = $hashtag;
+            $hashtag->setFilm($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHashtag(Hashtag $hashtag): self
+    {
+        if ($this->hashtags->contains($hashtag)) {
+            $this->hashtags->removeElement($hashtag);
+            // set the owning side to null (unless already changed)
+            if ($hashtag->getFilm() === $this) {
+                $hashtag->setFilm(null);
+            }
         }
 
         return $this;

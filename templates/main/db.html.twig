@@ -12,20 +12,13 @@
     <p>Il faut donc créer le fichier <b>.env.local</b> et y renseigner la ligne suivante :</p>
 
     <pre><code>
-    # DATABASE_URL=mysql://utilisateur:mot_de_passed@url:numero_du_port/nom_de_la_base?serverVersion=version_du_serveur_facultatif
-    # La ligne ci-dessous fonctionnera directement si vous avez une configuration par défaut sans mot de passe.
+    <b># DATABASE_URL=mysql://utilisateur:mot_de_passed@url:numero_du_port/nom_de_la_base?serverVersion=version_du_serveur_facultatif
+    # La ligne ci-dessous fonctionnera directement si vous avez une configuration par défaut sans mot de passe.</b>
     DATABASE_URL=mysql://root:@127.0.0.1:3306/learning_symfony
     </code></pre>
 
 
-     <p>Une fois cela fait, il faut créer une base de données vierge via le l'onglet <b><abbr title="Seach Query Language">SQL</abbr></b> de <b>phpMyAdmin</b>, ou le <a href="https://stackoverflow.com/questions/698914/how-can-i-access-the-mysql-command-line-with-xampp-for-windows" target="_blank" title="Ouvrir le client MySQL/MariaDB avec XAMPP pour Windows">client <b>MySQL/MariaDB</b></a> :</p>
-
-    <pre><code>
-    -- Création de la base de donnée "learning_symfony" avec l'encodage UTF8mb4
-    CREATE DATABASE learning_symfony CHARACTER SET UTF8mb4 COLLATE utf8mb4_general_ci;
-    </code></pre>
-
-    <p>Il existe également une méthode plus simple pour créer notre base de données qui consiste à utiliser la commande <kbd>symfony console doctrine:database:create</kbd></p>
+     <p>Une fois cela fait, il faut créer la base de données vierge via la commande <kbd>symfony console doctrine:database:create</kbd></p>
 
     <h2>Ajouter des entités à la base de données</h2>
 
@@ -33,22 +26,24 @@
 
     <p>Une fois la base de données créée, il faut commencer à générer nos entités qui sont en fait des <b>classes</b> composées de <b>propriétés</b> qui correspondent respectivement à nos <b>tables</b> et à leurs <b>colonnes</b> en <b><abbr title="Search Query Language">SQL</abbr></b>.</p>
 
-    <p>Afin d'avoir un aperçu de la création d'entités et de l'utilisation du <b><abbr title="Doctrine Query Language">DQL</abbr></b> dans le cadre d'un modèle relationnel simple, prenons l'exemple d'une base de données très simplifiée sur le cinéma qui nous permet de connaître le réalisateur et les acteurs d'un film.<br>On part du postulat suivant :</p>
+    <p>Afin d'avoir un aperçu de la création d'entités et de l'utilisation du <b><abbr title="Doctrine Query Language">DQL</abbr></b> dans le cadre d'un modèle relationnel simple, prenons l'exemple d'une base de données très simplifiée sur le cinéma qui nous permet de connaître le <b>réalisateur</b> et les <b>acteurs</b> d'un <b>film</b> auquel on associe une <b>liste de hashtags</b>.<br>On part du postulat suivant :</p>
 
     <ul>
         <li>Plusieurs films peuvent être réalisés par un seul réalisateur</li>
         <li>Un réalisateur peut réaliser plusieurs films</li>
-        <li>Plusieurs films peuvent recevoir la participation de plusieurs acteurs</li>
-        <li>Plusieurs acteurs peuvent participer à plusieurs films</li>
+        <li>Plusieurs films peuvent être joués par plusieurs acteurs</li>
+        <li>Plusieurs acteurs peuvent jouer dans plusieurs films</li>
+        <li>Plusieurs hashtags peuvent identifier un film</li>
+        <li>Un film peut être identifé par plusieurs hashtags</li>
     </ul>
 
     <p>Cela nous donne le modèle conceptuel suivant :</p>
     <div class="text-center my-5"><img src="{{ asset('images/mcd.svg') }}" alt="Modèle Conceptuel de Données" class="img-fluid"></div>
 
-    <p>Il nous faut créer 3 entités nommées Film, Acteur et Realisateur.<br>Grâce au <b>maker bundle</b> nouds pouvons réaliser cela grâce à la commande <kbd>symfony console make:entity</kbd> dont voici l'ensemble des étapes pour l'entité <b>Film</b> :</p>
+    <p>Il nous faut créer 4 entités nommées Film, Acteur, Realisateur et Hashtag.<br>Grâce au <b>maker bundle</b> nouds pouvons réaliser cela grâce à la commande <kbd>symfony console make:entity</kbd> dont voici l'ensemble des étapes pour l'entité <b>Film</b> :</p>
 
     <pre><code>
-    symfony console make:entity
+    <b>symfony console make:entity</b>
 
     Class name of the entity to create or update (e.g. VictoriousPizza):
     > Film
@@ -81,13 +76,48 @@
     Next: When you're ready, create a migration with symfony console make:migration
     </code></pre>
 
-    <p class="alert alert-primary"><i class="fa fa-paperclip"></i> Il est possible d'associer une base de données qui contient déjà des tables (peuplées ou non) et de demander à symfony de <a href="https://symfony.com/doc/current/doctrine/reverse_engineering.html" target="_blank">convertir</a> le tout en entités expoitables par l'<abbr title="Object Relational Mapping">ORM</abbr>.</p>
+    <p>Voici également le détail de la création de l'entité <b>Hashtag</b> :</p>
+
+    <pre><code>
+    <b>symfony console make:entity</b>
+    Class name of the entity to create or update (e.g. GentleGnome):
+    > Hashtag
+
+    created: src/Entity/Hashtag.php
+    created: src/Repository/HashtagRepository.php
+
+    Entity generated! Now let's add some fields!
+    You can always add more fields later manually or by re-running this command.
+
+    New property name (press &lt;return&gt; to stop adding fields):
+    > terme
+
+    Field type (enter ? to see all types) [string]:
+    >
+
+    Field length [255]:
+    >
+
+    Can this field be null in the database (nullable) (yes/no) [no]:
+    >
+
+    updated: src/Entity/Hashtag.php
+
+    Add another property? Enter the property name (or press &lt;return&gt; to stop adding fields):
+    >
+
+    Success!
+
+    Next: When you're ready, create a migration with php bin/console make:migration
+    </code></pre>
+
+    <p class="alert alert-warning">La création des entités <b>Realisateur</b> et <b>Acteur</b> suit la même logique. Il faut créer propriété <b>nom</b> pour chacune d'entre elles et, dans les deux cas, <b>nom</b> est une chaîne de caractère (string) de 255 caractères non nulle.</p>
 
     <p>Il n'y a pas eu besoin de créer la propriété <b>id</b> car cela se fait automatiquement.</p>
 
     <p>A chaque fois que l'on créer une nouvelle entité, un nouveau fichier du même nom que l'entité est créé dans le repertoire <b>src/Entity</b> (src/Entity/Film.php), ainsi qu'un second suffixé de <b>Repository</b> dans <b>src/Repository</b> (src/Repository/FilmRepository.php).</p>
 
-    <p class="alert alert-warning"><b>TODO :</b> Créer les entités <b>Realisateur</b> et <b>Acteur</b> avec la propriété <b>nom</b> pour chacune d'entre elles.<br>Dans les deux cas, <b>nom</b> est une chaîne de caractère de 255 caractères non nulle.</p>
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i> Il est possible d'associer une base de données déjà existante et de demander à symfony de <a href="https://symfony.com/doc/current/doctrine/reverse_engineering.html" target="_blank">convertir</a> le tout en entités expoitables par l'<abbr title="Object Relational Mapping">ORM</abbr>.</p>
 
       <h2>Mettre en place les relations entre entités</h2>
 
@@ -113,12 +143,18 @@
         <li><b>Realisateur → Film = OneToMany</b> (Un réalisateur peut réaliser plusieurs films)</li>
         <li><b>Film → Acteur = ManyToMany</b> (Plusieurs films peuvent avoir les mêmes acteurs)</li>
         <li><b>Acteur → Film = ManyToMany</b> (Plusieurs acteurs peuvent jouer dans plusieurs mêmes films)</li>
+        <li><b>Film → Hashtag = OneToMany</b> (Un film peut être associé à plusieurs hashtags)</li>
+        <li><b>Hashtag → Film = ManyToOne</b> (Plusieurs hashtags peuvent être associés au même films)</li>
     </ul>
+
+    <p><b>Film</b> est l'entité principale de notre modèle conceptuel, et nous allons pouvoir créer l'ensemble des relations à partir de celle-ci :</p>
+
+    <h3>Relation <b>ManyToOne</b> Bidirectionnelle entre <b>Film</b> et <b>Realisateur</b></h3>
 
     <p>Toujours grâce à la commande <kbd>symfony console make:entity &lt;Nom_de_l_entité&gt;</kbd>, on peut ajouter nos relations.<br>Voici les étapes à suivre pour lier les entités <b>Film</b> et <b>Realisateur</b> :</p>
 
     <pre><code>
-    symfony console make:entity Film
+    <b>symfony console make:entity Film</b>
 
     Your entity already exists! So let's add some new fields!
 
@@ -155,8 +191,6 @@
     </code></pre>
 
     <p>On note que pour mettre en place notre relation, on crée une propriété <b>realisateur</b> qui sert de lien avec l'entité <b>Film</b> afin de pouvoir récupérer ou créer un nom à partir de celle-ci.</p>
-
-
 
     <p>À la question <b><i>"Do you want to add a new property to Realisateur so that you can access/update Film objects from it"</i></b>, on répond <b>Oui</b> par défaut afin de rendre la relation bidirectionnelle. Cela a pour effet la création d'une propriété <b>films</b> au sein de l'entité <b>Realisateur</b>.<br>Un réalisateur ayant la possibilité de réaliser plusieurs films, cette propriété est initialisée en tant que tableau via le constucteur de la classe :</p>
 
@@ -219,7 +253,85 @@
     }
     </code></pre>
 
-    <p class="alert alert-warning"><b>TODO :</b> Créer la relation <b>ManyToMany</b> entre <b>Film</b> et <b>Acteur</b>.</p>
+    <h3>Relation <b>OneToMany</b> Bidirectionnelle entre <b>Film</b> et <b>Hashtag</b></h3>
+
+    <p>Comme un film peut être lié à plusieurs hashtags, la propriété <b>hashtags</b> est déclarée en tant qu'<b>ArrayCollection</b> dans le constructeur de l'entité <b>Film</b>.</p>
+
+     <pre><code>
+     <b>symfony console make:entity Film</b>
+
+     Class name of the entity to create or update (e.g. VictoriousGnome):
+     > Film
+
+     Your entity already exists! So let's add some new fields!
+
+     New property name (press &lt;return&gt; to stop adding fields):
+             > hashtags <b>// On met la propriété au pluriel car elle représente un tableau de hashtags</b>
+
+     Field type (enter ? to see all types) [string]:
+     > OneToMany
+
+     What class should this entity be related to?:
+     > Hashtag
+
+     A new property will also be added to the Hashtag class so that you can access and set the related Film object from it.
+
+     New field name inside Hashtag [film]:
+     >
+
+     Is the Hashtag.film property allowed to be null (nullable)? (yes/no) [yes]:
+     >
+
+     updated: src/Entity/Film.php
+     updated: src/Entity/Hashtag.php
+
+     Add another property? Enter the property name (or press &lt;return&gt; to stop adding fields):
+     >
+
+      Success!
+
+     Next: When you're ready, create a migration with php bin/console make:migration
+     </code></pre>
+
+    <h3>Relation <b>ManyToMany</b> Bidirectionnelle entre <b>Film</b> et <b>Acteur</b></h3>
+
+    <p>Comme un film peut être lié à plusieurs acteurs, la propriété <b>acteurs</b> est déclarée en tant qu'<b>ArrayCollection</b> dans le constructeur de l'entité <b>Film</b>.<br>De la même manière, comme un acteur peut être lié à plusieurs films, la propriété <b>films</b> est également déclarée en tant qu'<b>ArrayCollection</b> dans le constructeur de l'entité <b>Acteur</b>.</p>
+
+    <pre><code>
+     <b>symfony console make:entity Film</b>
+
+     Class name of the entity to create or update (e.g. VictoriousGnome):
+     > Film
+
+     Your entity already exists! So let's add some new fields!
+
+     New property name (press &lt;return&gt; to stop adding fields):
+     > acteurs <b>// On met la propriété au pluriel car elle représente un tableau d'acteurs</b>
+
+     Field type (enter ? to see all types) [string]:
+     > ManyToMany
+
+     What class should this entity be related to?:
+     > Acteur
+
+     A new property will also be added to the Acteur class so that you can access and set the related Film object from it.
+
+     New field name inside Acteur [films]:
+     >
+
+     Is the Hashtag.film property allowed to be null (nullable)? (yes/no) [yes]:
+     >
+
+     updated: src/Entity/Film.php
+     updated: src/Entity/Acteur.php
+
+     Add another property? Enter the property name (or press &lt;return&gt; to stop adding fields):
+     >
+
+      Success!
+
+     Next: When you're ready, create a migration with php bin/console make:migration
+     </code></pre>
 
     <h2>Effectuer la migration</h2>
 
@@ -244,19 +356,14 @@
     INSERT INTO `acteur` (`id`, `nom`) VALUES
     (1, 'Bruce Willis'),
     (2, 'Dolf Lundgren'),
-    (3, 'Sylvester Stallone');
-
-    --
-    -- Déchargement des données de la table `realisateur`
-    --
-
-    INSERT INTO `realisateur` (`id`, `nom`) VALUES
-    (1, 'John McTiernan'),
-    (2, 'Simon West'),
-    (3, 'Ted Kotcheff'),
-    (4, 'Peter Jackson'),
-    (5, 'Steven Spielberg'),
-    (6, 'George Lucas');
+    (3, 'Sylvester Stallone'),
+    (4, 'Michael J. Fox'),
+    (5, 'Christopher Lloyd'),
+    (6, 'Uma Thurman'),
+    (7, 'John Travolta'),
+    (8, 'Elijah Wood'),
+    (9, 'Ian McKellen'),
+    (10, 'Arnold Schwarzenegger');
 
     --
     -- Déchargement des données de la table `film`
@@ -282,6 +389,33 @@
     (4, 3),
     (5, 2),
     (5, 3);
+
+    --
+    -- Déchargement des données de la table `hashtag`
+    --
+
+    INSERT INTO `hashtag` (`id`, `film_id`, `terme`) VALUES
+    (1, 1, '#Action'),
+    (2, 1, '#GrosCasting'),
+    (3, 2, '#Années80'),
+    (4, 2, '#LiveAction'),
+    (5, 5, '#Boxe'),
+    (6, 5, '#GuerreFroide');
+
+    --
+    -- Déchargement des données de la table `realisateur`
+    --
+
+    INSERT INTO `realisateur` (`id`, `nom`) VALUES
+    (1, 'John McTiernan'),
+    (2, 'Simon West'),
+    (3, 'Ted Kotcheff'),
+    (4, 'Peter Jackson'),
+    (5, 'Steven Spielberg'),
+    (6, 'George Lucas'),
+    (7, 'Robert Zemeckis'),
+    (8, 'Quentin Tarantino'),
+    (9, 'James Cameron');
     </code></pre>
 
     <div class="text-center my-5"><img src="{{ asset('images/insert_into_db.png') }}" alt="Insertion des données dans la base via PhpMyAdmin" class="img-fluid"></div>
@@ -319,7 +453,9 @@
     }
     </code></pre>
 
-    <p>Une fois notre <b>FilmRepository</b> injecté, il ne reste plus qu'à l'utiliser.<br>Les classes de type <b>repository</b> permettent d'écrire nos propres requêtes en <b><abbr title="Doctrine Query Language">DQL</abbr></b>, mais propose également des méthodes toutes prêtes, dont <b>findAll()</b> qui permet de récuperer tous les films :</p>
+    <p>Une fois notre <b>FilmRepository</b> injecté, il ne reste plus qu'à l'utiliser.<br>Les classes de type <b>repository</b> permettent d'écrire nos propres requêtes en <b><abbr title="Doctrine Query Language">DQL</abbr></b>, mais propose également des méthodes toutes prêtes, dont <b>findAll()</b> qui permet de récuperer tous les films.</p>
+
+    <p>Afin de pouvoir classer la liste des films par ordre alphabétique, nous allons utiliser la méthode <b>findBy()</b> avec en premier paramètre un tableau de critères vide, et en second le filtre de tri :</p>
 
     <pre><code>
      /**
@@ -336,9 +472,9 @@
     }
     </code></pre>
 
-    <p>On dispose désormais de la liste de tous les films, mais on voudrait aussi récuperer le nom des réalisateur et des acteurs qui sont rattachés à chaque titre.<br>Va-t-on être obligé de de faire l'équivalent d'une jointure afin d'avoir l'ensemble des données ?<br>Éh bien, la réponse est non car <b>Symfony</b> à déjà fait tout le travail en amont !</p>
+    <p>On dispose désormais de la liste de tous les films, mais on voudrait aussi récuperer les hashtags ainsi que le nom des réalisateur et des acteurs qui sont rattachés à chaque titre.<br>Va-t-on être obligé de de faire l'équivalent d'une jointure afin d'avoir l'ensemble des données ?<br>Éh bien, la réponse est non car <b>Symfony</b> à déjà fait tout le travail en amont !</p>
 
-    <p><b>Symfony</b> sait que l'entité <b>Film</b> est liée aux entités <b>Realisateur</b> et <b>Acteur</b> par le biais de ses 2 propriétés <b>realisateur</b> et <b>acteurs</b>.<br>Plus précisément, la propriété <b>realisateur</b> représente une instance de <b>Realisateur</b>, et la propriété <b>acteurs</b> est un tableau composé d'instances de l'objet <b>Acteur</b>.</p>
+    <p><b>Symfony</b> sait que l'entité <b>Film</b> est liée aux entités <b>Realisateur</b>, <b>Acteur</b> et <b>Hashtag</b> par le biais de ses 3 propriétés <b>realisateur</b>, <b>acteurs</b> et <b>hashtags</b>.<br>Plus précisément, la propriété <b>realisateur</b> représente une instance de <b>Realisateur</b>, et les propriétés <b>acteurs</b> et <b>hashtags</b> sont des tableaux composés d'instances des objets <b>Acteur</b> et <b>Hashtag</b>.</p>
     <p>C'est cette logique qui permet la récupération automatique du nom du réalisateur et des acteurs pour chaque film.<br>Pour s'en rendre compte, il suffit d'appliquer la ligne de code <code>dd($films);</code> (raccourci pour <code>dump($films); die;</code>) juste après la ligne <code>$films = $filmRepository->findAll();</code></p>
 
     <pre><code>
@@ -364,6 +500,7 @@
             -titre: "Expendables 2"
             -realisateur: Proxies\__CG__\App\Entity\Realisateur &#123;#503 ▶&#125;
             -acteurs: Doctrine\ORM\PersistentCollection &#123;#590 ▶&#125;
+            -hashtags: Doctrine\ORM\PersistentCollection &#123;#753 ▶&#125;
         &#125;
         1 => App\Entity\Film &#123;#545 ▶&#125;
         2 => App\Entity\Film &#123;#512 ▶&#125;
@@ -372,7 +509,7 @@
     ]
     </code></pre>
 
-    <p>On constate que l'on est en présence d'un tableau d'objets, et lorsqu'on déploie l'arborescence du premier, on peut voir qu'on a bien accès aux propriétés <b>titre</b>, <b>realisateur</b> et <b>acteurs</b> dont il ne reste plus qu'à afficher les valeurs avec <b>TWIG</b> :</p>
+    <p>On constate que l'on est en présence d'un tableau d'objets, et lorsqu'on déploie l'arborescence du premier, on peut voir qu'on a bien accès aux propriétés <b>titre</b>, <b>realisateur</b>, <b>acteurs</b> et <b>hashtags</b> dont il ne reste plus qu'à afficher les valeurs avec <b>TWIG</b> :</p>
 
     <pre><code>
     &lt;table class=&quot;table table-striped&quot;&gt;
@@ -381,6 +518,7 @@
             &lt;th scope=&quot;col&quot;&gt;Titre&lt;/th&gt;
             &lt;th scope=&quot;col&quot;&gt;R&eacute;alisateur&lt;/th&gt;
             &lt;th scope=&quot;col&quot;&gt;Acteurs&lt;/th&gt;
+            &lt;th scope=&quot;col&quot;&gt;Hashtags&lt;/th&gt;
         &lt;/tr&gt;
         &lt;/thead&gt;
         &lt;tbody&gt;
@@ -393,13 +531,18 @@
                     &#123;&#123; acteur.nom &#125;&#125;&#123;% if not loop.last %}, &#123;% endif %&#125;
                 &#123;% endfor %&#125;
                 &lt;/td&gt;
+                &lt;td&gt;
+                &#123;% for hashtag in film.hashtags %&#125;
+                    &#123;&#123; hashtag.terme &#125;&#125;&#123;% if not loop.last %}, &#123;% endif %&#125;
+                &#123;% endfor %&#125;
+                &lt;/td&gt;
             &lt;/tr&gt;
         &#123;% endfor %&#125;
         &lt;/tbody&gt;
     &lt;/table&gt;
     </code></pre>
 
-    <p>On utilise une boucle <code>&#123;% for film in films %&#125;</code> afin d'itérer le tableau <b>films</b>.<br>L'accès au nom  du réalisateur s'opère via <code>&#123;&#123; film.realisateur.nom &#125;&#125;</code>.<br>La propriété <b>acteurs</b> étant un tableau, il faut l'itérer <code>&#123;% for acteur in film.acteurs %&#125;</code>, puis accéder au <b>nom</b> pour chaque acteur via <code>&#123;&#123; acteur.nom &#125;&#125;</code>.</p>
+    <p>On utilise une boucle <code>&#123;% for film in films %&#125;</code> afin d'itérer le tableau <b>films</b>.<br>L'accès au nom  du réalisateur s'opère via <code>&#123;&#123; film.realisateur.nom &#125;&#125;</code>.<br>La propriété <b>acteurs</b> étant un tableau, il faut l'itérer <code>&#123;% for acteur in film.acteurs %&#125;</code>, puis accéder au <b>nom</b> pour chaque acteur via <code>&#123;&#123; acteur.nom &#125;&#125;</code>.<br>La propriété <b>hashtags</b> suit la même logique qu'<b>acteurs</b>.</p>
 
     <p id="result">Voici le résultat final :</p>
 
@@ -409,6 +552,7 @@
             <th scope="col">Titre</th>
             <th scope="col">Réalisateur</th>
             <th scope="col">Acteurs</th>
+            <th scope="col">Hashtags</th>
         </tr>
         </thead>
         <tbody>
@@ -420,6 +564,11 @@
                    {% for acteur in film.acteurs %}
                        {{ acteur.nom }}{% if not loop.last %}, {% endif %}
                    {% endfor %}
+                </td>
+                <td>
+                    {% for hashtag in film.hashtags %}
+                        {{ hashtag.terme }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
                 </td>
             </tr>
         {% endfor %}

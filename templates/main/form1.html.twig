@@ -29,6 +29,7 @@
             <tr>
                 <th scope="col">Titre</th>
                 <th scope="col">Acteurs</th>
+                <th scope="col">Hashtags</th>
             </tr>
             </thead>
             <tbody>
@@ -38,6 +39,11 @@
                     <td>
                         {% for acteur in film.acteurs %}
                             {{ acteur.nom }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for hashtag in film.hashtags %}
+                            {{ hashtag.terme }}{% if not loop.last %}, {% endif %}
                         {% endfor %}
                     </td>
                 </tr>
@@ -179,7 +185,7 @@
         <b>form_themes: ['bootstrap_4_layout.html.twig']</b>
     </code></pre>
 
-    <p>À ce moment là, il ne reste plus qu'a gérer la vue et l'affichage du résultat :</p>
+    <p>À ce moment là, il ne reste plus qu'a gérer la vue et l'affichage du résultat d'une manière similaire à ce qui a été fait sur la page précédente :</p>
 
     <p><a href="https://symfony.com/doc/current/form/form_customization.html" target="_blank"><i class="fa fa-link"></i>Afficher un formulaire dans la vue (en anglais)</a></p>
 
@@ -218,54 +224,6 @@
         &lt;/table&gt;
     &#123;% endif %&#125;
     &lt;/div&gt;
-    </code></pre>
-
-    <h2>Bonus : Toujours plus avec Symfony</h2>
-
-    <p>En testant le formulaire, on remarque qu'en plus d'afficher la liste des films d'un réalisateur, on affiche également le casting principal pour chaque film.<br>Est-ce que cela a demandé un travail supplémentaire, et qui plus est, hors sujet ?</p>
-
-    <p>À part la gestion de la <b>colonne Acteurs</b> dans le tableau d'affichage du résultat, la réponse est non !<br>La magie de <b>Symfony</b> et de <b>Doctrine</b> réside dans le fait que lorsqu'on demande à l'<b><abbr title="Object Relational Mapping">ORM</abbr></b> d'analyser une entité comme <b>Film</b>, celui-ci traite automatiquement toutes les propriétés qui la compose dont <b>realisateur</b> et <b>acteurs</b> qui servent de lien avec les entités <b>Realisateur</b> et <b>Acteur</b>, ce qui a pour effet de renvoyer toutes les données possibles.</p>
-
-    <p>Dit autrement, <b>Doctrine</b> analyse toutes les propriétés et effectue automatiquement toutes les jointures possibles sur une entité afin de renvoyer un jeu de données exhaustif quelle que soit notre requête.</p>
-
-    <p>Pour se rendre compte de comment cela marche, il suffit de faire un <code>dd()</code> sur le résultat de la requête dans le contrôleur principal :</p>
-
-    <pre><code>
-    if($form->isSubmitted() && $form->isValid())
-    {
-        // ...
-        $films = $filmRepository->findBy($criteria); // résultat
-        dd($films);
-    }
-    </code></pre>
-
-    <p>On constate alors clairement que pour chaque film, on renvoie la valeur de toutes les propriétés de l'entité <b>Film</b> sans exception :</p>
-
-    <pre><code>
-    MainController.php on line 94:
-    array:2 [▼
-      0 => App\Entity\Film &#123;#1210 ▼
-        -<b>id</b>: 4
-        -<b>titre</b>: "Rambo"
-        -<b>realisateur</b>: App\Entity\Realisateur &#123;#939 ▼ <b>// Valeurs de realisateur sous forme de sous-propriétés</b>
-          -<b>id</b>: 3
-          -<b>nom</b>: "Ted Kotcheff"
-          -<b>films</b>: Doctrine\ORM\PersistentCollection &#123;#942 ▼
-            -snapshot: []
-            -owner: App\Entity\Realisateur &#123;#939&#125;
-            -association: array:15 [ …15]
-            -em: Doctrine\ORM\EntityManager &#123;#509 …11&#125;
-            -backRefFieldName: "realisateur"
-            -typeClass: Doctrine\ORM\Mapping\ClassMetadata &#123;#568 …&#125;
-            -isDirty: false
-            #collection: Doctrine\Common\Collections\ArrayCollection &#123;#900 ▶&#125;
-            #initialized: false
-          &#125;
-        &#125;
-            -<b>acteurs</b>: Doctrine\ORM\PersistentCollection &#123;#1203 ▶} <b>// Liste des acteurs sous forme de tableau</b>
-      &#125;
-      1 => App\Entity\Film &#123;#1205 ▶&#125;
-    ]
     </code></pre>
 
     <p>Cette première partie nous à permis de voir comment monter un formulaire pour <b>"lire"</b> des données, il est temps de voir comment <b>"créer"</b> des données via un formulaire.</p>

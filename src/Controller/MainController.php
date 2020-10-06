@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Film;
 use App\Form\FilmType;
+use App\Form\GetActorListByMovieTitleType;
 use App\Form\SearchMoviesByDirectorType;
 use App\Repository\FilmRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -143,6 +144,11 @@ class MainController extends AbstractController
             );
 
             return $this->redirectToRoute('form2');
+        } else {
+            $this->addFlash(
+                'alert',
+                'Votre film n\'a pas été ajouté car il y\'a des erreurs dans le <a href="#add-form">formulaire en bas de page</a> !'
+            );
         }
 
         return $this->render('main/form2.html.twig', [
@@ -156,37 +162,15 @@ class MainController extends AbstractController
     /**
      * @Route("/form/update", name="form3")
      */
-    public function form3(Request $request, EntityManagerInterface $entityManager)
+    public function form3(Request $request, FilmRepository $filmRepository)
     {
-        // Récupération du FilmRepository via l'EntityManagerInterface
-        $filmRepository = $entityManager->getRepository(Film::class);
-        // Récupération de l'ID d'un film au hasard'
-        $id = $filmRepository->getIdAtRandom();
-        // Récupération du film via le numéro d'ID choisi au hasard
-        $film = $filmRepository->find($id);
-
-        $form = $this->createForm(FilmType::class, $film); // Création du formulaire
-
-        $form->handleRequest($request); // Gestion de la requête
-
-        // Si le formulaire a été soumis et est valide
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $entityManager->flush(); // On flush afin de finaliser la mise à jour dans la BDD
-
-            // Notification en cas de succès de la soumission + redirection vers la page courante
-            $this->addFlash(
-                'notice',
-                'Votre film a bien été mis à jour ! Il ne vous reste plus qu\'à trouver une page où vous pourrez voir le résultat ;-)'
-            );
-
-            return $this->redirectToRoute('form3');
-        }
+        // Récupération de la liste de tous les films
+        $films = $filmRepository->findby([], ['titre' => 'ASC']);
 
         return $this->render('main/form3.html.twig', [
             'page_list' => $this->pageList,
             'path_list' => $this->pathList,
-            'form3' => $form->createView(), // Envoi du formulaire à la vue
+            'films' => $films,
         ]);
     }
 

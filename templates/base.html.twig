@@ -59,8 +59,13 @@
 
     {# Affichage des messages de notification #}
     {% block flash_message %}
+        {# Succès #}
         {% for message in app.flashes('notice') %}
-            <div class="flash-notice alert alert-primary" role="alert">{{ message }}</div>
+            <div class="flash-notice alert alert-primary" role="alert">{{ message|raw }}</div>
+        {% endfor %}
+        {# Alerte #}
+        {% for message in app.flashes('alert') %}
+            <div class="flash-notice alert alert-danger" role="alert">{{ message|raw }}</div>
         {% endfor %}
     {% endblock %}
 </header>

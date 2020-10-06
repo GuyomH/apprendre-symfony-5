@@ -7,25 +7,19 @@
 
     <p>L'objectif de cette partie est de créer un formulaire d'ajout de films.</p>
 
-    <p>Comme nous l'avons vu précédemment, chaque <b>film</b> est lié à un <b>réalisateur</b> et à une <b>liste d'acteurs</b>, nous allons donc créer un formulaire qui prend en charge ces 3 éléments.</p>
+    <p>Comme nous l'avons vu précédemment, chaque <b>film</b> est lié à un <b>réalisateur</b>, une <b>liste d'acteurs</b>, et une <b>liste de hashtags</b>. Nous allons donc créer un formulaire qui prend en charge ces 4 éléments.</p>
 
-    <p>Dans le cadre de notre démonstration, l'ajout du <b>réalisateur</b> fera l'objet d'un menu déroulant avec une liste fixe, et le <b>casting du film</b> sera représenté par des champs textuels libres.</p>
+    <p>Dans le cadre de notre démonstration, l'ajout du <b>réalisateur</b> fera l'objet d'un <b>menu déroulant</b> avec une liste fixe, le <b>casting du film</b> sera représenté par des <b>cases à cocher multiples</b>, l'ajout de <b>hashtag</b> se fera via des <b>champs textuels libres</b>.</p>
 
     <h2>Créer les formulaires et les imbriquer</h2>
 
-    <p>La conception de notre formulaire demande normalement d'en créer trois : <b>FilmType</b> le principal, <b>RealisateurType</b> et <b>ActeurType</b> qu'on imbrique dans le premier.<br>Comme l'ajout du <b>réalisateur</b> passe par un <b>EntityType</b> qui se charge déjà d'appeler l'entité <b>Realisateur</b>, cela nous permet de gérer ce champ en direct dans <b>FilmType</b>.</p>
+    <p>La logique de conception de notre formulaire demande normalement d'en créer quatre : <b>FilmType</b> le principal, et les trois autres : <b>RealisateurType</b>, <b>ActeurType</b> et <b>HashtagType</b> qu'on imbrique dans <b>FilmType</b>.</p>
 
-    <p>On génère donc les formulaires pour les entités <b>Acteur</b> et <b>Film</b> grâce à la commande <kbd>symfony console make:form</kbd> :</p>
+    <p>Comme l'ajout du <b>réalisateur</b> et des <b>acteurs</b> passe par un <b><a href="https://symfony.com/doc/current/reference/forms/types/entity.html" target="_blank">EntityType Field</a></b>, cela nous permet de gérer ces champs en direct dans <b>FilmType</b>.</p>
 
-    <pre><code>
-    The name of the form class (e.g. DeliciousKangarooType):
-     > Acteur
+    <p>L'ajout de <b>hashtags</b> passe par un champ textuel dont on ne connait pas à l'avance le nombre d'occurences (1 hashtag par champ, chaque film peut avoir entre 0 et une infinité de hashtags).<br>Il faut donc créer un formulaire spécifique nommé <b>HashtagType</b> que l'on imbriquera dans <b>FilmType</b>.</p>
 
-     The name of Entity or fully qualified model class name that the new form will be bound to (empty for none):
-     > Acteur
-
-     created: src/Form/ActeurType.php
-    </code></pre>
+    <p>On génère donc les formulaires pour les entités <b>Film</b> et <b>Hashtag</b> grâce à la commande <kbd>symfony console make:form</kbd> :</p>
 
     <pre><code>
     The name of the form class (e.g. DeliciousKangarooType):
@@ -37,25 +31,35 @@
      created: src/Form/FilmType.php
     </code></pre>
 
-    <p>Le fait d'avoir créé nos 2 formulaires en les liant à leur entité respective à deux avantages :</p>
+    <pre><code>
+    The name of the form class (e.g. DeliciousKangarooType):
+     > Hashtag
+
+     The name of Entity or fully qualified model class name that the new form will be bound to (empty for none):
+     > Hashgtag
+
+     created: src/Form/HashtagType.php
+    </code></pre>
+
+    <p>Le fait d'avoir créé nos 2 formulaires en les liant à leur entité respective a deux avantages :</p>
     <ul>
         <li>Cela permet de pré-lister les champs à paramétrer dans la classe du formulaire, bien que dans certains cas il faille en supprimer ou en créer.</li>
         <li>Les données en provenance de ces formulaires seront traitées comme une instance de leur classe liée.</li>
     </ul>
 
     <pre><code>
-    <b>src/Form/ActeurType</b>
+    <b>src/Form/HashtagType</b>
 
-    use App\Entity\Acteur; <b>// Import de l'entité liée au formulaire</b>
-    use Symfony\Component\Form\Extension\Core\Type\TextType; <b>// Import de la classe TextType</b>
+    use App\Entity\Hashtag;
+    use Symfony\Component\Form\Extension\Core\Type\TextType;
     // ...
 
-    class ActeurType extends AbstractType
+    class HashtagType extends AbstractType
     {
         public function buildForm(FormBuilderInterface $builder, array $options)
         {
             $builder
-                ->add('nom', TextType::class, [
+                ->add('terme', TextType::class, [
                 'label' => false,
                 'required' => true,
             ])
@@ -67,7 +71,7 @@
         public function configureOptions(OptionsResolver $resolver)
         {
             $resolver->setDefaults([
-                'data_class' => Acteur::class, <b>Lien entre le formulaire et la classe</b>
+                'data_class' => Hashtag::class, <b>// Lien entre le formulaire et la classe</b>
             ]);
         }
     }
@@ -76,9 +80,13 @@
     <pre><code>
     <b>src/Form/FilmType</b>
 
-    use App\Entity\Film; <b>// Import de l'entité liée au formulaire</b>
+    use App\Entity\Acteur;
+    use App\Entity\Film;
+    use App\Entity\Realisateur;
+    use Doctrine\ORM\EntityRepository;
+    use Symfony\Bridge\Doctrine\Form\Type\EntityType;
     use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-    use Symfony\Component\Form\Extension\Core\Type\SubmitType;SubmitType
+    use Symfony\Component\Form\Extension\Core\Type\SubmitType;
     use Symfony\Component\Form\Extension\Core\Type\TextType;
     // ...
 
@@ -105,14 +113,31 @@
                     'required' => true,
                 ])
 
-                <b>// Imbrication d'ActeurType</b>
-                <b>// Un film peut compter plusieurs acteurs, on utilise donc le type collectionType qui permet l'ajout multiple</b>
-                ->add('acteurs', CollectionType::class, [
-                    'entry_type' => ActeurType::class,
+                <b>// Le fait de passer par la classe EntityType nous dispense de d'utiliser un formulaire imbriqué</b>
+                ->add('acteurs', EntityType::class, [
+                    'class' => Acteur::class,
+                    <b>// Tri par ordre alphabétique de la liste des acteurs</b>
+                    'query_builder' => function (EntityRepository $entityRepository) {
+                        return $entityRepository->createQueryBuilder('a')
+                            ->orderBy('a.nom', 'ASC');
+                    },
+                    'choice_label' => 'nom',
+                    'label' => 'Nom des acteurs',
+                    'multiple' => true,
+                    'expanded' => true,
+                    'placeholder' => 'Choisir au moins un acteur',
+                 ])
+
+                <b>// Imbrication de HashtagType</b>
+                <b>// Un film peut compter plusieurs acteurs, on utilise donc le type collectionType
+                //qui permet l'ajout multiple de champs en provenance de HashtagType</b>
+                ->add('hashtags', CollectionType::class, [
+                    'entry_type' => HashtagType::class,
                     'allow_add' => true,
-                    'by_reference' => false, <b>// <a href="https://symfony.com/doc/current/reference/forms/types/collection.html#by-reference" target="_blank">Permet l'appel de la méthode addActeur pour ajouter les acteurs au film</a></b>
-                    'label' => 'Liste des acteurs',
-                ])
+                    'allow_delete' => true,
+                    'by_reference' => false, <b>// <a href="https://symfony.com/doc/current/reference/forms/types/collection.html#by-reference" target="_blank">Permet l'appel de la méthode addHashtag pour ajouter des hashtag à la liste</a></b>
+                    'label' => 'Liste des hashtags',
+                 ])
 
                 <b>// Bouton de soumission du formulaire</b>
                 ->add('ajouter', SubmitType::class, [
@@ -124,7 +149,7 @@
         public function configureOptions(OptionsResolver $resolver)
         {
             $resolver->setDefaults([
-                'data_class' => Film::class, <b>Lien entre le formulaire et la classe</b>
+                'data_class' => Film::class, <b>// Lien entre le formulaire et la classe</b>
             ]);
         }
     }
@@ -163,7 +188,11 @@
             &#123;&#123; form_row(form2.realisateur) &#125;&#125;
         &lt;/div&gt;
         <b>&#123;# Liste des acteurs #&#125;</b>
-        &#123;&#123; form_row(form2.acteurs) &#125;&#125;
+        &lt;div class="form-group"&gt;
+            &#123;&#123; form_row(form2.acteurs) &#125;&#125;
+        &lt;/div&gt;
+        <b>&#123;# Liste des hashtags #&#125;</b>
+            &#123;&#123; form_row(form2.hashtags) &#125;&#125;
         <b>&#123;# Submit #&#125;</b>
         &lt;div class="form-group"&gt;
             &#123;&#123; form_row(form2.soumettre) &#125;&#125;
@@ -179,19 +208,19 @@
         <img src="{{ asset('images/add_form_1.png') }}" alt="Aspect primitif du formulaire d'ajout de données" class="img-fluid">
     </div>
 
-    <p>On constate que si les champs dédiés au <b>titre du film</b> et au <b>choix du réalisateur</b> on déjà leur aspect definitif, le champ <b>acteurs</b> est pour l'instant invisible.</p>
+    <p>On constate que si les champs dédiés au <b>titre du film</b> et au <b>choix du réalisateur et des acteurs</b> ont déjà leur aspect definitif, le champ <b>hashtag</b> est pour l'instant invisible.</p>
 
-    <p>Comme dit précédemment, il est possible de lier plusieurs acteurs par film, mais on ne peut jamais savoir combien exactement à l'avance.<br>Cela signifie qu'<b>il faut gérer ce champ dynamiquement avec du javascript</b> pour pouvoir rajouter autant d'acteurs que nécessaire.</p>
+    <p>Comme dit précédemment, il est possible de lier plusieurs hashtags par film, mais on ne peut jamais savoir combien exactement à l'avance.<br>Cela signifie qu'<b>il faut gérer ce champ dynamiquement avec du javascript</b> pour pouvoir rajouter autant de hashtags que nécessaire.</p>
 
-    <p>Si on tape <kbd>F12</kbd> sur la fenêtre du navigateur et que dans l'<b>inspecteur d'éléments</b> on cherche au niveau du formulaire, on va trouver le code suivant :</p>
+    <p>Si on tape <kbd>F12</kbd> sur la fenêtre du navigateur et que dans l'<b>inspecteur d'éléments</b> on cherche au niveau du titre de champ <b>Liste des hashtags</b>, on va trouver le code suivant :</p>
 
     <div class="text-center my-5">
         <img src="{{ asset('images/data_prototype.png') }}" alt="data-prototype du champ Acteurs" class="img-fluid">
     </div>
 
-    <p>L'attribut <b>data-prototype</b> surligné en jaune contient le modèle du code <abbr title="HyperText Markup Language">HTML</abbr> du champ de texte pour ajouter un acteur.</p>
+    <p>L'attribut <b>data-prototype</b> surligné en jaune contient le modèle du code <abbr title="HyperText Markup Language">HTML</abbr> du champ de texte pour ajouter un hashtag.</p>
 
-    <p>Grâce à un script <abbr title="JavaScript">JS</abbr> nous allons récupérer ce bout de code afin de permettre à l'utilisateur de <b>générer le nombre exact de champs "acteur"</b> dont il a besoin.</p>
+    <p>Grâce à un script <abbr title="JavaScript">JS</abbr> nous allons récupérer ce bout de code afin de permettre à l'utilisateur de <b>générer le nombre exact de champs "Hashtag"</b> dont il a besoin.</p>
 
     <p>Pour ce faire, nous allons surcharger le bloc <b>javascripts</b> en bas de notre template avec le code suivant :</p>
 
@@ -205,33 +234,26 @@
     $(document).ready(function()
     &#123;
         <b>// Élément DIV qui contient le data-prototype</b>
-        const $container = $('#film_acteurs');
+        const $container = $('#hashtag_acteurs');
 
         <b>// Conteneur DIV d'accueil des champs input des acteurs</b>
-        const $container2 = $('#acteur-container');
+        const $container2 = $('#hashtag-container');
 
         <b>// Nombre d'input</b>
         let index = $container.find(':input').length;
 
-        <b>// Si pas de champ acteur, on en ajoute 1,
-        // car il y a au moins 1 acteur par film</b>
-        if(index === 0)
-        &#123;
-            addActeur($container);
-        &#125;
-
         <b>// Appel de la fonction d'ajout</b>
-        $('.addActeur').click(function(e)
+        $('.addHastag').click(function(e)
         &#123;
             e.preventDefault();
-            addActeur($container);
+            addHashtag($container);
         &#125;);
 
         <b>// Fonction d'ajout avec exploitation du data-prototype</b>
         function addActeur($container)
         &#123;
             const template = $container.attr('data-prototype')
-                .replace(/__name__label__/g, 'Nom de l\'acteur')
+                .replace(/__name__label__/g, 'Hashtag')
                 .replace(/__name__/g, index)
             ;
 
@@ -244,17 +266,12 @@
             index++;
         &#125;
 
-        <b>// Fonction de suppression des champs d'acteur</b>
+        <b>// Fonction de suppression des champs hashtag</b>
         function deleteButton($prototype)
         &#123;
             const $deleteLink = $('&lt;a href="#" class="btn btn-danger btn-sm"&gt;Annuler&lt;/a&gt;');
 
-            <b>// On  ne rajoute pas de bouton annuler sur le premier input
-            // car un film doit avoir au moins 1 acteur</b>
-            if(index > 0)
-            &#123;
-                $prototype.append($deleteLink);
-            &#125;
+            $prototype.append($deleteLink);
 
             $deleteLink.click(function(e)
             &#123;
@@ -266,51 +283,57 @@
             &#125;);
         &#125;
 
-        <b>/*****************************************************/
-        /* Gestion complémentaire des champs nom de l'acteur */
-        /* En cas de message d'erreur ou d'update            */
-        /*****************************************************/</b>
-
-        <b>// Gestion du label</b>
-        $('legend.col-form-label').each(
+        <b>// Gestion du label post message d'erreur / mode édition</b>
+        $('#hashtag-area legend.col-form-label').each(
             function(index)
             &#123;
-                if(index > 0)
+                if(index &gt; 0)
                 &#123;
-                    $(this).html('Nom de l\'acteur');
+                    $(this).html('Hashtag');
                 &#125;
             &#125;
         );
 
-        <b>// Gestion du bouton Supprimer</b>
-        $('fieldset.form-group').each(
+        <b>// Gestion du bouton Supprimer post message d'erreur / mode édition</b>
+        $('#hashtag-area fieldset.form-group').each(
             function(index)
             &#123;
                 const $deleteLink = $('&lt;a href="#" class="btn btn-danger btn-sm"&gt;Annuler&lt;/a&gt;');
 
-                <b>// On  ne rajoute le bouton annuler à partir du second input
-                // qui correspond à l'index n°2</b>
-                if(index > 1)
+                if (index &gt; 0)
                 &#123;
                     $(this).append($deleteLink);
                 &#125;
 
-                $deleteLink.click(function(e)
+                $deleteLink.click(function (e)
                 &#123;
                     $(this).parent().remove();
 
-                    // Évite qu'un # apparaisse dans l'URL
+                    <b>// Évite qu'un # apparaisse dans l'URL</b>
                     e.preventDefault();
                     return false;
                 &#125;);
+            &#125;);
+
+
+        <b>// Script pour gérer rendre la sélection d'au moins 1 acteur obligatoire</b>
+        $("#film_soumettre").click(function ()
+        &#123;
+            checked = $("input[type=checkbox]:checked").length;
+
+            if (!checked) &#123;
+                alert("Veuillez sélectionner au moins un acteur.");
+                return false;
             &#125;
-        );
+        &#125;);
     &#125;);
     &lt;/script&gt;
     &#123;% endblock %&#125;
     </code></pre>
 
-    <p>Une analyse du code montre que celui-ci permet d'ajouter et de supprimer des champs  <b>"Nom de l'acteur"</b>, et que pour pouvoir les afficher, il faut rajouter le bouton d'ajout et un bloc &lt;div&gt; à notre template de tout à l'heure :</p>
+    <p>Une analyse du code montre que celui-ci permet d'ajouter et de supprimer des champs  <b>"Hashtag"</b>, et que pour pouvoir les afficher, il faut rajouter le bouton d'ajout et un conteneur &lt;div&gt; avec l'id <b>hashtag-container</b>  à notre template de tout à l'heure.</p>
+
+    <p>Afin de pouvoir améliorer notre formulaire ultérieurement, nous allons également entourer l'ensemble d'un autre conteneur &lt;div&gt; avec l'id <b>hashtag-area</b> :</p>
 
     <pre><code>
     <b>&#123;# templates/main/form2.html.twig #&#125;</b>
@@ -319,11 +342,12 @@
 
         &#123;# ... #&#125;
 
-        &#123;# Liste des acteurs #&#125;
-        &#123;&#123; form_row(form2.acteurs) &#125;&#125;
-        <b>&lt;div id="acteur-container"&gt;&lt;/div&gt;
-        &lt;input type="button" class="btn btn-info btn-sm mb-5 addActeur" value="Ajouter un acteur"&gt;</b>
-
+        &#123;# Liste des hashtags #&#125;
+        <b>&lt;div id="hashtag-area"&gt;</b>
+            &#123;&#123; form_row(form2.terme) &#125;&#125;
+            <b>&lt;div id="hashtag-container"&gt;&lt;/div&gt;
+            &lt;input type="button" class="btn btn-info btn-sm mb-5 addHashtag" value="Ajouter un hashtag"&gt;</b>
+        <b>&lt;/div&gt;</b>
         &#123;# ... #&#125;
 
     &#123;&#123; form_end(form2) &#125;&#125;
@@ -370,11 +394,9 @@
     }
     </code></pre>
 
-    <p>À partir de là il reste une dernière opération pour rendre notre formulaire fonctionnel, <b>faire <a href="https://www.doctrine-project.org/projects/doctrine-orm/en/2.7/reference/working-with-associations.html#transitive-persistence-cascade-operations" target="_blank">persister en cascade</a> les données en provenance de l'entité Acteur</b>.</p>
+    <p>À partir de là il reste une dernière opération pour rendre notre formulaire fonctionnel, faire <b><a href="https://www.doctrine-project.org/projects/doctrine-orm/en/2.7/reference/working-with-associations.html#transitive-persistence-cascade-operations" target="_blank">persister en cascade</a></b> les données liées à l'entité <b>Hashtag</b> afin de permettre l'enregistrement des <b>termes</b> dans la base de données.</p>
 
-    <p>Cette opération est nécessaire car à cause de l'imbrication du formulaire <b>ActeurType</b> dans <b>FilmType</b> on doit persister des données dans 2 entités à la fois.</p>
-
-    <p>Cette opération s'effectue avec une <b>annotation</b> dans l'entité principale (<b>Film</b>) au niveau de la propriété (<b>acteurs</b>) qui permet de créer l'association avec l'entité secondaire (<b>Acteur</b>) :</p>
+    <p>Cette opération s'effectue avec une <b>annotation</b> dans l'entité principale <b>Film</b> au niveau de la propriété <b>hashtags</b> qui permet de créer l'association avec l'entité secondaire <b>Hashtag</b> :</p>
 
     <pre><code>
     <b>src/Entity/Film</b>
@@ -382,9 +404,9 @@
     // ...
 
     /**
-     * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", <b>cascade={"persist"}</b>)
+     * @ORM\OneToMany(targetEntity=Hashtag::class, mappedBy="film", <b>cascade={"persist", "remove"}</b>)
      */
-    private $acteurs;
+    private $hashtags;
 
     // ...
     </code></pre>
@@ -399,15 +421,16 @@
 
     <p>Les contraintes de validation permettent de filtrer la valeur des propriétés des entités.</p>
 
-    <p>Voici comment les mettre en place dans <b>Film</b>, <b>Realisateur</b> et <b>Acteur</b> :</p>
+    <p>Voici comment les mettre en place dans <b>Film</b>, <b>Realisateur</b>, <b>Acteur</b> et <b>Hashtag</b> :</p>
 
     <pre><code>
     <b>src/Entity/Film</b>
 
     // ...
 
-    use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity; <b>Importation de la classe de gestion de l'unicité des données</b>
-    use Symfony\Component\Validator\Constraints as Assert; <b>Importation de la classe de gestion de la contrainte</b>
+    use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+    use Symfony\Component\Validator\Constraints as Assert;
+    use Symfony\Component\Validator\Constraints\Count;
 
     /**
      * @ORM\Entity(repositoryClass=FilmRepository::class)
@@ -444,27 +467,39 @@
         private $realisateur;
 
         /**
-         * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films", cascade={"persist"})
-        <b> // <a href="https://symfony.com/doc/current/reference/constraints/Valid.html" target="_blank">Permet de gérer la validation  d'un objet imbriqué</a> (voir propriété "nom" de l'entité "Acteur")
-         * @Assert\Valid()</b>
+         * @ORM\ManyToMany(targetEntity=Acteur::class, inversedBy="films")
+         * @ORM\OrderBy({"nom" = "ASC"}) <b>// Permet de trier le nom des acteurs par ordre alphabétique lors du chargement des données</b>
+         <b>* // Force à cocher au moins le nom d'un acteur
+         * @Count(
+         *     min = 1,
+         *     minMessage = "Au moins un acteur doit être selectionné"
+         * )</b>
          */
         private $acteurs;
+
+         /**
+         * @ORM\OneToMany(targetEntity=Hashtag::class, mappedBy="film", cascade={"persist", "remove"})
+         * @ORM\OrderBy({"terme" = "ASC"})
+         <b>// <a href="https://symfony.com/doc/current/reference/constraints/Valid.html" target="_blank">Permet de gérer la validation  d'un objet imbriqué</a> (voir propriété "terme" de l'entité "Hashtag")
+         * @Assert\Valid()</b>
+         */
+         private $hashtags;
 
         // ...
     }
     </code></pre>
 
     <pre><code>
-    <b>src/Entity/Acteur</b>
+    <b>src/Entity/Hashtag</b>
 
     // ...
 
     use Symfony\Component\Validator\Constraints as Assert; <b>Importation de la classe de gestion de la contrainte</b>
 
     /**
-     * @ORM\Entity(repositoryClass=ActeurRepository::class)
+     * @ORM\Entity(repositoryClass=HashtagRepository::class)
      */
-    class Acteur
+    class Hashtag
     {
 
         // ...
@@ -476,8 +511,8 @@
          * @Assert\Length(
          *      min = 4,
          *      max = 50,
-         *      minMessage = "Le nom doit faire au minimum &#123;&#123; limit &#125;&#125; caractères !",
-         *      maxMessage = "Le nom doit faire au maximum &#123;&#123; limit &#125;&#125; caractères !"
+         *      minMessage = "Le hashtag doit faire au minimum &#123;&#123; limit &#125;&#125; caractères !",
+         *      maxMessage = "Le hashtag doit faire au maximum &#123;&#123; limit &#125;&#125; caractères !"
          * )</b>
          */
         private $nom;
@@ -488,6 +523,7 @@
 
     <p>Pour désactiver la <b>validation coté client</b> afin de tester la <b>validation coté serveur</b>, il suffit de remplacer la ligne <code>&#123;&#123; form_start(form2) &#125;&#125;</code><br>par <code>&#123;&#123; form_start(form2, &#123;'attr': &#123;'novalidate': 'novalidate'&#125;&#125;) &#125;&#125;</code> dans le template <b>form2.html.twig</b></p>
 
+    <p>N'hésitez pas pas à tester toutes les erreurs possibles, champs vides, nombre de caractères insuffisants, etc.</p>
 
     <h2>Notifier l'utilisateur du succès de la soumission du formulaire</h2>
 
@@ -512,7 +548,7 @@
             <b> // Notification en cas de succès de la soumission + redirection vers la page courante
             $this->addFlash(
                 'notice',
-                'Votre film a bien été ajouté ! Il ne vous reste plus qu\'à trouver une page où vous pourrez voir le résultat ;-)'
+                'Votre film a bien été ajouté ! Il ne vous reste plus qu\'à trouver une page où vous pourrez vérifier le résultat ;-)'
             );
 
                 return $this->redirectToRoute('form2');</b>
@@ -541,7 +577,7 @@
 
     <p><a href="https://symfony.com/doc/current/controller.html#redirecting" target="_blank"><i class="fa fa-link"></i>Documentation sur la redirection en anglais</a></p>
 
-    <h2>Formulaire d'ajout de films</h2>
+    <h2 id="add-form">Formulaire d'ajout de films</h2>
 
     <p>Voici le formulaire final, prêt à être testé par vos soins :</p>
 
@@ -556,9 +592,15 @@
             {{ form_row(form2.realisateur) }}
         </div>
         {# Liste des acteurs #}
-        {{ form_row(form2.acteurs) }}
-        <div id="acteur-container"></div>
-        <input type="button" class="btn btn-info btn-sm mb-5 addActeur" value="Ajouter un acteur">
+        <div class="form-group">
+            {{ form_row(form2.acteurs) }}
+        </div>
+        {# Liste des hashtags #}
+        <div id="hashtag-area">
+            {{ form_row(form2.hashtags) }}
+            <div id="hashtag-container"></div>
+            <input type="button" class="btn btn-info btn-sm mb-5 addHashtag" value="Ajouter un hashtag">
+        </div>
         {# Submit #}
         <div class="form-group">
             {{ form_row(form2.soumettre) }}
@@ -568,111 +610,99 @@
 
 {% block javascripts %}
     {{ parent() }} {# permet la surcharge du block #}
-    {# Script de gestin du data-prototype en JQuery #}
+    {# Script de gestion du data-prototype en JQuery #}
     <script>
-        $(document).ready(function()
+    $(document).ready(function()
+    {
+        // Élément DIV qui contient le data-prototype
+        const $container = $('#film_hashtags');
+
+        // Conteneur DIV d'accueil des champs input des acteurs
+        const $container2 = $('#hashtag-container');
+
+        // Nombre d'input
+        let index = $container.find(':input').length;
+
+        // Appel de la fonction d'ajout
+        $('.addHashtag').click(function(e)
         {
-            // Élément DIV qui contient le data-prototype
-            const $container = $('#film_acteurs');
+            e.preventDefault();
+            addHashtag($container);
+        });
 
-            // Conteneur DIV d'accueil des champs input des acteurs
-            const $container2 = $('#acteur-container');
+        // Fonction d'ajout avec exploitation du data-prototype
+        function addHashtag($container)
+        {
+            const template = $container.attr('data-prototype')
+                .replace(/__name__label__/g, 'Hashtag')
+                .replace(/__name__/g, index)
+            ;
 
-            // Nombre d'input
-            let index = $container.find(':input').length;
+            const $prototype = $(template);
 
-            // Si pas de champ acteur, on en ajoute 1,
-            // car il y a au moins 1 acteur par film
-            if(index === 0)
+            deleteButton($prototype);
+
+            $container2.append($prototype);
+
+            index++;
+        }
+
+        // Fonction de suppression des champs hashtag
+        function deleteButton($prototype)
+        {
+            const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
+
+            $prototype.append($deleteLink);
+
+            $deleteLink.click(function(e)
             {
-                addActeur($container);
-            }
+                $prototype.remove();
 
-            // Appel de la fonction d'ajout
-            $('.addActeur').click(function(e)
-            {
+                // Évite qu'un # apparaisse dans l'URL
                 e.preventDefault();
-                addActeur($container);
+                return false;
             });
+        }
 
-            // Fonction d'ajout avec exploitation du data-prototype
-            function addActeur($container)
+        // Gestion du label post message d'erreur / mode édition
+        $('#hashtag-area legend.col-form-label').each(
+            function(index)
             {
-                const template = $container.attr('data-prototype')
-                    .replace(/__name__label__/g, 'Nom de l\'acteur')
-                    .replace(/__name__/g, index)
-                ;
-
-                const $prototype = $(template);
-
-                deleteButton($prototype);
-
-                $container2.append($prototype);
-
-                index++;
-            }
-
-            // Fonction de suppression des champs d'acteur
-            function deleteButton($prototype)
-            {
-                const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
-
-                // On  ne rajoute pas de bouton annuler sur le premier input
-                // car un film doit avoir au moins 1 acteur
                 if(index > 0)
                 {
-                    $prototype.append($deleteLink);
+                    $(this).html('Hashtag');
+                }
+            }
+        );
+
+        // Gestion du bouton Supprimer post message d'erreur / mode édition
+        $('#hashtag-area fieldset.form-group').each(
+            function(index) {
+                const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
+
+                if (index > 0) {
+                    $(this).append($deleteLink);
                 }
 
-                $deleteLink.click(function(e)
-                {
-                    $prototype.remove();
+                $deleteLink.click(function (e) {
+                    $(this).parent().remove();
 
                     // Évite qu'un # apparaisse dans l'URL
                     e.preventDefault();
                     return false;
                 });
+            });
+
+
+        // Script pour gérer rendre la sélection d'au moins 1 acteur obligatoire
+        $("#film_soumettre").click(function () {
+            checked = $("input[type=checkbox]:checked").length;
+
+            if (!checked) {
+                alert("Veuillez sélectionner au moins un acteur.");
+                return false;
             }
-
-            /*****************************************************/
-            /* Gestion complémentaire des champs nom de l'acteur */
-            /* En cas de message d'erreur ou d'update            */
-            /*****************************************************/
-
-            // Gestion du label
-            $('legend.col-form-label').each(
-                function(index)
-                {
-                    if(index > 0)
-                    {
-                        $(this).html('Nom de l\'acteur');
-                    }
-                }
-            );
-
-            // Gestion du bouton Supprimer
-            $('fieldset.form-group').each(
-                function(index)
-                {
-                    const $deleteLink = $('<a href="#" class="btn btn-danger btn-sm">Annuler</a>');
-
-                    // On  ne rajoute le bouton annuler à partir du second input
-                    // qui correspond à l'index n°2
-                    if(index > 1)
-                    {
-                        $(this).append($deleteLink);
-                    }
-
-                    $deleteLink.click(function(e)
-                    {
-                        $(this).parent().remove();
-
-                        // Évite qu'un # apparaisse dans l'URL
-                        e.preventDefault();
-                        return false;
-                    });
-                }
-            );
         });
+    });
     </script>
 {% endblock %}

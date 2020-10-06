@@ -22,13 +22,6 @@ class Acteur
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="Le nom de l'acteur doit être renseigné !")
-     * @Assert\Length(
-     *      min = 4,
-     *      max = 50,
-     *      minMessage = "Le nom doit faire au minimum {{ limit }} caractères !",
-     *      maxMessage = "Le nom doit faire au maximum {{ limit }} caractères !"
-     * )
      */
     private $nom;
 
