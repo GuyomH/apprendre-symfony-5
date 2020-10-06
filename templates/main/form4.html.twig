@@ -4,4 +4,116 @@
 
 {% block main %}
     <h1>Supprimer des données via un formulaire</h1>
+
+    <p>La supression de données est une opération encore plus simple que la mise à jour, car d'un point de vue de l'<b><abbr title="User eXperience">UX</abbr></b>, il suffit de reprendre le <b>listing des films</b> avec un lien <b>Supprimer</b> pour chaque film, et une <b>notification de confirmation de suppression</b> une fois l'opération effectuée.</p>
+
+    <h2>Créer le listing avec un bouton de suppression</h2>
+
+    <p>L'opération est très similaire au listing d'édition, et on commence donc par récupérer la <b>liste des films</b> dans le <b>contrôleur principal</b> :</p>
+
+    <pre><code>
+    <b>src/Controller/Maincontroller</b>
+
+    /**
+     * @Route("/form/delete", name="form4")
+     */
+    public function form4(Request $request, FilmRepository $filmRepository)
+    &#123;
+        // Récupération de la liste de tous les films
+        $films = $filmRepository-&gt;findby([], ['titre' =&gt; 'ASC']);
+
+        return $this-&gt;render('main/form4.html.twig', [
+            'page_list' =&gt; $this-&gt;pageList,
+            'path_list' =&gt; $this-&gt;pathList,
+            'films' =&gt; $films,
+        ]);
+    &#125;
+    </code></pre>
+
+    <p>Il faut également créer la méthode dans le <b>FormController</b> qui va gérer la supression des données et dont voici le code complet :</p>
+
+    <pre><code>
+    <b>src/Controller/FormController</b>
+
+    /**
+     * @Route("/delete/&#123;id&#125;", name="delete")
+     */
+    public function delete(Film $film, EntityManagerInterface $entityManager)
+    &#123;
+        $entityManager-&gt;remove($film);
+        $entityManager-&gt;flush();
+
+        $this-&gt;addFlash
+        (
+            'notice',
+            'Votre film a bien été supprimé !'
+        );
+
+        return $this-&gt;redirectToRoute('form4');
+    &#125;
+    </code></pre>
+
+    <p>On constate que comme pour la section précédente, on fait correspondre l'<b>ID</b> du slug avec l'objet film grâce à la technique des <b><a href="https://symfony.com/doc/current/bundles/SensioFrameworkExtraBundle/annotations/converters.html" target="_blank">ParamConverter</a></b>, ensuite, grâce à la méthode <code>remove()</code> de l'<b>EntityManager</b>, on supprime le film courant, ne reste plus alors qu'à faire un <code>flush()</code>, puis de créer le message de confirmation et de rediriger l'utilisateur vers la page initiale.</p>
+
+    <p>Comme la suppression des données est gérée directement par le contrôleur, pas besoin de créer de nouveau telplate <b>twig</b> pour afficher un quelconque formulaire.</p>
+
+    <p>À partir de là, il suffit de créer notre listing sur le même modèle que celui de la section précédente, avec un bouton supprimer qui pointe vers la route <code>/delete/{id}</code> nommée <b>delete</b> afin de traiter la suppression :</p>
+
+    <pre><code>
+    <b>tempaltes/main/fom4.html.twig</b>
+
+    &lt;table class="table table-striped"&gt;
+	&lt;tbody&gt;
+	&#123;% for film in films %&#125;
+		&lt;tr&gt;
+                    &lt;td&gt;&#123;&#123; film.titre &#125;&#125;&lt;/td&gt;
+                    &lt;td&gt;&lt;a href="&#123;&#123; path('delete', &#123; 'id': film.id &#125;) &#125;&#125;" class="btn btn-primary btn-sm"&gt;Supprimer&lt;/a&gt;&lt;/td&gt;
+		&lt;/tr&gt;
+	&#123;% endfor %&#125;
+	&lt;/tbody&gt;
+    &lt;/table&gt;
+    </code></pre>
+
+    <p>Ce qui nous donne :</p>
+
+    <div class="text-center my-5">
+        <img src="{{ asset('images/delete_form_1.png') }}" alt="Listing de suppression des films" class="img-fluid">
+    </div>
+
+    <h2>Gestion de la cascade</h2>
+
+    <p>Le dernier point important à traiter est la gestion de la cascade, car la suppression d'un film fait intervenir plusieurs entités.</p>
+
+    <p>Lorsqu'on supprime un film, on efface de la base de données que 2 éléments : le film lié à l'entité <b>Film</b>, et les hashtags liés à l'entité <b>Hashtag</b>.</p>
+
+    <p>Comme <b>Doctrine</b> passe par l'entité principal <b>Film</b>, pour mener ses opérations, cela signifie qu'il faut rajouter l'annotation <code>cascade={"remove"}</code> sur la propriété <b>hashtags</b> :</p>
+
+    <pre><code>
+    <b>src/Entity/Film</b>
+
+    /**
+     * @ORM\OneToMany(targetEntity=Hashtag::class, mappedBy="film", <b>cascade=&#123;"persist", "remove"&#125;</b>)
+     * @ORM\OrderBy(&#123;"terme" = "ASC"&#125;)
+     * @Assert\Valid()
+     */
+    private $hashtags;
+    </code></pre>
+
+    <p>On note que l'annotation <b>remove</b> cohabite avec <b>persist</b> dont on a besoin pour créer ou mettre à jour un film.</p>
+
+    <h2>Listing des films</h2>
+
+    <p>Le formulaire de supression des films est désormais fonctionnel et vous pouvez le tester ci-dessous :</p>
+
+    {# Liste des film avec bouton supprimer #}
+    <table class="table table-striped">
+        <tbody>
+        {% for film in films %}
+            <tr>
+                <td>{{ film.titre }}</td>
+                <td><a href="{{ path('delete', { 'id': film.id }) }}" class="btn btn-primary btn-sm">Supprimer</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

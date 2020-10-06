@@ -61,7 +61,8 @@ class FormController extends AbstractController
         {
             $entityManager->flush();
 
-            $this->addFlash(
+            $this->addFlash
+            (
                 'notice',
                 'Votre film a bien été édité !'
             );
@@ -74,5 +75,22 @@ class FormController extends AbstractController
             'path_list' => $this->pathList,
             'form3' => $form->createView(), // Envoi du formulaire à la vue
         ]);
+    }
+
+    /**
+     * @Route("/delete/{id}", name="delete")
+     */
+    public function delete(Film $film, EntityManagerInterface $entityManager)
+    {
+        $entityManager->remove($film);
+        $entityManager->flush();
+
+        $this->addFlash
+        (
+            'notice',
+            'Votre film a bien été supprimé !'
+        );
+
+        return $this->redirectToRoute('form4');
     }
 }

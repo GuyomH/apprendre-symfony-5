@@ -97,9 +97,9 @@
                     <b>/*
                      * <a href="https://symfony.com/doc/current/reference/forms/types/entity.html#using-a-custom-query-for-the-entities" target="_blank">Tri par ordre alphabétique des réalisateurs avec au moins un film enregistré dans la base</a>
                      * Requête DQL équivalente à :
-                     * SELECT r.id r.nom FROM realisateur AS r
+                     * SELECT DISTINCT r.id, r.nom FROM realisateur AS r
                      * LEFT JOIN film AS f ON (r.id = f.realisateur_id)
-                     * WHERE f.realisateur_id IS NULL
+                     * WHERE f.realisateur_id IS NOT NULL
                      * ORDER BY r.nom
                      */</b>
                     'query_builder' => function (EntityRepository $entityRepository) {
@@ -138,7 +138,7 @@
 
     <p>Le second champ est le bouton de soumission du formulaire (classe <b><a href="https://symfony.com/doc/current/reference/forms/types/submit.html" target="_blank">SubmitType</a></b>).</p>
 
-    <p>Le fait que le nom <b>realisateur</b> ai été choisi pour l'<b>EnStityType</b> <kbd>$builder->add('realisateur', EntityType::class, [ ... ])</kbd> n'est pas anodin car il correspond au nom de la propriété du même nom dans l'entité <b>Film</b> qui permet le mapping avec l'entité <b>Realisateur</b>.</p>
+    <p>Le fait que le nom <b>realisateur</b> ai été choisi pour l'<b>EntityType</b> <kbd>$builder->add('realisateur', EntityType::class, [ ... ])</kbd> n'est pas anodin car il correspond au nom de la propriété du même nom dans l'entité <b>Film</b> qui permet le mapping avec l'entité <b>Realisateur</b>.</p>
 
     <p>La méthode <b>findBy()</b> du <b>FilmRepository</b>, que nous expliquerons un peu plus bas, prend en premier paramètre un tableau associatif dont la clé doit correspondre au nom d'une propriété existante et dont la valeur doit servir de filtre pour générer en interne un code <abbr title="Search Query Language">SQL</abbr> de la requête du listing.</p>
 
@@ -149,6 +149,8 @@
     <p>Au niveau de notre contrôleur principal, il commencer lui signifier que nous voulons traiter la soumission des données en injectant l'objet <b>Request</b>, et accéder au <b>FilmRepository</b> qui nous permettra de récupérer notre jeu de données :</p>
 
     <pre><code>
+    <b>src/Controller/MainController</b>
+
     /**
      * @Route("/form", name="form")
      */
@@ -180,6 +182,8 @@
     <p>Comme nous utilisons <b>BootStrap</b>, la première chose à faire et charger le <b><a href="https://symfony.com/doc/current/form/bootstrap4.html" target="_blank">Form Theme</a></b> correspondant à ce framework en ajoutant la ligne suivante dans le fichier <b>nom_du_projet\config\packages\twig.yaml</b> :</p>
 
     <pre><code>
+    <b>config/packages/twig.yaml</b>
+
     twig:
         // ...
         <b>form_themes: ['bootstrap_4_layout.html.twig']</b>
@@ -190,6 +194,8 @@
     <p><a href="https://symfony.com/doc/current/form/form_customization.html" target="_blank"><i class="fa fa-link"></i>Afficher un formulaire dans la vue (en anglais)</a></p>
 
     <pre><code>
+    <b>templates/main/form1.html.twig</b>
+
     &lt;div class="my-5"&gt;
     <b>&#123;# Affichage champ par champ du formulaire avec mise en page sur une ligne #&#125;</b>
     &#123;&#123; form_start(form) &#125;&#125;

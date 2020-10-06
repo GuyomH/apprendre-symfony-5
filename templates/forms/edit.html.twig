@@ -1,8 +1,15 @@
 {% extends 'base.html.twig' %}
 
+{# Variable titre de la page avec concaténation #}
+{% set title = 'Formulaire d\'édition du film ' ~ form3.vars.value.titre %}
+
+{% block title %}{{ title }}{% endblock %}
+
 {% block breadcrumb %}{% endblock %} {# pas de breadcrumbs #}
 
 {% block main %}
+    <h1>{{ title }}</h1>
+
     {# Affichage du formulaire #}
     {{ form_start(form3) }}
     {# Titre du film #}

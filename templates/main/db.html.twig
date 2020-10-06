@@ -80,6 +80,7 @@
 
     <pre><code>
     <b>symfony console make:entity</b>
+
     Class name of the entity to create or update (e.g. GentleGnome):
     > Hashtag
 
@@ -195,6 +196,8 @@
     <p>À la question <b><i>"Do you want to add a new property to Realisateur so that you can access/update Film objects from it"</i></b>, on répond <b>Oui</b> par défaut afin de rendre la relation bidirectionnelle. Cela a pour effet la création d'une propriété <b>films</b> au sein de l'entité <b>Realisateur</b>.<br>Un réalisateur ayant la possibilité de réaliser plusieurs films, cette propriété est initialisée en tant que tableau via le constucteur de la classe :</p>
 
     <pre><code>
+    <b>src/Entity/Realisateur</b>
+
     class Realisateur
     {
         // ...
@@ -216,6 +219,8 @@
     <p>Autre point, la propriété <b>films</b> étant un tableau rempli d'instances de la classe <b>Film</b>, elle ne fait pas l'objet d'un <b>setter</b>, mais d'un <b>adder</b> et d'un <b>remover</b> dont le rôle est de gérer l'ajout ou la suppression des entités <b>Film</b> à l'intérieur de la propriété :</p>
 
     <pre><code>
+    <b>src/Entity/Realisateur</b>
+
     class Realisateur
     {
         // ...
@@ -427,7 +432,9 @@
     <p>Lorsque nous avons créé l'entité <b>Film</b>, une classe complémentaire nommée <b>FilmRepository</b> l'a été également.<br>Le rôle de cette classe est de nous permettre d'interroger la table <b>film</b> de notre base via le langage <b><abbr title="Doctrine Query Language">DQL</abbr></b>.<br>La première étape consiste donc à importer le <b>FilmRepository</b> dans le <b>contrôleur</b> de la page où nous souhaitons afficher les informations :</p>
 
     <pre><code>
-     /**
+    <b>src/Controller/MainController</b>
+
+    /**
      * @Route("/db", name="db")
      */
     public function db(<b>FilmRepository $filmRepository</b>)
@@ -443,7 +450,9 @@
     <p>Alternativement, on peut accéder au <b>FilmRepository</b> via l'objet <b>EntityManagerInterface</b> de la façon suivante :</p>
 
     <pre><code>
-     /**
+    <b>src/Controller/MainController</b>
+
+    /**
      * @Route("/db", name="db")
      */
     public function db(<b>EntityManagerInterface $EntityManager</b>)
@@ -458,7 +467,9 @@
     <p>Afin de pouvoir classer la liste des films par ordre alphabétique, nous allons utiliser la méthode <b>findBy()</b> avec en premier paramètre un tableau de critères vide, et en second le filtre de tri :</p>
 
     <pre><code>
-     /**
+    <b>src/Controller/MainController</b>
+
+    /**
      * @Route("/db", name="db")
      */
     public function db(FilmRepository $filmRepository)
@@ -478,7 +489,9 @@
     <p>C'est cette logique qui permet la récupération automatique du nom du réalisateur et des acteurs pour chaque film.<br>Pour s'en rendre compte, il suffit d'appliquer la ligne de code <code>dd($films);</code> (raccourci pour <code>dump($films); die;</code>) juste après la ligne <code>$films = $filmRepository->findAll();</code></p>
 
     <pre><code>
-     /**
+    <b>src/Controller/MainController</b>
+
+    /**
      * @Route("/db", name="db")
      */
     public function db(FilmRepository $filmRepository)
@@ -512,6 +525,8 @@
     <p>On constate que l'on est en présence d'un tableau d'objets, et lorsqu'on déploie l'arborescence du premier, on peut voir qu'on a bien accès aux propriétés <b>titre</b>, <b>realisateur</b>, <b>acteurs</b> et <b>hashtags</b> dont il ne reste plus qu'à afficher les valeurs avec <b>TWIG</b> :</p>
 
     <pre><code>
+    <b>templates/main/db.html.twig</b>
+
     &lt;table class=&quot;table table-striped&quot;&gt;
         &lt;thead&gt;
         &lt;tr&gt;

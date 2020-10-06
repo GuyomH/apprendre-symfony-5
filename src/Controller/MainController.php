@@ -138,14 +138,16 @@ class MainController extends AbstractController
             $entityManager->persist($film);
             $entityManager->flush();
 
-            $this->addFlash(
+            $this->addFlash
+            (
                 'notice',
                 'Votre film a bien été ajouté ! Il ne vous reste plus qu\'à trouver une page où vous pourrez voir le résultat ;-)'
             );
 
             return $this->redirectToRoute('form2');
-        } else {
-            $this->addFlash(
+        } elseif($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash
+            (
                 'alert',
                 'Votre film n\'a pas été ajouté car il y\'a des erreurs dans le <a href="#add-form">formulaire en bas de page</a> !'
             );
@@ -178,11 +180,15 @@ class MainController extends AbstractController
     /**
      * @Route("/form/delete", name="form4")
      */
-    public function form4()
+    public function form4(Request $request, FilmRepository $filmRepository)
     {
+        // Récupération de la liste de tous les films
+        $films = $filmRepository->findby([], ['titre' => 'ASC']);
+
         return $this->render('main/form4.html.twig', [
             'page_list' => $this->pageList,
             'path_list' => $this->pathList,
+            'films' => $films,
         ]);
     }
 
