@@ -2,11 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\Film;
 use App\Form\FilmType;
-use App\Form\GetActorListByMovieTitleType;
 use App\Form\SearchMoviesByDirectorType;
 use App\Repository\FilmRepository;
+use App\Service\NavManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,40 +13,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends AbstractController
 {
-    // TODO: Logique à déplacer dans un service
-    private $pageList = [
-        'Accueil' => 'index',
-        'Contrôleur' => 'controller',
-        'Twig' => 'twig',
-        'Base de données' => 'db',
-        'Formulaires' => [
-            'Lire des données' => 'form1',
-            'Ajouter des données' => 'form2',
-            'Mettre à jour des données' => 'form3',
-            'Supprimer des données' => 'form4',
-        ],
-        'Service' => 'service',
-        'Authentification' => 'auth',
-        'Références' => 'references',
-    ];
+    private $pageList;
+    private $routeList;
 
-    private $pathList = [];
-
-    public function __construct()
+    public function __construct(NavManager $nav)
     {
-        foreach($this->pageList as $menuTitle => $pathName)
-        {
-            if(is_array($pathName))
-            {
-                foreach($pathName as $menuTitle2 => $pathName2)
-                {
-
-                    $this->pathList[] = [$pathName2, $menuTitle2];
-                }
-            } else {
-                $this->pathList[] = [$pathName, $menuTitle];
-            }
-        }
+        $this->pageList = $nav->pageList;
+        $this->routeList = $nav->routeList;
     }
 
     /**
@@ -57,7 +29,7 @@ class MainController extends AbstractController
     {
         return $this->render('main/index.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
         ]);
     }
 
@@ -68,7 +40,7 @@ class MainController extends AbstractController
     {
         return $this->render('main/controller.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
         ]);
     }
 
@@ -79,7 +51,7 @@ class MainController extends AbstractController
     {
         return $this->render('main/twig.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
         ]);
     }
 
@@ -92,7 +64,7 @@ class MainController extends AbstractController
 
         return $this->render('main/db.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
             'films' => $films,
         ]);
     }
@@ -115,7 +87,7 @@ class MainController extends AbstractController
 
         return $this->render('main/form1.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
             'form' => $form->createView(), // Envoi du formulaire à la vue
             'films' => $films, // Envoi du résultat du formulaire à la vue
         ]);
@@ -155,7 +127,7 @@ class MainController extends AbstractController
 
         return $this->render('main/form2.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
             'form2' => $form->createView(), // Envoi du formulaire à la vue
         ]);
     }
@@ -171,7 +143,7 @@ class MainController extends AbstractController
 
         return $this->render('main/form3.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
             'films' => $films,
         ]);
     }
@@ -187,7 +159,7 @@ class MainController extends AbstractController
 
         return $this->render('main/form4.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
             'films' => $films,
         ]);
     }
@@ -199,7 +171,7 @@ class MainController extends AbstractController
     {
         return $this->render('wip/index.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
         ]);
     }
 
@@ -210,7 +182,7 @@ class MainController extends AbstractController
     {
         return $this->render('wip/index.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
         ]);
     }
 
@@ -221,7 +193,7 @@ class MainController extends AbstractController
     {
         return $this->render('wip/index.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
         ]);
     }
 }

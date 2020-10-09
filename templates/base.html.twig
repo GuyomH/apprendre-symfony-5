@@ -1,5 +1,7 @@
 {# Initalisation de variable #}
-{% set currentPath = app.request.attributes.get('_route') %}
+{# https://symfony.com/doc/current/cmf/bundles/core/templating.html #}
+{# https://symfony.com/doc/3.4/templating/app_variable.html #}
+{% set currentRoute = app.request.attributes.get('_route') %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -28,25 +30,29 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav mr-auto">
-                            {% for name, path in page_list %}
-                               {% if path is iterable %}
+                            {% for name, route in page_list %}
+                               {# Si on a affaire à un sous-menu #}
+                               {% if route is iterable %}
                                    <li class="nav-item dropdown">
-                                       <a class="nav-link dropdown-toggle{{ (currentPath in path) ? ' active'}}" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">{{ name }}</a>
+                                       {# Si le nom de la route courante correspond à l'une des routes du sous-menu, le sous menu est actif #}
+                                       <a class="nav-link dropdown-toggle{{ (currentRoute in route) ? ' active'}}" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">{{ name }}</a>
                                        <div class="dropdown-menu">
-                                           {% for subname, subpath in path %}
-                                                <a class="dropdown-item" href="{{ path(subpath) }}">{{ subname }}</a>
+                                           {# On liste les rubriques du sous-menu #}
+                                           {% for subname, subroute in route %}
+                                                <a class="dropdown-item" href="{{ path(subroute) }}">{{ subname }}</a>
                                            {% endfor %}
                                        </div>
                                    </li>
-                               {# https://symfony.com/doc/current/cmf/bundles/core/templating.html #}
-                               {# https://symfony.com/doc/3.4/templating/app_variable.html #}
-                               {% elseif path is same as(app.request.attributes.get('_route')) %}
+                               {# On quitte le contexte du sous-menu #}
+                               {# Si on a affaire à la rubrique courante, celui-ci est active #}
+                               {% elseif route is same as(currentRoute) %}
                                     <li class="nav-item active">
                                         <a class="nav-link" href="#">{{ name }}</a>
                                     </li>
+                               {# Sinon on le traite le rubrique de manière standard #}
                                {% else %}
                                    <li class="nav-item">
-                                       <a class="nav-link" href="{{ path(path) }}">{{ name }}</a>
+                                       <a class="nav-link" href="{{ path(route) }}">{{ name }}</a>
                                    </li>
                                {% endif %}
                             {% endfor %}
@@ -75,22 +81,22 @@
     <nav>
         <ol class="breadcrumb">
             {# Gestion de la page d'accueil #}
-            {% if path_list[0][0] is same as(currentPath) %}
-                <li class="breadcrumb-item active">{{ path_list[0][1] }}</li>
+            {% if route_list[0][0] is same as(currentRoute) %}
+                <li class="breadcrumb-item active">{{ route_list[0][1] }}</li>
             {% else %}
-                <li class="breadcrumb-item"><a href="{{ path(path_list[0][0]) }}">{{ path_list[0][1] }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ path(route_list[0][0]) }}">{{ route_list[0][1] }}</a></li>
             {% endif %}
             {# Gestion de la page courante #}
-            {# Titre du menu déroulant #}
-            {% for key, value in page_list %}
-                {% if value is iterable and currentPath in value %}
-                    <li class="breadcrumb-item active">{{ key }}</li>
+            {# Ajout du titre du menu déroulant / sous-menu #}
+            {% for name, route in page_list %}
+                {% if route is iterable and currentRoute in route %}
+                    <li class="breadcrumb-item active">{{ name }}</li>
                 {% endif %}
             {% endfor %}
-            {# Titre de la rubrique du menu #}
-            {% for index, path in path_list %}
-                {% if path[0] is same as(currentPath) and index > 0 %}
-                    <li class="breadcrumb-item active">{{ path[1] }}</li>
+            {# Ajout du titre de la rubrique du menu #}
+            {% for index, data in route_list %}
+                {% if data[0] is same as(currentRoute) and index > 0 %}
+                    <li class="breadcrumb-item active">{{ data[1] }}</li>
                 {% endif %}
             {% endfor %}
         </ol>
@@ -102,13 +108,16 @@
     {% block pagination %}
         <nav class="mt-5">
             <ul class="pagination justify-content-center">
-                {% for index, path in path_list %}
-                    {% if path[0] is same as(currentPath) %}
+                {% for index, data in route_list %}
+                    {# On détermine la page courante pour déduire la page précédente et la page suivante #}
+                    {% if data[0] is same as(currentRoute) %}
+                        {# Si la page précédente existe #}
                         {% if (index - 1) >= 0 %}
-                            <li class="page-item"><a class="page-link" href="{{ path(path_list[index - 1][0]) }}">Précédent</a></li>
+                            <li class="page-item"><a class="page-link" href="{{ path(route_list[index - 1][0]) }}">Précédent</a></li>
                         {% endif %}
-                        {% if (index + 1) < path_list|length %}
-                            <li class="page-item"><a class="page-link" href="{{ path(path_list[index + 1][0]) }}">Suivant</a></li>
+                        {# Si la page suivante existe #}
+                        {% if (index + 1) < route_list|length %}
+                            <li class="page-item"><a class="page-link" href="{{ path(route_list[index + 1][0]) }}">Suivant</a></li>
                         {% endif %}
                     {% endif %}
                 {% endfor %}

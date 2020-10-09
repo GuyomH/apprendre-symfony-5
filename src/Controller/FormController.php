@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Entity\Film;
 use App\Form\FilmType;
+use App\Service\NavManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,40 +13,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class FormController extends AbstractController
 {
-    // TODO: Logique à déplacer dans un service
-    private $pageList = [
-        'Accueil' => 'index',
-        'Contrôleur' => 'controller',
-        'Twig' => 'twig',
-        'Base de données' => 'db',
-        'Formulaires' => [
-            'Lire des données' => 'form1',
-            'Ajouter des données' => 'form2',
-            'Mettre à jour des données' => 'form3',
-            'Supprimer des données' => 'form4',
-        ],
-        'Service' => 'service',
-        'Authentification' => 'auth',
-        'Références' => 'references',
-    ];
+    private $pageList;
+    private $routeList;
 
-    private $pathList = [];
-
-    public function __construct()
+    public function __construct(NavManager $nav)
     {
-        foreach($this->pageList as $menuTitle => $pathName)
-        {
-            if(is_array($pathName))
-            {
-                foreach($pathName as $menuTitle2 => $pathName2)
-                {
-
-                    $this->pathList[] = [$pathName2, $menuTitle2];
-                }
-            } else {
-                $this->pathList[] = [$pathName, $menuTitle];
-            }
-        }
+        $this->pageList = $nav->pageList;
+        $this->routeList = $nav->routeList;
     }
 
     /**
@@ -72,7 +46,7 @@ class FormController extends AbstractController
 
         return $this->render('forms/edit.html.twig', [
             'page_list' => $this->pageList,
-            'path_list' => $this->pathList,
+            'route_list' => $this->routeList,
             'form3' => $form->createView(), // Envoi du formulaire à la vue
         ]);
     }
