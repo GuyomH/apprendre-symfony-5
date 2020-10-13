@@ -14,11 +14,29 @@
 
     <div class="my-5">
     {# Affichage champ par champ du formulaire #}
-    {{ form_start(form) }}
-        <div class="row no-gutters">
-            <div class="col-xs-6 mr-2 pb-2">{{ form_widget(form.realisateur) }}</div>
-            <div class="col-xs-6">{{ form_widget(form.chercher) }}</div>
-        </div>
+    {{ form_start(form, {
+        'attr': {
+            'class': 'form-inline'
+        }
+    }) }}
+
+        {{ form_widget(form.realisateur, {
+            'attr': {
+                'class': 'mr-2 mb-2'
+            }
+        }) }}
+
+        {{ form_widget(form.chercher, {
+            'attr': {
+                'class': 'mb-2 btn-primary btn'
+            }
+        }) }}
+
+        {# Formulaire sans la classe form-inline #}
+        {#<div class="row no-gutters">#}
+        {#<div class="col-xs-6 mr-2 pb-2">{{ form_widget(form.realisateur) }}</div>#}
+        {#<div class="col-xs-6">{{ form_widget(form.chercher) }}</div>#}
+        {#</div>#}
     {{ form_end(form) }}
 
     {# Résultat du formulaire #}
@@ -197,12 +215,32 @@
     <b>templates/main/form1.html.twig</b>
 
     &lt;div class="my-5"&gt;
-    <b>&#123;# Affichage champ par champ du formulaire avec mise en page sur une ligne #&#125;</b>
-    &#123;&#123; form_start(form) &#125;&#125;
-        &lt;div class="row no-gutters"&gt;
-            &lt;div class="col-xs-6 mr-2 pb-2"&gt;&#123;&#123; form_widget(form.realisateur) &#125;&#125;&lt;/div&gt;
-            &lt;div class="col-xs-6"&gt;&#123;&#123; form_widget(form.chercher) &#125;&#125;&lt;/div&gt;
-        &lt;/div&gt;
+    <b>&#123;# Affichage champ par champ du formulaire #&#125;</b>
+    &#123;&#123; form_start(form, &#123;
+        'attr': &#123;
+            'class': 'form-inline'
+        &#125;
+    &#125;) &#125;&#125;
+
+        &#123;&#123; form_widget(form.realisateur, &#123;
+            'attr': &#123;
+                'class': 'mr-2 mb-2'
+            &#125;
+        &#125;) &#125;&#125;
+
+        &#123;&#123; form_widget(form.chercher, &#123;
+            'attr': &#123;
+                'class': 'mb-2 btn-primary btn'
+            &#125;
+        &#125;) &#125;&#125;
+
+        <b>&#123;# Présentation alternative sans la classe bootstrap form-inline #&#125;</b>
+        &#123;#&#123;&#123; form_start(form) &#125;&#125;#&#125;
+            &#123;#&lt;div class="row no-gutters"&gt;#&#125;
+            &#123;#&lt;div class="col-xs-6 mr-2 pb-2"&gt;&#123;&#123; form_widget(form.realisateur) &#125;&#125;&lt;/div&gt;#&#125;
+            &#123;#&lt;div class="col-xs-6"&gt;&#123;&#123; form_widget(form.chercher) &#125;&#125;&lt;/div&gt;#&#125;
+            &#123;#&lt;/div&gt;#&#125;
+        &#123;#&#123;&#123; form_end(form) &#125;&#125;#&#125;
     &#123;&#123; form_end(form) &#125;&#125;
 
     <b>&#123;# Résultat du formulaire #&#125;</b>
