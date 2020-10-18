@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Section administrateur{% endblock %}
+
+{% block breadcrumb %}{% endblock %} {# pas de breadcrumbs #}
+
+{% block main %}
+    <div class="alert alert-secondary" role="alert">
+        Bienvenue <b>{{ app.user.email }}</b>  | <a href="{{ path('app_logout') }}">Se déloguer</a>
+    </div>
+
+    <h1>Section administrateur</h1>
+{% endblock %}

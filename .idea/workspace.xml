@@ -3,7 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="bb6001b7-1cf2-4358-83d0-f40e605fe351" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/main/form1.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/form1.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/security.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/security.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/MainController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/MainController.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,16 +139,16 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/templates/forms" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/templates/main" />
     <property name="nodejs_package_manager_path" value="yarn" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\symfony_5_dev\learning_project\templates\main" />
       <recent name="E:\symfony_5_dev\learning_project\templates\forms" />
       <recent name="E:\symfony_5_dev\learning_project\src\Controller" />
       <recent name="E:\symfony_5_dev\learning_project\templates\edit" />
-      <recent name="E:\symfony_5_dev\learning_project\templates\main" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -181,7 +184,11 @@
       <workItem from="1601976904211" duration="13719000" />
       <workItem from="1602247978204" duration="8861000" />
       <workItem from="1602505180466" duration="2126000" />
-      <workItem from="1602592322652" duration="2765000" />
+      <workItem from="1602592322652" duration="3678000" />
+      <workItem from="1602778588110" duration="8400000" />
+      <workItem from="1602851466049" duration="10965000" />
+      <workItem from="1602867307504" duration="12913000" />
+      <workItem from="1603025910207" duration="6776000" />
     </task>
     <servers />
   </component>
@@ -189,22 +196,26 @@
     <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="1512" y="341" key="#Plugins" timestamp="1602867352039">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1512" y="341" key="#Plugins/0.0.2560.1400@0.0.2560.1400" timestamp="1602867352039" />
     <state x="1725" y="416" key="#com.intellij.ide.util.MemberChooser" timestamp="1600204665824">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1725" y="416" key="#com.intellij.ide.util.MemberChooser/0.0.2560.1400@0.0.2560.1400" timestamp="1600204665824" />
-    <state x="1600" y="436" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1601297995311">
+    <state x="1600" y="436" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1602867264197">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1600" y="436" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1601297995311" />
+    <state x="1600" y="436" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1602867264197" />
     <state x="1621" y="391" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1601501815394">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1621" y="391" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1601501815394" />
-    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1602253206434">
+    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1603026814572">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1602253206434" />
+    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1603026814572" />
     <state x="1696" y="426" key="NewPhpClassDialog" timestamp="1602248289960">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
@@ -217,6 +228,10 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1763" y="461" key="refactoring.ChangeSignatureDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1600781285601" />
+    <state x="1576" y="332" key="run.anything.popup" timestamp="1603027946803">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1576" y="332" key="run.anything.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1603027946803" />
     <state x="1583" y="319" width="672" height="678" key="search.everywhere.popup" timestamp="1600113627551">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>

@@ -106,6 +106,13 @@ Remplir la base de données en copiant le code ci-dessous dans l'onglet SQL de P
     (8, 'Quentin Tarantino'),
     (9, 'James Cameron');
     
+    --
+    -- Déchargement des données de la table `user`
+    --
+    
+    INSERT INTO `user` (`id`, `email`, `roles`, `password`) VALUES
+    (1, 'admin@email.fr', '{\"role\":\"ROLE_ADMIN\"}', '$argon2i$v=19$m=65536,t=4,p=1$d3BkUWxDaUt4Znd5RXQ2RQ$nTJvJOA41LHQfLKlh8KgCpqChwiPm3ABeLSl8cODqUM');
+    
 
 
 

@@ -180,7 +180,7 @@ class MainController extends AbstractController
      */
     public function auth()
     {
-        return $this->render('wip/index.html.twig', [
+        return $this->render('main/auth.html.twig', [
             'page_list' => $this->pageList,
             'route_list' => $this->routeList,
         ]);
