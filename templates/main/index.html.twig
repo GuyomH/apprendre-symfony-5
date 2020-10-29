@@ -36,6 +36,23 @@
 
     <p>Une fois dans le répertoire choisi, saisir la commande suivante afin de créer un nouveau projet web : <code>E:\dev> <kbd>symfony new nom_du_projet --full</kbd></code></p>
 
+    <h2>Configurer la locale</h2>
+
+    <p>Par défaut, la <b>locale</b> (langue) par défaut du projet est en anglais.<br>Si notre site est en français, il convient de modifier la valeur de cette locale dans le fichier <b>config/translation.yaml :</b></p>
+
+    <pre><code>
+    <b>config/translation.yaml</b>
+
+    framework:
+        default_locale: <b>'fr-FR' // français de France</b>
+    translator:
+        default_path: '%kernel.project_dir%/translations'
+        fallbacks:
+            - en <b>// Langue de secours</b>
+    </code></pre>
+
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i> <a href="https://symfony.com/doc/current/translation/locale.html" target="_blank">Documentation officielle</a> sur la <b>locale</b>, et <a href="https://wiki.freepascal.org/Language_Codes" target="_blank">tableau récapitulatif des codes pays</a> sur 2 ou 5 caractères (voir colonnes <b>Language code</b> et <b>LCID string</b>).</p>
+
     <h2>Initialiser GIT</h2>
     <p>Penser à se mettre dans le répertoire du projet : <code>E:\dev> <kbd>CD nom_du_projet</kbd></code> et saisir la commande <code>E:\dev\nom_du_projet> <kbd>git log</kbd></code> afin de vérifier que <b>Git</b> s'est bien initialisé et que le premier "commit" a bien été enregistré automatiquement.</p>
 

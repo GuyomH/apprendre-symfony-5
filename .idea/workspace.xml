@@ -3,10 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="bb6001b7-1cf2-4358-83d0-f40e605fe351" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/packages/security.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/security.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/MainController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/MainController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/translation.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/translation.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/main/index.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/index.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -188,7 +186,12 @@
       <workItem from="1602778588110" duration="8400000" />
       <workItem from="1602851466049" duration="10965000" />
       <workItem from="1602867307504" duration="12913000" />
-      <workItem from="1603025910207" duration="6776000" />
+      <workItem from="1603025910207" duration="7594000" />
+      <workItem from="1603460246466" duration="630000" />
+      <workItem from="1603636369243" duration="1941000" />
+      <workItem from="1603800714253" duration="1492000" />
+      <workItem from="1603876396875" duration="1755000" />
+      <workItem from="1603967528666" duration="4177000" />
     </task>
     <servers />
   </component>
@@ -228,10 +231,10 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1763" y="461" key="refactoring.ChangeSignatureDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1600781285601" />
-    <state x="1576" y="332" key="run.anything.popup" timestamp="1603027946803">
+    <state x="1576" y="332" key="run.anything.popup" timestamp="1603982880945">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1576" y="332" key="run.anything.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1603027946803" />
+    <state x="1576" y="332" key="run.anything.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1603982880945" />
     <state x="1583" y="319" width="672" height="678" key="search.everywhere.popup" timestamp="1600113627551">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
