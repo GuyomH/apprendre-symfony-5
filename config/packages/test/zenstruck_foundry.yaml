@@ -1,0 +1,5 @@
+# config/packages/test/zenstruck_foundry.yaml
+
+# just import the dev config
+imports:
+  - { resource: ../dev/zenstruck_foundry.yaml }

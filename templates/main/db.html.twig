@@ -349,7 +349,244 @@
     <p>Si tout se passe bien, les tables suivantes sont créées au niveau de la base de données :</p>
     <div class="text-center my-5"><img src="{{ asset('images/migration.png') }}" alt="Tables dans la base de données après migration" class="img-fluid"></div>
 
-    <h2>Remplir la base avec un jeu de données</h2>
+    <h2>Remplir la base de données  avec des fixtures</h2>
+
+    <p>En phase de développement, on a souvent besoin d'un <b>jeu de données</b> pour remplir sa base de données et effectuer des tests.</p>
+
+    <p>Pour nous aider dans cette tâche, il existe <b>la technique des fixtures</b>, qui nous permet de générer un grand nombre de données rapidement.</p>
+
+    <p>Il existe de nombreuses bibliothèques permettant de créer des <b>fixtures</b>, nous allons en utiliser 2 qui fonctionnent ensemble : <b><a href="https://symfony.com/doc/3.1/bundles/DoctrineFixturesBundle/index.html" target="_blank">DoctrineFixturesBundle</a></b> et <b><a href="https://github.com/zenstruck/foundry" target="_blank">Foundry</a></b>.</p>
+
+    <p>On installe d'abord la bibliothèque <b><a href="https://symfony.com/doc/3.1/bundles/DoctrineFixturesBundle/index.html" target="_blank">DoctrineFixturesBundle</a></b> avec la commande <kbd>composer require orm-fixtures --dev</kbd></p>
+
+    <p>Un fichier <b></b>src/Datafixtures/AppFixtures</b> est crée où l'on peut générer des fixtures de cette façon :</p>
+
+    <pre><code>
+    <b>src/DataFixtures/AppFixtures.php</b>
+
+    <b>// Exemple tiré de la documentation officielle</b>
+
+    namespace App\DataFixtures;
+
+    use App\Entity\Product;
+    use Doctrine\Bundle\FixturesBundle\Fixture;
+    use Doctrine\Persistence\ObjectManager;
+
+    class AppFixtures extends Fixture
+    {
+        public function load(ObjectManager $manager)
+        {
+            // create 20 products! Bam!
+            for ($i = 0; $i < 20; $i++) {
+                $product = new Product();
+                $product->setName('product '.$i);
+                $product->setPrice(mt_rand(10, 100));
+                $manager->persist($product);
+            }
+
+            $manager->flush();
+        }
+    }
+    </code></pre>
+
+    <p>Avec cette solution, et comme nous le motre l'exemple ci-dessus, il est possible de créer rapidement des fixtures sur une entité, mais ce qui nous intéresse, c'est de créer des fixtures sur plusieurs entités liées par des relation en même temps.<br>Pour cela il faut installer la bibliothèque complémentaire <b><a href="https://github.com/zenstruck/foundry" target="_blank">Foundry</a></b> avec la commande <kbd>composer require zenstruck/foundry --dev</kbd></p>
+
+    <p><b><a href="https://github.com/zenstruck/foundry" target="_blank">Foundry</a></b> embarque le fameur <b>faker</b> de  <b>Francois Zaninotto</b>, et si nous voulons que les données soit localisées en français, il convient de créer les 2 fichiers suivants (même nom, même emplacement, mais contenu différent) :</p>
+
+    <pre><code>
+    <b>config/packages/dev/zenstruck_foundry.yaml</b>
+
+    zenstruck_foundry:
+
+    # Whether to auto-refresh proxies by default (https://github.com/zenstruck/foundry#auto-refresh)
+    auto_refresh_proxies: false
+
+      # Configure faker to be used by your factories.
+      faker:
+
+      # Change the default faker locale.
+      <b>locale: fr_FR # Locale en français</b> - Exemples : fr_FR, de_DE, nl_NL, es_ES, ru_RU, zh_CN
+
+       # Customize the faker service.
+       service: null # Example: my_faker
+
+    # Configure the default instantiator used by your factories.
+    instantiator:
+
+       # Whether or not to call an object's constructor during instantiation.
+       without_constructor:  null
+
+       # Whether or not to allow extra attributes.
+       allow_extra_attributes: null
+
+       # Whether or not to skip setters and force set object properties (public/private/protected) directly.
+       always_force_properties: null
+
+       # Customize the instantiator service.
+       service: null # Example: my_instantiator
+    </code></pre>
+
+    <pre><code>
+    <b>config/packages/test/zenstruck_foundry.yaml</b>
+
+    # config/packages/test/zenstruck_foundry.yaml
+
+    # just import the dev config
+    imports:
+       - { resource: ../dev/zenstruck_foundry.yaml }
+    </code></pre>
+
+
+
+
+    <p>Une fois cette seconde bibliotèque installé et configurée, l'idée est de créer une <b>classe Factory</b> pour chaque entité que nous voulons remplir avec la commande <kbd>symfony console make:factory</kbd></p>
+
+    <pre><code>
+    // Note: pass --test if you want to generate factories in your tests/ directory
+
+    Entity class to create a factory for:
+      [0] App\Entity\Acteur
+      [1] App\Entity\Film
+      [2] App\Entity\Hashtag
+      [3] App\Entity\Realisateur
+      [4] App\Entity\User
+    >
+    </code></pre>
+
+    <p>On a besoin d'une <b>factory</b> pour toutes les entités sauf <b>User</b>, il convient donc de lancer la commande 4 fois pour chaque entité concernée.</p>
+
+    <p>Dans le répertoire <b>src</b>, un dossier <b>Factory</b> est crée avec nos 4 classes (<b>ActeurFactory</b>, <b>FilmFactory</b>, <b>HashtagFactory</b>, et <b>RealisateurFactory</b>).</p>
+
+    <p>On s'occupe d'abord de d'écrire le code qui va permettre de générer les fausses données dans chaque <b>Factory</b>.<br>On ne prend en compte que <b>les propriétés qui n'ont aucune relation Doctrine</b> (ex : OneToMany ou ManyToMany) :</p>
+
+    <pre><code>
+    <b>src/Factory/ActeurFactory</b>
+
+    // ...
+
+    protected function getDefaults(): array
+    {
+        return [
+            <b>// On utilise le faker pour générer le nom de l'acteur sous la forme : Prénom Nom</b>
+            <b>// L'intitulé de la clé correspond au nom de la propriété dans l'entité d'origine</b>
+            <b>'nom' => self::faker()->unique()->lastName . ' ' . self::faker()->unique()->firstName,</b>
+        ];
+    }
+
+    // ...
+    </code></pre>
+
+    <pre><code>
+    <b>src/Factory/FilmFactory</b>
+
+    final class FilmFactory extends ModelFactory
+    {
+        // ...
+
+        private static $index = 0; <b>// La propriété "static" permet de conserver la dernière valeur de $index à chaque appel de l'objet</b>
+
+        protected function getDefaults(): array
+        {
+            <b>// Liste des films</b>
+            $films = [
+                "Casino Royale","Quantum of Solace","Skyfall","8 mile","L'armée des 12 singes","2009 Lost Memories", // ...
+            ];
+
+            return [
+                <b>// TODO add your default values here (https://github.com/zenstruck/foundry#model-factories)
+                // On utilise la liste de films pour peupler la base (https://www.fichier-xls.fr/2013/07/14/liste-films/)
+                'titre' => $films[self::$index++],</b>
+            ];
+        }
+
+        // ...
+    }
+    </code></pre>
+
+
+    <pre><code>
+    <b>src/Factory/HashtagFactory</b>
+
+    // ...
+
+    protected function getDefaults(): array
+    {
+        return [
+            <b>// On utilise le faker pour générer un mot au hasard que l'on préfixe avec le symbole "#"</b>
+            <b>// L'intitulé de la clé correspond au nom de la propriété dans l'entité d'origine</b>
+            <b>'terme' => '#' . self::faker()->word,</b>
+        ];
+    }
+
+    // ...
+    </code></pre>
+
+    <pre><code>
+    <b>src/Factory/RealisateurFactory</b>
+
+    // ...
+
+    protected function getDefaults(): array
+    {
+        return [
+            <b>// On utilise le faker pour générer le nom sous la forme : Prénom Nom</b>
+            <b>// L'intitulé  de la clé correspond au nom de la propriété dans l'entité d'origine</b>
+            <b>'nom' => self::faker()->unique()->lastName . ' ' . self::faker()->unique()->firstName,</b>
+        ];
+    }
+
+    // ...
+    </code></pre>
+
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i> <a href="https://github.com/fzaninotto/Faker" target="_blank">Documentation officielle</a> du <b>Faker</b>.</p>
+
+    <p>Comme on peut le constater, le code de génération des données intervient au niveau du tableau de la méthode <b>getDefaults()</b> de chaque <b>Factory</b>.<br>Il faut désormais s'occuper d'écrire le code qui va permettre de lier toutes ces classes dans <b>src/Datafixtures/AppFixtures.php</b> :</p>
+
+    <pre><code>
+    <b>src/DataFixtures/AppFixtures</b>
+
+    class AppFixtures extends Fixture
+    {
+        public function load(ObjectManager $manager)
+        {
+            <b>// On crée 40 acteurs pour en associer entre 1 et 5 au hasard pour chaque film</b>
+            ActeurFactory::new()->many(40)->create();
+
+            <b>// On crée 20 réalisateurs pour en associer 1 au hasard pour chaque film</b>
+            RealisateurFactory::new()->many(20)->create();
+
+            <b>// On crée 50 différents films</b>
+            FilmFactory::new()->createMany(50, function() {
+                return [
+                    <b>// On traite les propriétés de l'entité Film qui ont une relation Doctrine</b>
+                    <b>// On crée entre 0 et 3 hashtag pour chaque film</b>
+                    'hashtags' => HashtagFactory::new()->many( rand(0,3) ), <b>// OneToMany</b>
+                    <b>// On associe 1 réalisateur au hasard parmi les 20 créés</b>
+                    'realisateur' => RealisateurFactory::random(), <b>// ManyToOne</b>
+                    <b>// On associe entre 1 et 5 acteurs au hasard parmi les 40 créés</b>
+                    'acteurs' => ActeurFactory::randomRange(1, 5), <b>// ManyToMany</b>
+                ];
+            });
+
+            $manager->flush();
+        }
+    }
+    </code></pre>
+
+    <p>Une fois tout cela terminé, il ne reste plus qu'à lancer la commande <kbd>symfony console doctrine:fixtures:load</kbd> Pour charger la base de données :</p>
+
+    <pre><code>
+    Careful, database "learning_symfony" will be purged. Do you want to continue? (yes/no) [no]:
+    > y
+
+    > purging database
+    > loading App\DataFixtures\AppFixtures
+    </code></pre>
+
+    <p class="alert alert-warning">Vous pouvez tester la commande <kbd>symfony console doctrine:fixtures:load</kbd> à tout moment pour recharger la base de données.</p>
+
+    {#
+    <h2>Remplir la base avec un jeu de données au format <abbr title="Search Query Language">SQL</abbr></h2>
 
     <p>Afin de remplir la base avec quelques exemples, voici un jeu de données au format <abbr title="Search Query Language">SQL</abbr> prêt à être executé dans <b>PhpMyAdmin</b> avec un simple copier/coller du code ci-dessous dans l'onglet <abbr title="Search Query Language">SQL</abbr> :</p>
 
@@ -431,6 +668,7 @@
     </code></pre>
 
     <div class="text-center my-5"><img src="{{ asset('images/insert_into_db.png') }}" alt="Insertion des données dans la base via PhpMyAdmin" class="img-fluid"></div>
+    #}
 
     <h2>Afficher les données</h2>
 
@@ -471,7 +709,7 @@
 
     <p>Une fois notre <b>FilmRepository</b> injecté, il ne reste plus qu'à l'utiliser.<br>Les classes de type <b>repository</b> permettent d'écrire nos propres requêtes en <b><abbr title="Doctrine Query Language">DQL</abbr></b>, mais propose également des méthodes toutes prêtes, dont <b>findAll()</b> qui permet de récuperer tous les films.</p>
 
-    <p>Afin de pouvoir classer la liste des films par ordre alphabétique, nous allons utiliser la méthode <b>findBy()</b> avec en premier paramètre un tableau de critères vide, et en second le filtre de tri :</p>
+    <p>Afin de pouvoir classer la liste des films par ordre alphabétique, nous allons plutôt utiliser la méthode <b>findBy()</b> avec en premier paramètre un tableau de critères vide, et en second le filtre de tri :</p>
 
     <pre><code>
     <b>src/Controller/MainController</b>
