@@ -6,14 +6,14 @@ Ce projet de site web didactique sert à la fois à démontrer les capacités de
 Concept
 -------
 
-Chaque page traite d'un sujet précis qui fait l'objet d'un exemple d'application sur la page courante. Il est donc possible d'apprendre sur un sujet en lisant une page est analysant le code du projet lié à celle-ci.
+Chaque page traite d'un sujet précis qui fait l'objet d'un exemple d'application sur la page courante. Il est donc possible d'apprendre sur un sujet en lisant une page et en analysant le code du projet lié à celle-ci.
 
 Installation & Lancement
 ------------------------
 
 Pour installer et lançer le projet il convient de s'assurer que les éléments suivants sont installés sur votre machine :
 
-* Un IDE ([PHP Storm](https://www.jetbrains.com/fr-fr/phpstorm/download) ou [Visual Studio Code](https://code.visualstudio.com/download))
+* Un IDE ([PHP Storm](https://www.jetbrains.com/fr-fr/phpstorm/download) ou [Visual Studio Code](https://code.visualstudio.com/download) ou celui que vous aimez)
 * [PHP & MariaDB](https://www.apachefriends.org/download.html)
 * [Symfony CLI](https://symfony.com/download)
 * [Composer](https://getcomposer.org/download/)
