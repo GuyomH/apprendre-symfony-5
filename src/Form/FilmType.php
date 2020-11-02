@@ -45,7 +45,7 @@ class FilmType extends AbstractType
                     return $entityRepository->createQueryBuilder('a')
                         ->orderBy('a.nom', 'ASC');
                 },
-                'choice_label' => 'nom',
+                'choice_label' => 'nom', // Nom de la propriété utilisée pour créer la liste
                 'label' => 'Nom des acteurs',
                 'multiple' => true,
                 'expanded' => true,

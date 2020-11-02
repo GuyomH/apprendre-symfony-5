@@ -20,24 +20,24 @@
     <p>Pour créer notre listing, on commence par récupérer tous les films par ordre alphabétique, puis à envoyer le tout dans la vue :</p>
 
     <pre><code>
-    <b>src/Controller/Maincontroller</b>
+    <b>src/Controller/Formcontroller</b>
 
     /**
-     * @Route("/form/update", name="form3")
+     * @Route("/form/update", name="update")
      */
     public function form3(Request $request, FilmRepository $filmRepository)
     {
         <b>// Récupération de la liste de tous les films</b>
         $films = $filmRepository->findby([], ['titre' => 'ASC']);
 
-        return $this->render('main/form3.html.twig', [
+        return $this->render('forms.update.html.twig', [
             // ...
             'films' => $films,
         ]);
     }
     </code></pre>
 
-    <p>Avant de construire notre tableau de liens, on crée un nouveau contrôleur nommé <b>FormController</b> afin de ne pas surcharger le contrôleur principal.</p>
+    <p>Le formulaire d'ajout et celui de mise à jour étant le même, nous allons utiliser la même méthode que pour l'ajout de données, en faisant cohabiter 2 annotations :</p>
 
     <pre><code>
     <b>src/Controller/FormController</b>
@@ -45,7 +45,8 @@
     class FormController extends AbstractController
     &#123;
         /**
-         * @Route("/edit/&#123;id&#125;", name="edit")
+         * @Route("/form/create", name="create")
+         <b>* @Route("/edit/&#123;id&#125;", name="edit")</b>
          */
         public function edit()
         &#123;
@@ -56,12 +57,12 @@
 
     <p>On note que la route de notre page s'appelle <b>edit</b> et prend en paramètre un <b>id</b> qui sera celui du film demandé.</p>
 
-    <p>On fait de même avec le dossier <b>templates</b> dans lequel on crée un nouveau sous dossier <b>forms</b> contenant le modèle <b>edit.html.twig</b>.</p>
+    <p>Dans le sous dossier <b>forms</b> du dossier <b>templates</b>, on crée le fichier <b>edit.html.twig</b>.</p>
 
     <p>Une fois ceci fait, on peut créer notre listing :</p>
 
     <pre><code>
-   <b>templates/main/form3.html.twig</b>
+   <b>templates/forms/update.html.twig</b>
 
     &lt;table class="table table-striped"&gt;
         &lt;tbody&gt;
@@ -87,40 +88,54 @@
 
     <p>Maintenant que notre listing est prêt, et que chaque lien mène vers le formulaire d'édition en précisant l'<b>id</b> du film en paramètre, il ne reste plus en théorie qu'à <b>ré-utiliser notre formulaire sur la page de destination</b>.</p>
 
-    <p>On commence donc par reprendre le code pour créer un formulaire dans notre nouveau contrôleur :</p>
+    <p>On commence par adapter le code du <b>FormController</b> pour qu'il gère l'ajout et la mise à jour des données :</p>
 
     <pre><code>
     <b>src/Controller/FormController</b>
 
     /**
-     * @Route("/edit/&#123;id&#125;", name="edit")
+     * @Route("/form/create", name="create")
+     <b>* @Route("/edit/&#123;id&#125;", name="edit")</b>
      */
-    public function edit(<b>Film $film</b>, Request $request, EntityManagerInterface $entityManager)
+    public function createAndEdit(Film $film = null, Request $request, EntityManagerInterface $entityManager)
     &#123;
-        $form = $this-&gt;createForm(FilmType::class, <b>$film</b>); <b>// Création du formulaire avec les données du film courant</b>
+        <b>// Si la variable film n'est pas nulle / Si on est en mode édition</b>
+        <b>// On crée 3 variables afin d'adapter la notification, la route et, la vue en fonction qu'on soit en mode édition ou création</b>
+        if ($film !== null)
+        &#123;
+            $noticeMessage = 'Votre film a bien été édité !';
+            $route = 'update';
+            $view = 'forms/edit.html.twig';
+        <b>// Sinon, mode ajout de nouvelle de données</b>
+        &#125; else &#123;
+            $noticeMessage = 'Votre film a bien été ajouté !';
+            $route = 'create';
+            $view = 'forms/create.html.twig';
+        &#125;
 
-        $form-&gt;handleRequest($request); // Gestion de la requête
+        $form = $this-&gt;createForm(FilmType::class, <b>$film</b>); <b>// Création du formulaire avec les données du film courant en mode édition</b>
+
+        $form-&gt;handleRequest($request); <b>// Gestion de la requête</b>
 
         if($form-&gt;isSubmitted() && $form-&gt;isValid())
         &#123;
+            $film = $form-&gt;getData();
+
+            $entityManager-&gt;persist($film);
             $entityManager-&gt;flush();
 
-            $this-&gt;addFlash(
-                'notice',
-            <b>'Votre film a bien été édité !'</b>
-            );
+            $this-&gt;addFlash('notice', $noticeMessage);
 
-            return $this-&gt;redirectToRoute('form3');
+            return $this-&gt;redirectToRoute($route);
         &#125;
 
-        return $this-&gt;render('forms/edit.html.twig', [
+        return $this-&gt;render($view, [
             // ...
-            'form3' =&gt; $form-&gt;createView(), <b>// Envoi du formulaire à la vue</b>
+            'form' =&gt; $form-&gt;createView(), <b>// Envoi du formulaire à la vue</b>
         ]);
-    &#125;
     </code></pre>
 
-    <p>Si on compare ce code à celui de la page <b><a href="{{ path('form2') }}" target="_blank">Ajouter des données</a></b> on remarque tout d'abord l'injection de l'objet <b>Film</b> en premier paramètre de la méthode <code>edit()</code>.</p>
+    <p>Si on compare ce code à celui de la page <b><a href="{{ path('create') }}" target="_blank">Ajouter des données</a></b> on remarque tout d'abord l'injection de l'objet <b>Film</b> en premier paramètre de la méthode <code>edit()</code>.</p>
 
     <p>Le fait d'injecter l'objet <b>Film</b> permet de le <b>"mapper"</b> automatiquement avec l'<b>ID</b> du film contenu dans l'<b><abbr title="Uniform Resource Locator">URL</abbr></b>.</p>
 
@@ -134,40 +149,58 @@
 
     <h2>Gérer la vue</h2>
 
-    <p>Le <b>formulaire de mise à jour</b> est strictement le même que celui de <b>création de données</b> car il est construit à partir de <b>FilmType</b>, et il sera structuré dans <b>twig</b> de la même façon (il reprend également le même code <b>javascript</b> pour assurer son fonctionnement) :</p>
+    <p>Le <b>formulaire de mise à jour</b> est strictement le même que celui de <b>création de données</b> car il est construit à partir de <b>FilmType</b>, nous allons donc isoler le code twig de ce formulaire dans le fichier <b>templates/forms/common/create-update-form.html.twig</b> :</p>
 
     <pre><code>
-    <b>templates/forms/edit.html.twig</b>
+    <b>templates/forms/common/create-update-form.html.twig</b>
 
-    &#123;&#123; form_start(form3) &#125;&#125;
+    &#123;&#123; form_start(form) &#125;&#125;
     <b>&#123;# Titre du film #&#125;</b>
     &lt;div class="form-group"&gt;
-        &#123;&#123; form_row(form3.titre) &#125;&#125;
+        &#123;&#123; form_row(form.titre) &#125;&#125;
     &lt;/div&gt;
-    <b>&#123;# Nom du réalisateur #&#125;</b>
-    &lt;div class="form-group"&gt;
-        &#123;&#123; form_row(form3.realisateur) &#125;&#125;
+    &#123;# Nom du réalisateur #&#125;
+    <b>&lt;div class="form-group"&gt;</b>
+        &#123;&#123; form_row(form.realisateur) &#125;&#125;
     &lt;/div&gt;
     <b>&#123;# Liste des acteurs #&#125;</b>
     &lt;div class="form-group"&gt;
-        &#123;&#123; form_row(form3.acteurs) &#125;&#125;
+        &#123;&#123; form_row(form.acteurs) &#125;&#125;
     &lt;/div&gt;
     <b>&#123;# Liste des hashtags #&#125;</b>
     &lt;div id="hashtag-area"&gt;
-        &#123;&#123; form_row(form3.hashtags) &#125;&#125;
+        &#123;&#123; form_row(form.hashtags) &#125;&#125;
         &lt;div id="hashtag-container"&gt;&lt;/div&gt;
         &lt;input type="button" class="btn btn-info btn-sm mb-5 addHashtag" value="Ajouter un hashtag"&gt;
     &lt;/div&gt;
     <b>&#123;# Submit #&#125;</b>
+    <b>&#123;# On adapte la valeur du bouton soumettre si on est en mode édition #&#125;</b>
     &lt;div class="form-group"&gt;
-        &#123;&#123; form_row(form3.soumettre, <b>&#123;'label': 'Éditer ce film'&#125;</b>) &#125;&#125;
+        &#123;% if app.request.get('_route') is same as('edit')%&#125;
+            &#123;&#123; form_row(form.soumettre, &#123;'label': 'Éditer ce film'&#125;) &#125;&#125;
+        &#123;% else %&#125;
+            &#123;&#123; form_row(form.soumettre) &#125;&#125;
+        &#123;% endif %&#125;
     &lt;/div&gt;
-    &#123;&#123; form_end(form3) &#125;&#125;
+    &#123;&#123; form_end(form) &#125;&#125;
     </code></pre>
 
     <p>la seule petite différence va se situer au niveau du <b>bouton de soumission</b> dont la valeur définie dans <b>FilmType</b> est <b>"Ajouter ce film"</b>.</p>
 
-    <p>Afin de lui attribuer la valeur <b>"Éditer ce film"</b> au niveau du code <b>twig</b>, il suffit de redéfinir le <b>label</b> de la propriété <b>soumettre</b> de la manière suivante :<br><code>&#123;&#123; form_row(form3.soumettre, <b>&#123;'label': 'Éditer ce film'&#125;</b>) &#125;&#125;</code></p>
+    <p>Afin de lui attribuer la valeur <b>"Éditer ce film"</b> au niveau du code <b>twig</b>, il suffit de créer une boucle conditionnelle qui compare le nom de la <b>route</b> et, de redéfinir le <b>label</b> de la propriété <b>soumettre</b> de la manière suivante :<br><code>&#123;&#123; form_row(form.soumettre, <b>&#123;'label': 'Éditer ce film'&#125;</b>) &#125;&#125;</code></p>
+
+    <p>Il ne reste plus qu'à supprimer le code du formulaire en doublon dans les vues <b>create</b> et <b>edit</b> et le remplacer par le code suivant :</p>
+
+    <pre><code>
+    <b>templates/forms/create.html.twig</b>
+    <b>templates/forms/edit.html.twig</b>
+
+    &#123;% block main %&#125;
+        &#123;% ... %&#125;
+
+        <b>&#123;% include 'forms/common/create-update-form.html.twig' %&#125;</b>
+    &#123;% endblock %&#125;
+    </code></pre>
 
     <p>Désormais, si l'on charge le formulaire correspondant au film <b>Retour vers le Futur</b>, on obitient ceci :</p>
 
@@ -262,7 +295,7 @@
         <b>// Création du formulaire avec l'objet Film <i>($film)</i> en second paramètre afin de remplir le formulaire</b>
         $form = $this->createForm(FilmType::class, $film);
 
-        return $this->render('main/form3.html.twig', [
+        return $this->render('main/update.html.twig', [
             'page_list' => $this->pageList,
             'path_list' => $this->pathList,
             'form3' => $form->createView(), <b>// Envoi du formulaire à la vue</b>
@@ -273,7 +306,7 @@
     <p>Pour l'affichage du film, on reprend le même code que la section précédente, avec pour seule différence le bouton <b>"Ajouter ce film"</b> que l'on renomme <b>"Mettre à jour ce film"</b> :</p>
 
     <pre><code>
-    &#123;# templates/main/form3.html.twig #&#125;
+    &#123;# templates/main/update.html.twig #&#125;
 
     &#123;&#123;{ form_start(form3) &#125;&#125;
 
@@ -331,7 +364,7 @@
             return $this->redirectToRoute('form3');
         &#125;
 
-        return $this->render('main/form3.html.twig', [
+        return $this->render('main/update.html.twig', [
 
             // ...
 

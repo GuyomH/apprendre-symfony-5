@@ -2,17 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bb6001b7-1cf2-4358-83d0-f40e605fe351" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/learning_project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/learning_project.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/bundles.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/bundles.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/packages/translation.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/translation.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/symfony.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/main/db.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/db.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/main/index.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/index.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/FormController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/FormController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/MainController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/MainController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/FilmType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Form/FilmType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/NavManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Service/NavManager.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/forms/edit.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/forms/edit.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/main/form1.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/forms/read.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/main/form2.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/forms/create.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/main/form3.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/forms/update.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/main/form4.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/forms/delete.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,8 +26,8 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/templates/main/form3.html.twig" root0="SKIP_INSPECTION" root1="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/templates/main/form2.html.twig" root0="SKIP_INSPECTION" root1="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/templates/forms/update.html.twig" root0="SKIP_INSPECTION" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/templates/forms/create.html.twig" root0="SKIP_INSPECTION" root1="SKIP_INSPECTION" />
   </component>
   <component name="PhpWorkspaceProjectConfiguration">
     <include_path>
@@ -154,6 +153,9 @@
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\symfony_5_dev\learning_project\templates\forms" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\symfony_5_dev\learning_project\config\packages\dev" />
       <recent name="E:\symfony_5_dev\learning_project\config\packages\test" />
@@ -205,7 +207,9 @@
       <workItem from="1603800714253" duration="1492000" />
       <workItem from="1603876396875" duration="1755000" />
       <workItem from="1603967528666" duration="8143000" />
-      <workItem from="1604061218032" duration="25522000" />
+      <workItem from="1604061218032" duration="28931000" />
+      <workItem from="1604265327035" duration="6050000" />
+      <workItem from="1604332272368" duration="13243000" />
     </task>
     <servers />
   </component>
@@ -229,10 +233,10 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1621" y="391" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1601501815394" />
-    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1604071466224">
+    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1604334557200">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1604071466224" />
+    <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1604334557200" />
     <state x="1696" y="426" key="NewPhpClassDialog" timestamp="1602248289960">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>

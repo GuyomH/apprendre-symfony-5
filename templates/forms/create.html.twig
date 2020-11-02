@@ -158,46 +158,46 @@
     <p>Pour afficher le formulaire, il faut saisir le code suivant dans le <b>contrôleur</b> et le <b>template twig</b> correspondant :</p>
 
     <pre><code>
-    <b>src/Controller/MainController</b>
+    <b>src/Controller/FormController</b>
 
     /**
-     * @Route("/form/create", name="form2")
+     * @Route("/form/create", name="create")
      */
-    public function form2()
+    public function create()
     {
         $form = $this->createForm(FilmType::class); // Création du formulaire
 
-        return $this->render('main/form2.html.twig', [
+        return $this->render('forms/create.html.twig', [
             'page_list' => $this->pageList,
             'path_list' => $this->pathList,
-            'form2' => $form->createView(), // Envoi du formulaire à la vue
+            'form' => $form->createView(), // Envoi du formulaire à la vue
         ]);
     }
     </code></pre>
 
     <pre><code>
-    <b>templates/main/form2.html.twig</b>
+    <b>templates/forms/create.html.twig</b>
 
-    &#123;&#123; form_start(form2) &#125;&#125;
+    &#123;&#123; form_start(form) &#125;&#125;
         <b>&#123;# Titre du film #&#125;</b>
         &lt;div class="form-group"&gt;
-            &#123;&#123; form_row(form2.titre) &#125;&#125;
+            &#123;&#123; form_row(form.titre) &#125;&#125;
         &lt;/div&gt;
         <b>&#123;# Nom du réalisateur #&#125;</b>
         &lt;div class="form-group"&gt;
-            &#123;&#123; form_row(form2.realisateur) &#125;&#125;
+            &#123;&#123; form_row(form.realisateur) &#125;&#125;
         &lt;/div&gt;
         <b>&#123;# Liste des acteurs #&#125;</b>
         &lt;div class="form-group"&gt;
-            &#123;&#123; form_row(form2.acteurs) &#125;&#125;
+            &#123;&#123; form_row(form.acteurs) &#125;&#125;
         &lt;/div&gt;
         <b>&#123;# Liste des hashtags #&#125;</b>
-            &#123;&#123; form_row(form2.hashtags) &#125;&#125;
+            &#123;&#123; form_row(form.hashtags) &#125;&#125;
         <b>&#123;# Submit #&#125;</b>
         &lt;div class="form-group"&gt;
-            &#123;&#123; form_row(form2.soumettre) &#125;&#125;
+            &#123;&#123; form_row(form.soumettre) &#125;&#125;
         &lt;/div&gt;
-    &#123;&#123; form_end(form2) &#125;&#125;
+    &#123;&#123; form_end(form) &#125;&#125;
     </code></pre>
 
     <h2>Gérer le data-prototype</h2>
@@ -316,7 +316,7 @@
             &#125;);
 
 
-        <b>// Script pour gérer rendre la sélection d'au moins 1 acteur obligatoire</b>
+        <b>// Script pour rendre la sélection d'au moins 1 acteur obligatoire</b>
         $("#film_soumettre").click(function ()
         &#123;
             checked = $("input[type=checkbox]:checked").length;
@@ -336,21 +336,21 @@
     <p>Afin de pouvoir améliorer notre formulaire ultérieurement, nous allons également entourer l'ensemble d'un autre conteneur &lt;div&gt; avec l'id <b>hashtag-area</b> :</p>
 
     <pre><code>
-    <b>templates/main/form2.html.twig</b>
+    <b>templates/forms/create.html.twig</b>
 
-    &#123;&#123; form_start(form2) &#125;&#125;
+    &#123;&#123; form_start(form) &#125;&#125;
 
         &#123;# ... #&#125;
 
         &#123;# Liste des hashtags #&#125;
         <b>&lt;div id="hashtag-area"&gt;</b>
-            &#123;&#123; form_row(form2.terme) &#125;&#125;
+            &#123;&#123; form_row(form.terme) &#125;&#125;
             <b>&lt;div id="hashtag-container"&gt;&lt;/div&gt;
             &lt;input type="button" class="btn btn-info btn-sm mb-5 addHashtag" value="Ajouter un hashtag"&gt;</b>
         <b>&lt;/div&gt;</b>
         &#123;# ... #&#125;
 
-    &#123;&#123; form_end(form2) &#125;&#125;
+    &#123;&#123; form_end(form) &#125;&#125;
     </code></pre>
 
     <p>Une fois tous ces ajouts effectués, le formulaire s'affiche sous sa forme finale :</p>
@@ -366,12 +366,12 @@
     <p>Si dans la section précédente, on utilisait les objets <b>Request</b> et <b>FilmRepository</b> pour interroger la base de données, cette fois-ci, nous allons nous servir du couple <b>Request</b> et <b>EntityManager</b> afin d'y insérer des données :</p>
 
     <pre><code>
-    <b>src/Controller/MainController</b>
+    <b>src/Controller/FormController</b>
 
     /**
-     * @Route("/form/create", name="form2")
+     * @Route("/form/create", name="create")
      */
-    public function form2(Request $request, EntityManagerInterface $entityManager)
+    public function create(Request $request, EntityManagerInterface $entityManager)
     {
         $form = $this->createForm(FilmType::class); <b>// Création du formulaire</b>
         $form->handleRequest($request); <b>// Gestion de la requête</b>
@@ -387,9 +387,9 @@
 
         <b>// TODO: Flash message + redirection</b>
 
-        return $this->render('main/form2.html.twig', [
+        return $this->render('forms/create.html.twig', [
             // ...
-            'form2' => $form->createView(), <b>// Envoi du formulaire à la vue</b>
+            'form' => $form->createView(), <b>// Envoi du formulaire à la vue</b>
         ]);
     }
     </code></pre>
@@ -532,12 +532,12 @@
     <p>Pour notre exemple, nous allons rediriger notre utilisateur (vous) sur la page courante avec une jolie notification :</p>
 
     <pre><code>
-    <b>src/Controller/MainController</b>
+    <b>src/Controller/FormController</b>
 
     /**
-     * @Route("/form/create", name="form2")
+     * @Route("/form/create", name="create")
      */
-    public function form2(Request $request, EntityManagerInterface $entityManager)
+    public function create(Request $request, EntityManagerInterface $entityManager)
     {
        // ...
 
@@ -551,7 +551,7 @@
                 'Votre film a bien été ajouté ! Il ne vous reste plus qu\'à trouver une page où vous pourrez vérifier le résultat ;-)'
             );
 
-                return $this->redirectToRoute('form2');</b>
+                return $this->redirectToRoute('create');</b>
         }
     }
     </code></pre>
@@ -581,31 +581,7 @@
 
     <p>Voici le formulaire final, prêt à être testé par vos soins :</p>
 
-    {# Affichage du formulaire #}
-    {{ form_start(form2) }}
-        {# Titre du film #}
-        <div class="form-group">
-            {{ form_row(form2.titre) }}
-        </div>
-        {# Nom du réalisateur #}
-        <div class="form-group">
-            {{ form_row(form2.realisateur) }}
-        </div>
-        {# Liste des acteurs #}
-        <div class="form-group">
-            {{ form_row(form2.acteurs) }}
-        </div>
-        {# Liste des hashtags #}
-        <div id="hashtag-area">
-            {{ form_row(form2.hashtags) }}
-            <div id="hashtag-container"></div>
-            <input type="button" class="btn btn-info btn-sm mb-5 addHashtag" value="Ajouter un hashtag">
-        </div>
-        {# Submit #}
-        <div class="form-group">
-            {{ form_row(form2.soumettre) }}
-        </div>
-    {{ form_end(form2) }}
+    {% include 'forms/common/create-update-form.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}

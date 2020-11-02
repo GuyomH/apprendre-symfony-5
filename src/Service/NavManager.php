@@ -13,13 +13,13 @@ class NavManager
         'Twig' => 'twig',
         'Base de données' => 'db',
         'Formulaires' => [
-            'Lire des données' => 'form1',
-            'Ajouter des données' => 'form2',
-            'Mettre à jour des données' => 'form3',
-            'Supprimer des données' => 'form4',
+            'Lire des données' => 'read',
+            'Ajouter des données' => 'create',
+            'Mettre à jour des données' => 'update',
+            'Supprimer des données' => 'delete',
         ],
-        'Service' => 'service',
         'Authentification' => 'auth',
+        'Service' => 'service',
         'Références' => 'references',
     ];
 

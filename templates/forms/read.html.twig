@@ -167,10 +167,10 @@
     <p>Au niveau de notre contrôleur principal, il commencer lui signifier que nous voulons traiter la soumission des données en injectant l'objet <b>Request</b>, et accéder au <b>FilmRepository</b> qui nous permettra de récupérer notre jeu de données :</p>
 
     <pre><code>
-    <b>src/Controller/MainController</b>
+    <b>src/Controller/FormController</b>
 
     /**
-     * @Route("/form", name="form")
+     * @Route("/form/read", name="read")
      */
     public function form(Request $request, FilmRepository $filmRepository)
     {
@@ -212,7 +212,7 @@
     <p><a href="https://symfony.com/doc/current/form/form_customization.html" target="_blank"><i class="fa fa-link"></i>Afficher un formulaire dans la vue (en anglais)</a></p>
 
     <pre><code>
-    <b>templates/main/form1.html.twig</b>
+    <b>templates/forms/read.html.twig</b>
 
     &lt;div class="my-5"&gt;
     <b>&#123;# Affichage champ par champ du formulaire #&#125;</b>

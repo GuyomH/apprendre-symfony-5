@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {# Variable titre de la page avec concaténation #}
-{% set title = 'Formulaire d\'édition du film ' ~ form3.vars.value.titre %}
+{% set title = 'Formulaire d\'édition du film ' ~ form.vars.value.titre %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -10,31 +10,7 @@
 {% block main %}
     <h1>{{ title }}</h1>
 
-    {# Affichage du formulaire #}
-    {{ form_start(form3) }}
-    {# Titre du film #}
-    <div class="form-group">
-        {{ form_row(form3.titre) }}
-    </div>
-    {# Nom du réalisateur #}
-    <div class="form-group">
-        {{ form_row(form3.realisateur) }}
-    </div>
-    {# Liste des acteurs #}
-    <div class="form-group">
-        {{ form_row(form3.acteurs) }}
-    </div>
-    {# Liste des hashtags #}
-    <div id="hashtag-area">
-        {{ form_row(form3.hashtags) }}
-        <div id="hashtag-container"></div>
-        <input type="button" class="btn btn-info btn-sm mb-5 addHashtag" value="Ajouter un hashtag">
-    </div>
-    {# Submit #}
-    <div class="form-group">
-        {{ form_row(form3.soumettre, {'label': 'Éditer ce film'}) }}
-    </div>
-    {{ form_end(form3) }}
+    {% include 'forms/common/create-update-form.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}

@@ -12,17 +12,17 @@
     <p>L'opération est très similaire au listing d'édition, et on commence donc par récupérer la <b>liste des films</b> dans le <b>contrôleur principal</b> :</p>
 
     <pre><code>
-    <b>src/Controller/Maincontroller</b>
+    <b>src/Controller/FormController</b>
 
     /**
-     * @Route("/form/delete", name="form4")
+     * @Route("/form/delete", name="delete")
      */
-    public function form4(Request $request, FilmRepository $filmRepository)
+    public function delete(Request $request, FilmRepository $filmRepository)
     &#123;
         // Récupération de la liste de tous les films
         $films = $filmRepository-&gt;findby([], ['titre' =&gt; 'ASC']);
 
-        return $this-&gt;render('main/form4.html.twig', [
+        return $this-&gt;render('forms/delete.html.twig', [
             'page_list' =&gt; $this-&gt;pageList,
             'path_list' =&gt; $this-&gt;pathList,
             'films' =&gt; $films,
@@ -36,9 +36,9 @@
     <b>src/Controller/FormController</b>
 
     /**
-     * @Route("/delete/&#123;id&#125;", name="delete")
+     * @Route("/remove/&#123;id&#125;", name="remove")
      */
-    public function delete(Film $film, EntityManagerInterface $entityManager)
+    public function remove(Film $film, EntityManagerInterface $entityManager)
     &#123;
         $entityManager-&gt;remove($film);
         $entityManager-&gt;flush();
@@ -49,7 +49,7 @@
             'Votre film a bien été supprimé !'
         );
 
-        return $this-&gt;redirectToRoute('form4');
+        return $this-&gt;redirectToRoute('delete');
     &#125;
     </code></pre>
 
@@ -60,7 +60,7 @@
     <p>À partir de là, il suffit de créer notre listing sur le même modèle que celui de la section précédente, avec un bouton supprimer qui pointe vers la route <code>/delete/{id}</code> nommée <b>delete</b> afin de traiter la suppression :</p>
 
     <pre><code>
-    <b>tempaltes/main/fom4.html.twig</b>
+    <b>templates/forms/delete.html.twig</b>
 
     &lt;table class="table table-striped"&gt;
 	&lt;tbody&gt;
@@ -111,7 +111,7 @@
         {% for film in films %}
             <tr>
                 <td>{{ film.titre }}</td>
-                <td><a href="{{ path('delete', { 'id': film.id }) }}" class="btn btn-primary btn-sm">Supprimer</a></td>
+                <td><a href="{{ path('remove', { 'id': film.id }) }}" class="btn btn-primary btn-sm">Supprimer</a></td>
             </tr>
         {% endfor %}
         </tbody>

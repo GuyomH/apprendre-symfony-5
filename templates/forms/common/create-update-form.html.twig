@@ -1,0 +1,29 @@
+{# Affichage du formulaire #}
+{{ form_start(form) }}
+{# Titre du film #}
+<div class="form-group">
+    {{ form_row(form.titre) }}
+</div>
+{# Nom du réalisateur #}
+<div class="form-group">
+    {{ form_row(form.realisateur) }}
+</div>
+{# Liste des acteurs #}
+<div class="form-group">
+    {{ form_row(form.acteurs) }}
+</div>
+{# Liste des hashtags #}
+<div id="hashtag-area">
+    {{ form_row(form.hashtags) }}
+    <div id="hashtag-container"></div>
+    <input type="button" class="btn btn-info btn-sm mb-5 addHashtag" value="Ajouter un hashtag">
+</div>
+{# Submit #}
+<div class="form-group">
+    {% if app.request.get('_route') is same as('edit')%}
+        {{ form_row(form.soumettre, {'label': 'Éditer ce film'}) }}
+    {% else %}
+        {{ form_row(form.soumettre) }}
+    {% endif %}
+</div>
+{{ form_end(form) }}
