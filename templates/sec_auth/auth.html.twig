@@ -3,7 +3,7 @@
 {% block title %}Authentification et autorisation avec Symfony 5{% endblock %}
 
 {% block main %}
-    <h1>Authentification et autorisation avec Symfony 5</h1>
+    <h1>Authentification et autorisation</h1>
 
     <p>Symfony propose un système de contrôle d'accès aux ressources du site basé sur l'<b>authentification</b> et l'<b>autorisation</b>.</p>
 
@@ -343,6 +343,30 @@
     </code></pre>
 
     <p>On constate que la syntaxe pour restreindre l'accès à une page, ou à un groupe de page, consiste à spécifier la <b>chemin</b> et le <b>rôle</b>.<br>Si on voulait restreindre l'accès de la section <b>Formulaires</b> aux utilisateurs ayant le <b>rôle user</b>, il suffirait d'ajouter la ligne : <code>- { path: ^/form, roles: ROLE_USER }</code>.</p>
+
+    <p>Alternativement, on peut restreindre l'accès avec une annotation de type <b>Security</b> :</p>
+
+    <pre><code>
+    <b>src/Controller/AdminController</b>
+
+    <b>use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;</b>
+
+    // ...
+
+    class AdminController extends AbstractController
+    &#123;
+        // ...
+
+        /**
+         * @Route("/admin", name="admin")
+         <b>* @Security("is_granted('ROLE_ADMIN')")</b>
+         */
+        public function index()
+        &#123;
+            return $this-&gt;render('admin/index.html.twig');
+        &#125;
+    &#125;
+    </code></pre>
 
     <p class="alert alert-warning">Un utilisateur ayant le <b>ROLE_ADMIN</b> dispose également du <b>ROLE_USER</b> qui lui est hiérarchiquement inférieur.</p>
 

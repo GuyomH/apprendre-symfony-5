@@ -18,7 +18,10 @@ class NavManager
             'Mettre à jour des données' => 'update',
             'Supprimer des données' => 'delete',
         ],
-        'Authentification' => 'auth',
+        'Securité' => [
+            'Authentification' => 'auth',
+            'Enregistrer un utilisateur' => 'registration',
+        ],
         'Service' => 'service',
         'Références' => 'references',
     ];

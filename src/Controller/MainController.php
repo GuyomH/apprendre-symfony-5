@@ -77,17 +77,6 @@ class MainController extends AbstractController
     }
 
     /**
-     * @Route("/auth", name="auth")
-     */
-    public function auth()
-    {
-        return $this->render('main/auth.html.twig', [
-            'page_list' => $this->pageList,
-            'route_list' => $this->routeList,
-        ]);
-    }
-
-    /**
      * @Route("/references", name="references")
      */
     public function references()

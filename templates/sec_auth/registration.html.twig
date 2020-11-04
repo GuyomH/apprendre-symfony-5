@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Enregistrer un nouvel utilisateur{% endblock %}
+
+{% block main %}
+    <h1>Enregistrer un nouvel utilisateur</h1>
+
+    <p>Dans la section précédente, nous avons mis en place un <b>espace administrateur</b> dont l'accès est restreint aux utilisateurs ayant le <b>rôle admin</b>. Il est désormais temps de permettre au visiteurs du site de s'enregistrer sur le site.</p>
+
+    <h2>Créer un formulaire d'enregistrement</h2>
+
+    <p>Pour créer le formulaire formulaire d'enregistrement, il suffit de saisir la commande <kbd>symfony console make:form</kbd> :</p>
+
+    <pre><code>
+    <b>symfony console make:form</b>
+
+    The name of the form class (e.g. DeliciousPopsicleType):
+    > <b>RegistrationType</b>
+
+    The name of Entity or fully qualified model class name that the new form will be bound to (empty for none):
+    > <b>User</b>
+
+    created: src/Form/RegistrationType.php
+
+    Success!
+
+    Next: Add fields to your form and start using it.
+    Find the documentation at <a href="https://symfony.com/doc/current/forms.html" target="_blank">https://symfony.com/doc/current/forms.html</a>
+    </code></pre>
+
+    <p>Nous disposons désormais d'un nouveau formulaire <b>RegistrationType</b> rattaché à l'entité <b>User</b> qu'on modifie de la manière suivante :</p>
+
+    <pre><code>
+    <b>src/Form/RegistrationType</b>
+
+    // ...
+
+    class RegistrationType extends AbstractType
+    {
+        public function buildForm(FormBuilderInterface $builder, array $options)
+        {
+            $builder
+                <b>// Email</b>
+                ->add('email', EmailType::class, [
+                    'label' => 'Email',
+                    'required' => true,
+                ])
+
+                <b>// Mot de passe : on utilise le type <a href="https://symfony.com/doc/current/reference/forms/types/repeated.html" target="_blank">RepeatedType</a> afin de demander à l'utilisateur de saisir 2 fois son mot de passe.</b>
+                ->add('password', RepeatedType::class, [
+                    'type' => PasswordType::class,
+                    'invalid_message' => 'Les mots de passe doivent être identiques !',
+                    'required' => true,
+                    'first_options' => ['label' => 'Mot de passe'],
+                    'second_options' => ['label' => 'Saisir à nouveau le mot de passe'],
+                ])
+
+                <b>// Bouton de soumission</b>
+                ->add('soumettre', SubmitType::class, [
+                    'label' => 'S\'enregistrer',
+                ])
+            ;
+
+        // ...
+    }
+    </code></pre>
+
+    <p>Une fois cette opération terminée, il reste à créer une nouvelle méthode dans le contrôleur (<b>SecurityController</b>) et, un template (<b>register.html.twig</b>) pour afficher le formulaire :</p>
+
+    <pre><code>
+    <b>src/Controller/SecurityController</b>
+
+    class SecurityController extends AbstractController
+    &#123;
+        // ...
+
+        /**
+         * @Route("/security/register", name="register")
+         */
+        public function register()
+        &#123;
+            $form = $this-&gt;createForm(RegistrationType::class); <b>// Création du formulaire</b>
+
+            return $this-&gt;render('security/register.html.twig', [
+                //...
+                'form' =&gt; $form-&gt;createView(), <b>// Envoi du formulaire à la vue</b>
+            ]);
+        &#125;
+    &#125;
+    </code></pre>
+
+    <pre><code>
+    <b>templates/security/register.html.twig</b>
+
+    &#123;# ... #&#125;
+
+    &#123;% block main %&#125;
+        &lt;h1 class="h3 mb-3 font-weight-normal"&gt;Merci de vous enregistrer&lt;/h1&gt;
+
+        <b>&#123;# Affichage du formulaire #&#125;</b>
+        &#123;&#123; form_start(form) &#125;&#125;
+        &#123;# Email #&#125;
+        &lt;div class="form-group"&gt;
+            &#123;&#123; form_row(form.email) &#125;&#125;
+        &lt;/div&gt;
+        <b>&#123;# Mot de passe #&#125;</b>
+        &lt;div class="form-group"&gt;
+            &#123;&#123; form_row(form.password) &#125;&#125;
+        &lt;/div&gt;
+        <b>&#123;# Submit #&#125;</b>
+        &lt;div class="form-group"&gt;
+            &#123;&#123; form_row(form.soumettre) &#125;&#125;
+        &lt;/div&gt;
+        &#123;&#123; form_end(form) &#125;&#125;
+    &#123;% endblock %&#125;
+    </code></pre>
+
+    <p>Ce qui donne la chose suivante lorsqu'on clique sur le lien <a href="{{ path('register') }}">S'enregistrer</a> à droite de la barre de menu :</p>
+
+    <div class="text-center my-5"><img src="{{ asset('images/register_form_1.png') }}" alt="Formulaire d'enregistrement" class="img-fluid"></div>
+
+    <h2>Brancher le formulaire</h2>
+
+    <p>Pour rendre notre formulaire fonctionnel, il faut terminer la configuration du contrôleur <b>register</b> de la manière suivante :</p>
+
+    <pre><code>
+    <b>src/Controller/SecurityController</b>
+
+    //...
+    use App\Entity\User;
+    use App\Form\RegistrationType;
+    use App\Security\LoginFormAuthenticator;
+    use Doctrine\ORM\EntityManagerInterface;
+    use Symfony\Component\HttpFoundation\Request;
+    use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+    use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
+
+    class SecurityController extends AbstractController
+    &#123;
+        // ...
+
+        /**
+         * @Route("/security/register", name="register")
+         */
+        public function register(<b>Request</b> $request, <b>EntityManagerInterface</b> $entityManager,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>GuardAuthenticatorHandler</b> $guardAuthenticatorHandler, <b>LoginFormAuthenticator</b> $loginFormAuthenticator,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>UserPasswordEncoderInterface</b> $userPasswordEncoder)
+        &#123;
+            $user = new User; <b>// On instancie un nouveau User</b>
+            $form = $this-&gt;createForm(RegistrationType::class, $user); <b>// Création du formulaire</b>
+            $form-&gt;handleRequest($request); <b>// Gestion de la requête</b>
+
+            if($form-&gt;isSubmitted() && $form-&gt;isValid())
+            &#123;
+                <b>// On encode le mot de passe</b>
+                $passwordEncoded = $userPasswordEncoder-&gt;encodePassword($user, $user-&gt;getPassword());
+                $user-&gt;setPassword($passwordEncoded);
+                <b>// On attribue le rôle USER</b>
+                $user-&gt;setRoles(['role' =&gt;'ROLE_USER']);
+                <b>// On enregistre l'utilisateur en base</b>
+                $entityManager-&gt;persist($user);
+                $entityManager-&gt;flush();
+
+                <b>// Si l'enregistrement s'est bien passé, on authentifie le nouvel utilisateur</b>
+                return $guardAuthenticatorHandler-&gt;authenticateUserAndHandleSuccess(
+                    $user,
+                    $request,
+                    $loginFormAuthenticator,
+                    'main' <b>// nom du firewall (voir config/packages/security.yaml)</b>
+                );
+            &#125;
+
+            return $this-&gt;render('security/register.html.twig', [
+                // ...
+                'form' =&gt; $form-&gt;createView(), <b>// Envoi du formulaire à la vue</b>
+            ]);
+        &#125;
+    &#125;
+    </code></pre>
+
+    <p>Si l'enregistrement de notre utilisateur (ex : user@email.fr) s'est bien passé, notre utilisateur est authentifié puis redirigé vers la page d'accueil où l'on peut lire les informations suivantes à droite de la barre de menu et en bas dans la barre de débogage :</p>
+
+    <div class="text-center my-5"><img src="{{ asset('images/register_form_2.png') }}" alt="authentification de l'utilisateur réussie" class="img-fluid"></div>
+
+    <p class="alert alert-warning">Vous pouvez utiliser le formulaire pour créer des utilisateurs, et vérifier le résultat dans la base de données.</p>
+{% endblock %}
+
+

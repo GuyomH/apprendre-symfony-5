@@ -3,11 +3,10 @@
 namespace App\Controller;
 
 use App\Service\NavManager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-class AdminController extends AbstractController
+class SecAuthController extends AbstractController
 {
     private $pageList;
     private $routeList;
@@ -19,12 +18,22 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @Route("/admin", name="admin")
-     * @Security("is_granted('ROLE_ADMIN')")
+     * @Route("/security/auth", name="auth")
      */
-    public function index()
+    public function auth()
     {
-        return $this->render('admin/index.html.twig', [
+        return $this->render('sec_auth/auth.html.twig', [
+            'page_list' => $this->pageList,
+            'route_list' => $this->routeList,
+        ]);
+    }
+
+    /**
+     * @Route("/security/registration", name="registration")
+     */
+    public function registration()
+    {
+        return $this->render('sec_auth/registration.html.twig', [
             'page_list' => $this->pageList,
             'route_list' => $this->routeList,
         ]);

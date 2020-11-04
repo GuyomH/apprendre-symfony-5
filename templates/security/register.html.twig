@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}S'enregistrer{% endblock %}
+
+{% block breadcrumb %}{% endblock %} {# pas de breadcrumbs #}
+
+{% block main %}
+    <h1 class="h3 mb-3 font-weight-normal">Merci de vous enregistrer</h1>
+
+    {# Affichage du formulaire #}
+    {{ form_start(form) }}
+    {# Email #}
+    <div class="form-group">
+        {{ form_row(form.email) }}
+    </div>
+    {# Mot de passe #}
+    <div class="form-group">
+        {{ form_row(form.password) }}
+    </div>
+    {# Submit #}
+    <div class="form-group">
+        {{ form_row(form.soumettre) }}
+    </div>
+    {{ form_end(form) }}
+{% endblock %}
