@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\NavManager;
+use App\Services\NavManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;

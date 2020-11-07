@@ -28,7 +28,7 @@
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
                         <span class="navbar-toggler-icon"></span>
                     </button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <h6 class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav mr-auto">
                             {% for name, route in page_list %}
                                {# Si on a affaire à un sous-menu #}
@@ -58,13 +58,13 @@
                             {% endfor %}
                         </ul>
                         {# Gestion de l'utilisateur #}
-                        <div class="form-inline">
+                        <div class="form-inline"><small>
                             {% if app.user is null %}
                                 <a href="{{ path('app_login') }}">Connexion</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="{{ path('register') }}">S'enregistrer</a>
                             {% else %}
                                 <i class="fa fa-user"></i>{{ app.user.email }}&nbsp;&nbsp;|&nbsp;&nbsp;<a href="{{ path('app_logout') }}">Déconnexion</a>
                             {% endif %}
-                        </div>
+                        </small></div>
                     </div>
                 </nav>
             {% endblock %}

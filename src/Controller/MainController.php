@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\FilmRepository;
-use App\Service\NavManager;
+use App\Services\NavManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 

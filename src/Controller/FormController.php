@@ -7,7 +7,7 @@ use App\Entity\Film;
 use App\Form\FilmType;
 use App\Form\SearchMoviesByDirectorType;
 use App\Repository\FilmRepository;
-use App\Service\NavManager;
+use App\Services\NavManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

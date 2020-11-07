@@ -19,6 +19,7 @@ class AppFixtures extends Fixture
         $user->setEmail('admin@email.fr');
         $user->setRoles(['role' => 'ROLE_ADMIN']);
         $user->setPassword('$argon2i$v=19$m=65536,t=4,p=1$d3BkUWxDaUt4Znd5RXQ2RQ$nTJvJOA41LHQfLKlh8KgCpqChwiPm3ABeLSl8cODqUM');
+        $user->setEnable(true);
         $manager->persist($user);
 
         // On crée 40 acteurs pour en associer entre 1 et 5 au hasard pour chaque film

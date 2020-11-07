@@ -34,6 +34,11 @@ class User implements UserInterface
      */
     private $password;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $enable;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -49,6 +54,16 @@ class User implements UserInterface
         $this->email = $email;
 
         return $this;
+    }
+
+    public function isEnable(): bool
+    {
+        return $this->enable;
+    }
+
+    public function setEnable(bool $enable): void
+    {
+        $this->enable = $enable;
     }
 
     /**

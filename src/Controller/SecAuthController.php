@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\NavManager;
+use App\Services\NavManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -34,6 +34,17 @@ class SecAuthController extends AbstractController
     public function registration()
     {
         return $this->render('sec_auth/registration.html.twig', [
+            'page_list' => $this->pageList,
+            'route_list' => $this->routeList,
+        ]);
+    }
+
+    /**
+     * @Route("/security/token", name="token")
+     */
+    public function token()
+    {
+        return $this->render('sec_auth/token.html.twig', [
             'page_list' => $this->pageList,
             'route_list' => $this->routeList,
         ]);

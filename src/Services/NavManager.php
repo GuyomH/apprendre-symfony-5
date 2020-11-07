@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Service;
+namespace App\Services;
 
 
 class NavManager
@@ -21,6 +21,7 @@ class NavManager
         'Securité' => [
             'Authentification' => 'auth',
             'Enregistrer un utilisateur' => 'registration',
+            'Valider l\'inscription via un token' => 'token',
         ],
         'Service' => 'service',
         'Références' => 'references',

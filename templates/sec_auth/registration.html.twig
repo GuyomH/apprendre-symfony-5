@@ -145,7 +145,7 @@
         public function register(<b>Request</b> $request, <b>EntityManagerInterface</b> $entityManager,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>GuardAuthenticatorHandler</b> $guardAuthenticatorHandler, <b>LoginFormAuthenticator</b> $loginFormAuthenticator,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>UserPasswordEncoderInterface</b> $userPasswordEncoder)
         &#123;
             $user = new User; <b>// On instancie un nouveau User</b>
-            $form = $this-&gt;createForm(RegistrationType::class, $user); <b>// Création du formulaire</b>
+            $form = $this-&gt;createForm(RegistrationType::class, $user); <b>// Création du formulaire + données liées à $user</b>
             $form-&gt;handleRequest($request); <b>// Gestion de la requête</b>
 
             if($form-&gt;isSubmitted() && $form-&gt;isValid())
@@ -180,7 +180,7 @@
 
     <div class="text-center my-5"><img src="{{ asset('images/register_form_2.png') }}" alt="authentification de l'utilisateur réussie" class="img-fluid"></div>
 
-    <p class="alert alert-warning">Vous pouvez utiliser le formulaire pour créer des utilisateurs, et vérifier le résultat dans la base de données.</p>
+    <p>Si vous testez le formulaire d'inscription à ce stade et que vous n'avez pas encore vu la suite de ce chapitre, vous allez obtenir un <b>message d'erreur</b> car, dans la prochaine section, nous allons rajouter une étape de sécurité à ce formulaire en demandant une <b>validation d'inscription via un token</b> qui va nécessiter une configuration de votre part.</p>
 {% endblock %}
 
 

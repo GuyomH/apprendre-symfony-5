@@ -1,0 +1,431 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Confirmer l'enregistrement d'un utilisateur via un token{% endblock %}
+
+{% block main %}
+    <h1>Confirmer l'enregistrement d'un utilisateur via un token</h1>
+
+    <p>Dans la précédente section, nous avons mis en place un formulaire d'inscription à effet immédiat.<br>Cette fois-ci, nous allons mettre en place un <b>système de validation du compte</b> via l'<b>envoi d'un email</b> avec un lien contenant un <b>identifiant unique (token)</b> sur lequel l'utilisateur devra cliquer dans un <b>temps imparti</b> pour <b>valider son inscription</b>.</p>
+
+    <p>Cette nouvelle étape de sécurité étant relativement complexe à mettre en place, nous allons la <b>décrire de la manière la plus précise possible</b> avant de rentrer dans le vif du sujet :</p>
+
+    <ul>
+        <li>L'envoi d'emails implique d'installer et de configurer la bibliothèque <b><a href="https://symfony.com/doc/current/email.html" target="_blank">Swift Mailer</a></b> dans le fichier <b>.env.local</b> pour utiliser cette fonctionnalité.</li>
+        <li>En second lieu, nous allons créer un <b>service</b> d'envoi d'email (<b>TokenSender</b>) dont le rôle sera de transmettre le message contenant le lien de validation d'inscription.</li>
+        <li>Ce service utilise un <b>template TWIG</b> pour générer le message qu'il va donc falloir créer.</li>
+        <li>Afin de stocker le token et d'horodater la demande d'inscription (pour pouvoir déterminer si la validation est effectué dans le temps imparti), on va devoir créer une nouvelle entité <b>Token</b> qui est liée à l'entité <b>User</b> via une relation <b>OneToOne</b>.</li>
+        <li>On va aussi devoir rajouter une propriété booléenne <b>enable</b> dans l'entité <b>User</b> afin de determiner si le compte est actif ou non.</li>
+        <li>Enfin, il va falloir créer une nouvelle méthode afin de <b>traiter le clic de l'utilisateur</b> et valider son inscription si tout est OK.</li>
+    </ul>
+
+    <h2>Configurer l'envoi de mail</h2>
+
+    <p>Pour configurer l'envoi de mail il faut mettre en place un serveur dans le fichier <b>.env.local</b>.<br>Cela est très facile à mettre en place si vous disposez un compte <b>Gmail</b> car il suffit de rentrer ses identifiants :</p>
+
+    <pre><code>
+    <b>.env.local</b>
+
+    // ...
+
+    ###> symfony/swiftmailer-bundle ###
+    # For Gmail as a transport, use: "gmail://username:password@localhost"
+    # For a generic SMTP server, use: "smtp://localhost:25?encryption=&auth_mode="
+    # Delivery is disabled by default via "null://localhost"
+    <b>MAILER_URL=gmail://[nomUtilisateur]:[MotDePasse]@localhost</b>
+    <b>// ex : MAILER_URL=gmail://trucmuche:123abc@localhost</b>
+    ###< symfony/swiftmailer-bundle ###
+    </code></pre>
+
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i>Dans le cadre de ce projet la bibliothèque <b><a href="https://symfony.com/doc/current/email.html" target="_blank">Swift Mailer</a></b> est déjà installée, mais si vous avez à l'installer un jour, cela peut être via la commande : <kbd>composer require symfony/swiftmailer-bundle</kbd></p>
+
+    <p class="alert alert-warning">Le fait de rentrer ses identifiants dans le fichier <b>.env.local</b> au lieu du <b>.env</b> permet de ne pas les envoyer dans le dépôt <b>Git</b> avec la commande <b>push</b> car ce fichier est listé par défaut dans le <b>.gitignore</b>.<br>&nbsp;<br>Le fait que les identifiants soient <b>enregistrés en clair</b> reste néanmoins un problème que nous réglerons ultérieurement.<br>&nbsp;<br>Si votre mot de passe contient des caractères spéciaux comme le symbole "#", cela risque de créer une erreur de syntaxe, pour pallier cela, il suffit de l'encoder avec la fonction <b>urlencode()</b> qu'on peut peut utiliser en ligne de commande :<br>&nbsp;<br><b><code>php -r "echo urlencode('#_123/\abc%*');"</code> // %23_123%2F%5Cabc%25%2A</b></p>
+
+    <h2>Créer la fonction d'envoi de mail</h2>
+
+    <p>Dans le répertoire <b>src/Service</b> on crée la classe <b>TokenSender</b> dont le rôle sera d'envoyer le token à l'utilisateur par email :</p>
+
+    <pre><code>
+    <b>src/Services/TokenSender</b>
+
+    use App\Entity\Token;
+    use App\Entity\User;
+    use Twig\Environment;
+
+    class TokenSender
+    &#123;
+        private $mailer;
+        private $twig;
+
+        public function __construct(\Swift_Mailer $mailer, Environment $twig)
+        &#123;
+            $this-&gt;mailer = $mailer;
+            $this-&gt;twig = $twig;
+        &#125;
+
+        public function sendToken(User $user, Token $token)
+        &#123;
+            $message = (new \Swift_Message('Confirmez votre Inscription'))
+                -&gt;setFrom('noreply@apprendre-symfony-5.fr')
+                -&gt;setTo($user-&gt;getEmail())
+                -&gt;setBody(
+                    $this-&gt;twig-&gt;render(
+                        'emails/registration.html.twig', [
+                            'token' =&gt; $token-&gt;getValue()
+                        ]
+                    ),
+                    'text/html'
+                );
+
+            $this-&gt;mailer-&gt;send($message);
+        &#125;
+    &#125;
+    </code></pre>
+
+    <p class="alert alert-warning"><b>LES SERVICES :</b> Comme son nom l'indique, le répertoire <b>src/services</b> (qui a été crée à la main et que l'on peut nommer comme on veut) permet de créer des classes que nous pourrons réutiliser dans nos contrôleur avec la technique du <b>type-hint</b>.<br>&nbsp;<br>Il faut savoir que sauf paramétrage contraire, toutes les classes créées dans le répertoire <b>src</b> sont accessibles dans les autres classes de ce même répertoire grâce à l'<b>injection de dépendances</b><br>&nbsp;<br>L'intérêt de créer un <b>service</b> est d'<b>alléger nos contrôleurs</b> de morceaux de code qui n'ont rien à y faire, et que l'on préférera <b>découpler dans une classe externe</b> qui sera <b>importé</b> dans notre <b>classe principale</b>.<br>&nbsp;<br>Cette façon de faire permet de rendre notre code plus <b>lisible</b> (en allégeant les contrôleurs) et plus <b>modulable</b> (on peut facilement réutiliser notre service à plusieurs endroit dans notre projet).</p>
+
+    <h2>Créer le template de l'email</h2>
+
+    <p>Suite à cela, on prépare la vue qui servira de modèle pour envoyer le mail. On constate que l'<abbr title="Uniform Resource Locator">URL</abbr> du lien de retour contient le paramètre <b>value</b> qui correspond au token afin de comparer la valeur renvoyée à celle enregistrée en base pour empêcher la fraude :</p>
+
+    <pre><code>
+    <b>templates/emails/registration.html.twig</b>
+
+    &lt;h1&gt;Bonjour !&lt;/h1&gt;
+
+    &lt;p&gt;Veuillez confirmer votre inscription en cliquant sur ce &lt;a href="&#123;&#123; url('token_validation', &#123;value:token&#125;) &#125;&#125;"&gt;lien&lt;/a&gt;.&lt;/p&gt;
+    </code></pre>
+
+    <h2>Créer l'entité Token</h2>
+
+    <p>On crée l'entité <b>Token</b> grâce à la commande <kbd>symfony console make:entity Token</kbd> dont le rôle est d'horodater la demande d'enregistrement via le formulaire et d'attribuer un token à chaque utilisateur via une relation unidirectionnelle de type <b>OneToOne</b> avec l'entité <b>User</b> :</p>
+
+    <pre><code>
+    <b>symfony console make:entity Token</b>
+
+    created: src/Entity/Token.php
+    created: src/Repository/TokenRepository.php
+
+    Entity generated! Now let's add some fields!
+    You can always add more fields later manually or by re-running this command.
+
+    <b>// createdAt = horodatage dont le type datetime est automatiquement proposé</b>
+    New property name (press &lt;return&gt; to stop adding fields):
+    &gt; createdAt
+
+    Field type (enter ? to see all types) [datetime]:
+    &gt;
+
+    Can this field be null in the database (nullable) (yes/no) [no]:
+    &gt;
+
+    updated: src/Entity/Token.php
+
+    <b>// value = valeur du token (Une chaîne unique de caractères aléatoires)</b>
+    Add another property? Enter the property name (or press &lt;return&gt; to stop adding fields):
+    &gt; value
+
+    Field type (enter ? to see all types) [string]:
+    &gt;
+
+    Field length [255]:
+    &gt;
+
+    Can this field be null in the database (nullable) (yes/no) [no]:
+    &gt;
+
+    updated: src/Entity/Token.php
+
+    <b>// user = relation unidirectionnelle de type OneToOne avec l'entité User</b>
+    Add another property? Enter the property name (or press &lt;return&gt; to stop adding fields):
+    &gt; user
+
+    Field type (enter ? to see all types) [string]:
+    &gt; relation
+
+    What class should this entity be related to?:
+    &gt; User
+
+    What type of relationship is this?
+    ------------ -----------------------------------------------------------------
+    Type         Description
+    ------------ -----------------------------------------------------------------
+    ManyToOne    Each Token relates to (has) one User.
+                 Each User can relate to (can have) many Token objects
+
+    OneToMany    Each Token can relate to (can have) many User objects.
+                 Each User relates to (has) one Token
+
+    ManyToMany   Each Token can relate to (can have) many User objects.
+                 Each User can also relate to (can also have) many Token objects
+
+    OneToOne     Each Token relates to (has) exactly one User.
+                 Each User also relates to (has) exactly one Token.
+    ------------ -----------------------------------------------------------------
+
+    Relation type? [ManyToOne, OneToMany, ManyToMany, OneToOne]:
+    &gt; OneToOne
+
+    Is the Token.user property allowed to be null (nullable)? (yes/no) [yes]:
+    &gt; no
+
+    Do you want to add a new property to User so that you can access/update Token objects from it - e.g. $user-&gt;getToken()? (yes/no) [no]:
+    &gt; no
+
+    updated: src/Entity/Token.php
+
+    Add another property? Enter the property name (or press &lt;return&gt; to stop adding fields):
+    &gt;
+
+    Success!
+
+    Next: When you're ready, create a migration with php bin/console make:migration
+    </code></pre>
+
+    <p>Il faut ensuite éditer la nouvelle entité afin de lui rajouter un <b>constructeur</b> et la méthode <b>isValid()</b> :</p>
+
+    <pre><code>
+    <b>src/Entity/Token</b>
+
+    class Token
+    &#123;
+        // ...
+
+        /**
+         * @ORM\OneToOne(targetEntity=User::class, cascade=&#123;"persist", "remove"&#125;)
+         * @ORM\JoinColumn(nullable=false)
+         */
+        private $user;
+
+        /**
+         * Token constructor.
+         */
+        public function __construct(User $user) <b>// On force l'injection de l'entité User</b>
+        &#123;
+            $this-&gt;createdAt = new \DateTime(); <b>// Date de création du token</b>
+            $this-&gt;value = md5(uniqid()); <b>// Valeur du token</b>
+            $this-&gt;user = $user;
+            $user-&gt;setEnable(false); <b>// Propriété enable à false par défaut</b>
+        &#125;
+
+       // ...
+
+        public function isValid()
+        &#123;
+            <b>// On crée un intervalle de 1H</b>
+            $interval = new \DateInterval('PT1H');
+            <b>// On ajoute l'intervalle à la date de création du token
+            // et on retourne true si celle-ci est supérieure ou égale à la date et heure actuelle</b>
+            return $this-&gt;createdAt-&gt;add($interval) &gt;= new \DateTime();
+        &#125;
+    &#125;
+    </code></pre>
+
+    <h2>Mettre à jour l'entité User</h2>
+
+    <p>Le système de contrôle qui permet de savoir si un utilisateur est actif, consiste à rajouter la propriété booléenne <b>enable</b> que l'on initialise à <b>false</b> quand on instancie un nouveau token (voir constructeur de l'entité <b>Token</b>) :</p>
+
+    <pre><code>
+    <b>src/Entity/User</b>
+
+    class User implements UserInterface
+    &#123;
+        // ...
+
+        /**
+         * @ORM\Column(type="boolean")
+         */
+        private $enable;
+
+        // ...
+
+        public function isEnable(): bool
+        &#123;
+            return $this-&gt;enable;
+        &#125;
+
+        public function setEnable(bool $enable): void
+        &#123;
+            $this-&gt;enable = $enable;
+        &#125;
+
+        // ...
+    &#125;
+    </code></pre>
+
+    <p>La création et la mise à jour des entités étant terminées, il convient de procéder à la migration avec les commandes <kbd>symfony console make:migration</kbd> et <kbd>symfony console d:m:m</kbd>.</p>
+
+    <h2>Mettre à jour le contrôleur : traiter le formulaire et envoyer le mail</h2>
+
+    <p>Bien entendu, la méthode <b>register</b> subi de profonds changements, et au lieu de valider directement notre utilisateur et de le mettre en session si le formulaire a bien été rempli, désormais, <b>on enregistre le token et l'utilisateur en base</b> avec la propriété <b>enable</b> à <b>false</b>, et on envoie le mail de confirmation à l'utilisateur :</p>
+
+    <pre><code>
+    <b>src/Controller/SecurityController</b>
+
+    //...
+    use App\Entity\Token;
+    use App\Entity\User;
+    use App\Form\RegistrationType;
+    use App\Services\TokenSender;
+    use Doctrine\ORM\EntityManagerInterface;
+    use Symfony\Component\HttpFoundation\Request;
+    use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+
+    class SecurityController extends AbstractController
+    &#123;
+        // ...
+
+        /**
+         * @Route("/security/register", name="register")
+         */
+        public function register(Request $request, EntityManagerInterface $entityManager,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UserPasswordEncoderInterface $userPasswordEncoder, TokenSender $tokenSender)
+        &#123;
+            $user = new User; <b>// On instancie un nouveau User</b>
+            $form = $this-&gt;createForm(RegistrationType::class, $user); <b>// Création du formulaire + données liées à $use</b>>
+            $form-&gt;handleRequest($request); <b>// Gestion de la requête</b>
+
+            <b>// Si le formulaire est valide</b>
+            if($form-&gt;isSubmitted() && $form-&gt;isValid())
+            &#123;
+                <b>// On encode le mot de passe</b>
+                $passwordEncoded = $userPasswordEncoder-&gt;encodePassword($user, $user-&gt;getPassword());
+                $user-&gt;setPassword($passwordEncoded);
+
+                <b>// On attribue le rôle USER</b>
+                $user-&gt;setRoles(['role' =&gt;'ROLE_USER']);
+
+                <b>// On enregistre le token et le user en base</b>
+                <b>// Le fait que l'entité User est liée à Token permet d'agir sur les deux instances</b>
+                $token = new Token($user);
+                $entityManager-&gt;persist($token);
+                $entityManager-&gt;flush();
+
+                <b>// On envoie le mail de confirmation et on notifie</b>
+                $tokenSender-&gt;sendToken($user, $token);
+
+                $this-&gt;addFlash(
+                    'notice',
+                    'Un email vous a été envoyé, veuillez confirmer votre inscription en cliquant sur le lien'
+                );
+
+                return $this-&gt;redirectToRoute('index');
+            &#125;
+
+            return $this-&gt;render('security/register.html.twig', [
+                'page_list' =&gt; $this-&gt;pageList,
+                'route_list' =&gt; $this-&gt;routeList,
+                'form' =&gt; $form-&gt;createView(), // Envoi du formulaire à la vue
+            ]);
+        &#125;
+
+        // ...
+    &#125;
+    </code></pre>
+
+    <p>Quand l'utilisateur rempli correctement le formulaire d'inscription, il reçoit ce mail :</p>
+
+    <div class="text-center my-5"><img src="{{ asset('images/token_1.png') }}" alt="mail de confirmation" class="img-fluid"></div>
+
+    <h2>Mettre à jour le contrôleur : traiter le lien retour du mail</h2>
+
+    <p>Une fois que l'utilisateur clique sur le lien de confirmation qui contient en paramètre la valeur du token, celui-ci est dirigé sur la route <b>token_validation</b> gérée par la méthode <b>tokenValidation</b> qui va vérifier la validité du token.</p>
+
+    <p>Trois cas de figure sont possible :</p>
+
+    <ul>
+        <li>Le token est valide (on le retrouve dans la base, et le lien a été cliqué avant le délai d'expiration) : On active l'utilisateur et on le met en session.</li>
+        <li>Le token est invalide (on ne le retrouve pas dans la base, ou le délai est expiré) : On supprime l'utilisateur et le token de la base de données, et on invite l'utilisateur à recommencer son inscription.</li>
+        <li>Le token a déjà été validé : On notifie l'utilisateur.</li>
+    </ul>
+
+    <pre><code>
+    <b>src/Controller/SecurityController</b>
+
+    // ...
+    use App\Entity\Token;
+    use App\Security\LoginFormAuthenticator;
+    use Doctrine\ORM\EntityManagerInterface;
+    use Symfony\Component\HttpFoundation\Request;
+    use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
+
+
+    class SecurityController extends AbstractController
+    &#123;
+        // ...
+
+        /**
+         * @Route("/confirmation/&#123;value&#125;", name="token_validation")
+         */
+        public function tokenValidation(Token $token, EntityManagerInterface $manager,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GuardAuthenticatorHandler $guardAuthenticatorHandler, LoginFormAuthenticator $loginFormAuthenticator, Request $request)
+        &#123;
+            <b>// On récupère le Token via le paramètre value (<a href="https://symfony.com/doc/current/bundles/SensioFrameworkExtraBundle/annotations/converters.html" target="_blank">ParamConverter</a>)</b>
+            <b>// On récupère le User via Token grâce à la relation OneToOne</b>
+            $user = $token-&gt;getUser();
+
+            <b>// Si le token a déjà été validé</b>
+            if($user-&gt;isEnable())
+            &#123;
+                $this-&gt;addFlash(
+                    'notice',
+                    'Le token est déjà validé !'
+                );
+
+                return $this-&gt;redirectToRoute('registration');
+            &#125;
+
+            <b>// Si le token est valide (non expiré)</b>
+            if($token-&gt;isValid())
+            &#123;
+                <b>// On met la propriété enable à true afin d'activer l'utilisateur et ...</b>
+                $user-&gt;setEnable(true);
+                $manager-&gt;flush();
+
+                <b>// ... on l'authentifie et on le met en session</b>
+                return $guardAuthenticatorHandler-&gt;authenticateUserAndHandleSuccess(
+                    $user,
+                    $request,
+                    $loginFormAuthenticator,
+                    'main' <b>// nom du firewall (voir config/packages/security.yaml)</b>
+                );
+            &#125;
+
+            <b>// Sinon, on supprime de la base le token et par effet de cascade le user, puis on notifie</b>
+            $manager-&gt;remove($token);
+            $manager-&gt;flush();
+
+            $this-&gt;addFlash(
+                'notice',
+                'Trop tard, Le token est expiré ! Veuillez vous inscrire à nouveau !'
+            );
+
+            return $this-&gt;redirectToRoute('registration');
+        &#125;
+    &#125;
+    </code></pre>
+
+    <p>Il reste un dernier détail à régler, on utilise la classe <b>LoginFormAuthenticator</b> afin de de vérifier les <b>credentials</b> (identifiants) de l'utilisateur après la validation du compte.<br>Cette classe utilise le <b>UserRepository</b> pour chercher les utilisateurs via leur email, mais maintenant que la propriété <b>enable</b> a été créée, et qu'elle doit être à <b>true</b>,le <b>LoginFormAuthenticator</b> doit en tenir compte afin d'empêcher un utilisateur non validé de se connecter :</p>
+
+    <pre><code>
+    <b>src/Security/LoginFormAuthenticator</b>
+
+    //...
+
+    class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements PasswordAuthenticatedInterface
+    &#123;
+        // ...
+
+        public function getUser($credentials, UserProviderInterface $userProvider)
+        &#123;
+            // ...
+
+            <b>// En plus de l'email, on rajoute le critère enable avec la valeur true</b>
+            $user = $this-&gt;entityManager-&gt;getRepository(User::class)-&gt;findOneBy(['email' =&gt; $credentials['email'], <b>'enable' =&gt; true</b>]);
+
+            // ...
+        &#125;
+
+        // ...
+    &#125;
+    </code></pre>
+
+    <p>Notre système d'inscription d'utilisateur est prêt, et vous pouvez le tester. Veillez à choisir des adresses mail auxquelles vous avez accès afin de pouvoir consulter le message de validation.</p>
+{% endblock %}

@@ -2,14 +2,24 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bb6001b7-1cf2-4358-83d0-f40e605fe351" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/learning_project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/learning_project.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/packages/security.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/security.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/bundles.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/bundles.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/AdminController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/AdminController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/FormController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/FormController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/MainController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/MainController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/SecAuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/SecAuthController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/SecurityController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/SecurityController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Service/NavManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Service/NavManager.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/main/auth.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/sec_auth/auth.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/AppFixtures.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/DataFixtures/AppFixtures.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/User.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Security/LoginFormAuthenticator.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Security/LoginFormAuthenticator.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/NavManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Services/NavManager.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/symfony.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/sec_auth/registration.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/sec_auth/registration.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,6 +146,8 @@
       <path value="$PROJECT_DIR$/vendor/doctrine/data-fixtures" />
       <path value="$PROJECT_DIR$/vendor/fzaninotto/faker" />
       <path value="$PROJECT_DIR$/vendor/zenstruck/foundry" />
+      <path value="$PROJECT_DIR$/vendor/swiftmailer/swiftmailer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/swiftmailer-bundle" />
     </include_path>
   </component>
   <component name="ProjectId" id="1gyFDspYJEDku71ARUOU5LMvKle" />
@@ -162,6 +174,11 @@
       <recent name="E:\symfony_5_dev\learning_project\templates\sec_auth" />
       <recent name="E:\symfony_5_dev\learning_project\templates\forms" />
     </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="https://symfony.com/doc/current/email.html" />
+    </option>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -210,7 +227,9 @@
       <workItem from="1604265327035" duration="6050000" />
       <workItem from="1604332272368" duration="14601000" />
       <workItem from="1604412242609" duration="3718000" />
-      <workItem from="1604496346796" duration="19053000" />
+      <workItem from="1604496346796" duration="20927000" />
+      <workItem from="1604583762900" duration="10939000" />
+      <workItem from="1604670784360" duration="28525000" />
     </task>
     <servers />
   </component>
@@ -222,10 +241,10 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1512" y="341" key="#Plugins/0.0.2560.1400@0.0.2560.1400" timestamp="1602867352039" />
-    <state x="1725" y="416" key="#com.intellij.ide.util.MemberChooser" timestamp="1600204665824">
+    <state x="1725" y="416" key="#com.intellij.ide.util.MemberChooser" timestamp="1604677664531">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1725" y="416" key="#com.intellij.ide.util.MemberChooser/0.0.2560.1400@0.0.2560.1400" timestamp="1600204665824" />
+    <state x="1725" y="416" key="#com.intellij.ide.util.MemberChooser/0.0.2560.1400@0.0.2560.1400" timestamp="1604677664531" />
     <state x="1600" y="436" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1602867264197">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
@@ -238,14 +257,14 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1650" y="458" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1604513345440" />
-    <state x="1696" y="426" key="NewPhpClassDialog" timestamp="1602248289960">
+    <state x="1696" y="426" key="NewPhpClassDialog" timestamp="1604586757854">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1696" y="426" key="NewPhpClassDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1602248289960" />
-    <state x="1744" y="420" key="RollbackChangesDialog" timestamp="1604096146482">
+    <state x="1696" y="426" key="NewPhpClassDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1604586757854" />
+    <state x="1744" y="420" key="RollbackChangesDialog" timestamp="1604717544078">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1744" y="420" key="RollbackChangesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1604096146482" />
+    <state x="1744" y="420" key="RollbackChangesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1604717544078" />
     <state width="498" height="446" key="SwitcherDM" timestamp="1600521248917">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
@@ -254,13 +273,13 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1763" y="461" key="refactoring.ChangeSignatureDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1600781285601" />
-    <state x="1576" y="332" key="run.anything.popup" timestamp="1604067246448">
+    <state x="1576" y="332" width="672" height="677" key="run.anything.popup" timestamp="1604708513521">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1576" y="332" key="run.anything.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1604067246448" />
-    <state x="1583" y="319" width="672" height="678" key="search.everywhere.popup" timestamp="1600113627551">
+    <state x="1576" y="332" width="672" height="677" key="run.anything.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1604708513521" />
+    <state x="1583" y="319" width="672" height="678" key="search.everywhere.popup" timestamp="1604588675509">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="1583" y="319" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1600113627551" />
+    <state x="1583" y="319" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1604588675509" />
   </component>
 </project>
