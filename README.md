@@ -31,9 +31,13 @@ Lancer le serveur PHP avec la commande `symfony serve -d`
 
 Lancer le task runner avec la commande `yarn watch`
 
+Créer le fichier __.env.local__ à la racine du projet et y copier la ligne suivante : `DATABASE_URL=mysql://root:@127.0.0.1:3306/learning_symfony`
+
+Ceci est la configuration par défaut sous Windows pour accéder à la base de données, si vos paramètres sont différents ou que vous travaillez sur une autre plateforme, veuillez adapter cette ligne en remplaçant les expressions entre crochets avec les bonnes valeurs : `DATABASE_URL=mysql://[USERNAME]:[PASSWORD]@[HOST]:[PORT]/learning_symfony`
+
 Créer la base de données avec la commande `symfony console doctrine:database:create`
 
-Créer les différentes tables avec la commande `symfony console doctrine:migrations:make`
+Créer les différentes tables avec la commande `symfony console doctrine:migrations:migrate`
 
 Remplir la base de données avec les fixtures `symfony console doctrine:fixtures:load`
 

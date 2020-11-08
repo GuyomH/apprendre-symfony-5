@@ -9,16 +9,36 @@
 
     <p>Pour associer une base de données à <b>Symfony</b>, il suffit en théorie d'ouvrir le fichier <b>.env</b> à la racine du projet et de renseigner la ligne <code>DATABASE_URL=</code><br>Dans un premier temps, il est intéressant de séparer le <b>DEV</b> de la <b>PROD</b> en créant à la racine du projet le fichier <b>.env.local</b> qui sera ignoré par <b>GIT</b> (donc ignoré à chaque commit) et dont les valeurs seront prioritaires sur le fichier <b>.env</b> dans un contexte de <b>DEV</b>.</p>
 
-    <p>Il faut donc créer le fichier <b>.env.local</b> et y renseigner la ligne suivante :</p>
+    <p>Il faut donc créer le fichier <b>.env.local</b> et y copier la ligne suivante :</p>
 
     <pre><code>
-    <b># DATABASE_URL=mysql://utilisateur:mot_de_passed@url:numero_du_port/nom_de_la_base?serverVersion=version_du_serveur_facultatif
+    <b># DATABASE_URL=mysql://[nom_d_utilisateur]:[mot_de_passe]@[url]:[numero_du_port]/[nom_de_la_base]?serverVersion=[version_du_serveur]
     # La ligne ci-dessous fonctionnera directement si vous avez une configuration par défaut sans mot de passe.</b>
     DATABASE_URL=mysql://root:@127.0.0.1:3306/learning_symfony
     </code></pre>
 
+    <p class="alert alert-warning">Le paramètre "<code>?serverVersion=mariadb-10.4.13</code>" (exemple de valeur) est facultatif et peut être omis.</p>
 
      <p>Une fois cela fait, il faut créer la base de données vierge via la commande <kbd>symfony console doctrine:database:create</kbd></p>
+
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i> À ce stade, il est possible de vérifier dans <b>phpMyAdmin</b> si la base de données et ses tables on bien été créées, mais si vous êtes un aficionado de la ligne de commande vous pouvez vous y prendre ainsi :
+        <br>&nbsp;<br>
+        1. Se placer sur le répertoire où se trouve le fichier <b>mysql.exe</b> (ex: <b>C:/xampp/mysql/bin</b>)
+        <br>&nbsp;<br>
+        2. Saisir la commande <kbd>mysql -u root -p</kbd>
+        <br>&nbsp;<br>
+        3. Renseigner le mot de passe, si celui-ci est vide, faire directement <b>Entrée</b>.
+        <br>&nbsp;<br>
+        4. Afficher les bases de données avec la commande <kbd>SHOW DATABASES;</kbd>
+        <br>&nbsp;<br>
+        5. Sélectionner la base <b>learning_symfony</b> avec la commande <kbd>USE learning_symfony;</kbd>
+        <br>&nbsp;<br>
+        6. Afficher les tables avec la commande <kbd>SHOW TABLES;</kbd>
+        <br>&nbsp;<br>
+        7. Afficher tout le contenu d'une table avec la commande <kbd>SELECT * FROM film;</kbd><br>(va renvoyer un résultat car les fixtures ont déjà été chargé lors de l'installation du projet)
+        <br>&nbsp;<br>
+        8. Quitter avec la commande <kbd>quit</kbd>
+    </p>
 
     <h2>Ajouter des entités à la base de données</h2>
 

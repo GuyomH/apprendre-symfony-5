@@ -36,7 +36,7 @@
     ###< symfony/swiftmailer-bundle ###
     </code></pre>
 
-    <p class="alert alert-primary"><i class="fa fa-paperclip"></i>Dans le cadre de ce projet la bibliothèque <b><a href="https://symfony.com/doc/current/email.html" target="_blank">Swift Mailer</a></b> est déjà installée, mais si vous avez à l'installer un jour, cela peut être via la commande : <kbd>composer require symfony/swiftmailer-bundle</kbd></p>
+    <p class="alert alert-primary"><i class="fa fa-paperclip"></i>Dans le cadre de ce projet, la bibliothèque <b><a href="https://symfony.com/doc/current/email.html" target="_blank">Swift Mailer</a></b> est déjà installée, mais si vous avez à l'installer un jour, cela peut être fait via la commande <kbd>composer require symfony/swiftmailer-bundle</kbd></p>
 
     <p class="alert alert-warning">Le fait de rentrer ses identifiants dans le fichier <b>.env.local</b> au lieu du <b>.env</b> permet de ne pas les envoyer dans le dépôt <b>Git</b> avec la commande <b>push</b> car ce fichier est listé par défaut dans le <b>.gitignore</b>.<br>&nbsp;<br>Le fait que les identifiants soient <b>enregistrés en clair</b> reste néanmoins un problème que nous réglerons ultérieurement.<br>&nbsp;<br>Si votre mot de passe contient des caractères spéciaux comme le symbole "#", cela risque de créer une erreur de syntaxe, pour pallier cela, il suffit de l'encoder avec la fonction <b>urlencode()</b> qu'on peut peut utiliser en ligne de commande :<br>&nbsp;<br><b><code>php -r "echo urlencode('#_123/\abc%*');"</code> // %23_123%2F%5Cabc%25%2A</b></p>
 
